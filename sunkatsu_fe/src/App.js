@@ -9,6 +9,7 @@ import NavbarLanding from "./components/Fragment/NavbarLanding";
 import HeroLanding from "./components/Fragment/heroLanding";
 import MenuDetail from "./components/Fragment/menuDetail";
 import CustomerHistoryCard from "./components/Fragment/customerHistoryCard";
+import StaffHistoryCard from "./components/Fragment/staffHistoryCard";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
       <HeroLanding />
       <MenuDetail />
       <CustomerHistoryCard />
+      <StaffHistoryCard />
     </>
   );
 }
