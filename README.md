@@ -5,6 +5,7 @@ How to run backend locally:
 1. Install mongo DB:
    ikutin ini https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-windows/
    install jg MongoDB Compass biar bisa tracking datanya
+2. Install Spring Boot https://docs.spring.io/spring-boot/installing.html (harusnya ini diskip aja aman klo dah ada java)
 3. di MongoDB compass buat db baru serah namanya
 4. di folder backend ada application.properties yang, ganti aja nama databasenya sisanya aman
 5. di VS Code, install:
