@@ -26,17 +26,17 @@ const MenuDetail = () => {
         <h2 className="text-xl font-bold text-[#FF0000] mt-2">Rp. 15.000</h2>
         <div className="flex items-center gap-4 mt-2">
           <button
-            onClick={counterPlus}
-            className="bg-[#FF0000] text-xl flex justify-center items-center w-8 h-8 text-white font-bold rounded-full"
-          >
-            +
-          </button>
-          <h2 className="text-xl font-bold text-[#FF0000]">{count}</h2>
-          <button
             onClick={counterMinus}
             className="bg-[#FF0000] text-xl flex justify-center items-center w-8 h-8 text-white font-bold rounded-full"
           >
             -
+          </button>
+          <h2 className="text-xl font-bold text-[#FF0000]">{count}</h2>
+          <button
+            onClick={counterPlus}
+            className="bg-[#FF0000] text-xl flex justify-center items-center w-8 h-8 text-white font-bold rounded-full"
+          >
+            +
           </button>
         </div>
         <input
