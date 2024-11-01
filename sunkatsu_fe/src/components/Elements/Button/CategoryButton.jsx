@@ -16,7 +16,7 @@ function CategoryButton() {
         alignItems: 'center',
       }}
     >
-      <div style={{ display: 'flex', gap: '150px' }}>
+      <div style={{ display: 'flex', gap: '25px' }}>
         {listKategori.map((kategori, index) => (
           <button
             key={index}

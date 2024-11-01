@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Katsu from "../../assets/katsu.png";
 import Nasgor from "../../assets/nasigoreng.png";
+import Chickrice from "../../assets/chickenskinrice.png"
 
 const Hero = () => {
   // State untuk melacak index slide yang sedang aktif
@@ -48,20 +49,29 @@ const Hero = () => {
         <div className="duration-700 ease-in-out" data-carousel-item>
           <img
             src={Katsu}
-            className="absolute block w-24 -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
+            className="absolute block w-72 -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
             alt="Slide 1"
           />
-          <h1 className="text-3xl font-bold relative top-20 left-20">Katsu</h1>
+          <h1 className="text-5xl text-white font-bold relative top-20 left-20">Katsu</h1>
         </div>
         {/* Item 2 */}
         <div className="hidden duration-700 ease-in-out" data-carousel-item>
           <img
             src={Nasgor}
-            className="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
+            className="absolute block w-72 -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
             alt="Slide 2"
           />
+          <hi className="text-5xl text-white font-bold relative top-20 left-20">Fried Rice</hi>
         </div>
-        {/* Tambahkan slide lainnya */}
+        {/* Item 3 */}
+        <div className="duration-700 ease-in-out" data-carousel-item>
+          <img
+            src={Chickrice}
+            className="absolute block w-72 -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
+            alt="Slide 3"
+          />
+          <h1 className="text-5xl text-white font-bold relative top-20 left-20">Chicken Skin Rice</h1>
+        </div>
       </div>
 
       {/* Slider indicators */}
