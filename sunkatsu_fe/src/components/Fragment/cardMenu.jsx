@@ -4,7 +4,7 @@ const cardMenu = () => {
     return (
         <div>
             img
-        </div>>
+        </div>
     );
 }
 

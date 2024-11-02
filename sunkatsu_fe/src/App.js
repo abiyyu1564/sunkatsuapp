@@ -10,15 +10,14 @@ import HeroLanding from "./components/Fragment/heroLanding";
 import MenuDetail from "./components/Fragment/menuDetail";
 import CustomerHistoryCard from "./components/Fragment/customerHistoryCard";
 import StaffHistoryCard from "./components/Fragment/staffHistoryCard";
+import Loading from "./components/Fragment/loading";
+import Login from "./components/Fragment/loginPage";
+import Log from "./components/Fragment/login";
 
 function App() {
   return (
     <>
-      <NavbarLanding />
-      <HeroLanding />
-      <MenuDetail />
-      <CustomerHistoryCard />
-      <StaffHistoryCard />
+      <Login/>
     </>
   );
 }
