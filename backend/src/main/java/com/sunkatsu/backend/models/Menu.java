@@ -2,8 +2,9 @@ package com.sunkatsu.backend.models;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Transient;
+import java.nio.file.Path;
+import java.util.Objects;
 
 @Document(collection = "menus")
 public class Menu {
@@ -14,33 +15,32 @@ public class Menu {
     @Id
     private int id;
     private String name;
-    private String imageURL;
-    private String image;
+    private String imageURL; 
+    private Path imagePath;  
     private int price;
     private String desc;
     private int numsBought;
 
 
-    public Menu() {}
+    public Menu() {
+    }
 
-    public Menu(String name, String imageURL, String image, int price, String desc, int numsBought) {
+    public Menu(String name, String imageURL, Path imagePath, int price, String desc, int numsBought) {
         this.name = name;
         this.imageURL = imageURL;
-        this.image = image;
+        this.imagePath = imagePath;
         this.price = price;
         this.desc = desc;
         this.numsBought = numsBought;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-
     public int getId() {
         return this.id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getName() {
         return this.name;
@@ -58,12 +58,12 @@ public class Menu {
         this.imageURL = imageURL;
     }
 
-    public String getImage() {
-        return this.image;
+    public Path getImagePath() {
+        return this.imagePath;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setImagePath(Path imagePath) {
+        this.imagePath = imagePath;
     }
 
     public int getPrice() {

@@ -2,7 +2,7 @@ package com.sunkatsu.backend.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.sunkatsu.backend.models.*;
+import com.sunkatsu.backend.models.*;   
 import com.sunkatsu.backend.repositories.MenuRepository;
 import com.sunkatsu.backend.repositories.ShoppingCartRepository;
 
