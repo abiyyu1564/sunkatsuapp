@@ -6,5 +6,4 @@ import com.sunkatsu.backend.models.*;
 
 @Repository
 public interface MenuRepository extends MongoRepository<Menu, Integer> {
-    
 }
