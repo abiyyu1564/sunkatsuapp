@@ -17,17 +17,19 @@ public class Menu {
     private String image;
     private int price;
     private String desc;
+    private String category;
     private int numsBought;
 
 
     public Menu() {}
 
-    public Menu(String name, String imageURL, String image, int price, String desc, int numsBought) {
+    public Menu(String name, String imageURL, String image, int price, String desc, String category, int numsBought) {
         this.name = name;
         this.imageURL = imageURL;
         this.image = image;
         this.price = price;
         this.desc = desc;
+        this.category = category;
         this.numsBought = numsBought;
     }
 
@@ -49,6 +51,14 @@ public class Menu {
         this.name = name;
     }
 
+    public String getCategory() {
+        return this.category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+    
     public String getImageURL() {
         return this.imageURL;
     }
