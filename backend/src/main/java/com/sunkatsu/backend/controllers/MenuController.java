@@ -27,10 +27,15 @@ public class MenuController {
         return menuService.getAllMenus();
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Menu> createMenu(
-            @RequestPart("menu") Menu menu,
+            @RequestParam("name") String name,
+            @RequestParam("price") int price,
+            @RequestParam("desc") String desc,
+            @RequestParam("category") String category,
+            @RequestParam("nums_bought") int numsBought,
             @RequestPart("file") MultipartFile file) throws IOException {
+        Menu menu = new Menu(name, null, null, price, desc, category, numsBought);
         Menu createdMenu = menuService.createMenu(menu, file);
         return ResponseEntity.ok(createdMenu);
     }
@@ -38,11 +43,16 @@ public class MenuController {
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Menu> updateMenu(
             @PathVariable int id,
-            @RequestPart("menu") Menu menuDetails,
+            @RequestParam("name") String name,
+            @RequestParam("price") int price,
+            @RequestParam("desc") String desc,
+            @RequestParam("category") String category,
+            @RequestParam("nums_bought") int numsBought,
             @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+        Menu menuDetails = new Menu(name, null, null, price, desc, category, numsBought);
         Menu updatedMenu = menuService.updateMenu(id, menuDetails, file);
         return updatedMenu != null ? ResponseEntity.ok(updatedMenu) : ResponseEntity.notFound().build();
-    }
+    }   
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteMenu(@PathVariable int id) {
