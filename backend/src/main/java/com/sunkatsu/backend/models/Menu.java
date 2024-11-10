@@ -2,7 +2,6 @@ package com.sunkatsu.backend.models;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Transient;
 
 @Document(collection = "menus")
@@ -85,6 +84,7 @@ public class Menu {
     public int getNumsBought() {
         return this.numsBought;
     }
+
 
     public void setNumsBought(int numsBought) {
         this.numsBought = numsBought;
