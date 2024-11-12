@@ -4,27 +4,28 @@ import org.springframework.data.annotation.Id;
 
 public class User {
     @Id
-    protected int id;
+    protected String id;
     protected String username;
     protected String password;
     protected String role;
+    
 
 
     public User() {
     }
 
-    public User(int id, String username, String password, String role) {
+    public User(String id, String username, String password, String role) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.role = role;
     }
 
-    public int getId() {
+    public String getId() {
         return this.id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -52,7 +53,7 @@ public class User {
         this.role = role;
     }
 
-    public User id(int id) {
+    public User id(String id) {
         setId(id);
         return this;
     }

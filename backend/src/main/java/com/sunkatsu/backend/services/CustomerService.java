@@ -4,6 +4,8 @@ import com.sunkatsu.backend.models.*;
 import com.sunkatsu.backend.repositories.CustomerRepository;
 import com.sunkatsu.backend.repositories.ShoppingCartRepository;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
@@ -26,15 +29,24 @@ public class CustomerService {
     }
 
     public Customer createCustomer(Customer customer) {
-        customer.setId(sequenceGeneratorService.generateSequence(Customer.SEQUENCE_NAME));
+        customer.setId(String.valueOf(sequenceGeneratorService.generateSequence(Customer.SEQUENCE_NAME)));
         return customerRepository.save(customer);
     }
 
-    public Customer getCustomerById(int id) {
+    public void saveCustomer(Customer customer) {
+        customer.setStatus(Status.ONLINE);
+        customerRepository.save(customer);
+    }
+
+    public Customer getCustomerByIdAndPassword(String id, String password) {
+        return customerRepository.findByIdAndPassword(id, password);
+    }
+
+    public Customer getCustomerById(String id) {
         return customerRepository.findById(id).orElse(null);
     }
 
-    public ShoppingCart getCartByCustomerId(int id) {
+    public ShoppingCart getCartByCustomerId(String id) {
         Optional<Customer> c = customerRepository.findById(id);
 
         if (c.isPresent()) {
@@ -42,6 +54,18 @@ public class CustomerService {
             return cart;
         }
         return null;
+    }
+
+    public void disconnect(Customer customer) {
+        var storedUser = customerRepository.findById(customer.getId()).orElse(null);
+        if (storedUser != null) {
+            storedUser.setStatus(Status.OFFLINE);
+            customerRepository.save(storedUser);
+        }
+    }
+
+    public List<Customer> findConnectedUsers() {
+        return customerRepository.findAllByStatus(Status.ONLINE);
     }
 
 }
