@@ -1,17 +1,20 @@
 package com.sunkatsu.backend.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Data
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Document
+@Document(collection = "chatrooms")
 public class ChatRoom {
     @Id
     private String id;

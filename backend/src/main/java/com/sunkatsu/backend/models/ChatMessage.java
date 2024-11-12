@@ -1,18 +1,20 @@
 package com.sunkatsu.backend.models;
 
+import java.sql.Date;
+
+import org.springframework.data.annotation.Id;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import java.util.Date;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Document
 public class ChatMessage {
     @Id
     private String id;

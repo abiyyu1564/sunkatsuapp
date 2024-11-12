@@ -1,6 +1,7 @@
 package com.sunkatsu.backend.controllers;
 
 import com.sunkatsu.backend.models.Customer;
+import com.sunkatsu.backend.models.CustomerId;
 import com.sunkatsu.backend.models.ShoppingCart;
 import com.sunkatsu.backend.services.CustomerService;
 
@@ -10,37 +11,33 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping("/api/customers")
 public class CustomerController {
     @Autowired
     private CustomerService customerService;
 
-    @GetMapping("/api/customers")
+    @GetMapping
     public List<Customer> getAllCustomers() {
         return customerService.findAllCustomers();
     }
 
-    @MessageMapping("/user.addUser")
-    @SendTo("/user/public")
-    public Customer addUser(
-            @Payload Customer customer
-    ) {
-        customerService.saveCustomer(customer);
+    @MessageMapping("/customer.createCustomer")
+    @SendTo("/customer/topic")
+    public Customer createCustomer(@Payload Customer customer) {
+        customerService.createCustomer(customer);
         return customer;
     }
-
     
-    @MessageMapping("/user.searchCustomer")
-    @SendTo("/user/public")
-    public Customer searchCustomer(@Payload Customer customer) {
-        String id = customer.getId();
-        String password = customer.getPassword();
-        Customer foundCustomer = customerService.getCustomerByIdAndPassword(id, password);
+    @MessageMapping("/customer.searchCustomer")
+    @SendTo("/customer/public")
+    public Customer searchCustomer(@Payload CustomerId customerid) {
+        String id = customerid.getCustomerId();
+        Customer foundCustomer = customerService.getCustomerById(id);
         if(foundCustomer != null) {
             customerService.saveCustomer(foundCustomer);
             return foundCustomer;
@@ -48,29 +45,35 @@ public class CustomerController {
         return null;
     }
 
+    @PostMapping
+    public Customer addCustomerToDB(@Payload Customer customer) {
+        return customerService.createCustomer(customer);
+    }
 
-    @GetMapping("/api/customers/{id}")
+
+    @GetMapping("/{id}")
     public ResponseEntity<Customer> getCustomerById(@PathVariable String id) {
         Customer customer = customerService.getCustomerById(id);
         return customer != null ? ResponseEntity.ok(customer) : ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/api/customers/{id}/cart")
+    @GetMapping("/{id}/cart")
     public ResponseEntity<ShoppingCart> getCartByCustomerId(@PathVariable String id) {
         ShoppingCart cart = customerService.getCartByCustomerId(id);
         return cart != null ? ResponseEntity.ok(cart) : ResponseEntity.notFound().build();
     }
 
-    @MessageMapping("/user.disconnectUser")
-    @SendTo("/user/public")
-    public Customer disconnectUser(
-            @Payload Customer customer
-    ) {
-        customerService.disconnect(customer);
+    @MessageMapping("/customer.disconnectCustomer")
+    @SendTo("/customer/topic")
+    public Customer disconnect(@Payload CustomerId customerId) {
+        Customer customer = customerService.getCustomerById(customerId.getCustomerId());
+        if (customer != null) {
+            customerService.disconnect(customer);
+        }
         return customer;
     }
 
-    @GetMapping("/users")
+    @GetMapping("/status")
     public ResponseEntity<List<Customer>> findConnectedUsers() {
         return ResponseEntity.ok(customerService.findConnectedUsers());
     }

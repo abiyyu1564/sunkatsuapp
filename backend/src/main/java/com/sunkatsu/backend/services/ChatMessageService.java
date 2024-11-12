@@ -19,7 +19,7 @@ public class ChatMessageService {
     public ChatMessage save(ChatMessage chatMessage) {
         var chatId = chatRoomService
                 .getChatRoomId(chatMessage.getSenderId(), chatMessage.getRecipientId(), true)
-                .orElseThrow(); // You can create your own dedicated exception
+                .orElseThrow(); 
         chatMessage.setChatId(chatId);
         repository.save(chatMessage);
         return chatMessage;
@@ -27,6 +27,13 @@ public class ChatMessageService {
 
     public List<ChatMessage> findChatMessages(String senderId, String recipientId) {
         var chatId = chatRoomService.getChatRoomId(senderId, recipientId, false);
-        return chatId.map(repository::findByChatId).orElse(new ArrayList<>());
+        if(chatId.isPresent()) {
+            return repository.findByChatId(chatId.get());
+        } else {
+            // Log a message if the chat room doesn't exist
+            System.out.println("Chat room not found for senderId: " + senderId + " and recipientId: " + recipientId);
+            return new ArrayList<>(); // Return an empty list if no chat room is found
+        }
     }
+    
 }
