@@ -27,13 +27,7 @@ public class ChatMessageService {
 
     public List<ChatMessage> findChatMessages(String senderId, String recipientId) {
         var chatId = chatRoomService.getChatRoomId(senderId, recipientId, false);
-        if(chatId.isPresent()) {
-            return repository.findByChatId(chatId.get());
-        } else {
-            // Log a message if the chat room doesn't exist
-            System.out.println("Chat room not found for senderId: " + senderId + " and recipientId: " + recipientId);
-            return new ArrayList<>(); // Return an empty list if no chat room is found
-        }
+        return chatId.map(repository::findByChatId).orElse(new ArrayList<>());
     }
     
 }
