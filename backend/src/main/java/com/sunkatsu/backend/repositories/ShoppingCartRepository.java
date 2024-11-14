@@ -5,5 +5,5 @@ import com.sunkatsu.backend.models.ShoppingCart;
 
 
 public interface ShoppingCartRepository extends MongoRepository<ShoppingCart, Integer> {
-    ShoppingCart findByUserID(int userID);
+    ShoppingCart findByUserID(String userID);
 }  
