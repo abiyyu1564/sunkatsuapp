@@ -1,7 +1,7 @@
 import React from "react";
 import ig from "../../assets/ig.png";
 import wa from "../../assets/WA.png";
-import email from "../../assets/email.png";
+import email from "../../assets/coloredEmail.png";
 
 const Footer = () => {
   return (

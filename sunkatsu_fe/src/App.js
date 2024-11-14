@@ -13,11 +13,13 @@ import StaffHistoryCard from "./components/Fragment/staffHistoryCard";
 import Loading from "./components/Fragment/loading";
 import Login from "./components/Fragment/loginPage";
 import Log from "./components/Fragment/login";
+import FailLogin from "./components/Fragment/FailLogin";
+import Sign from "./components/Fragment/signup";
 
 function App() {
   return (
     <>
-      <Login/>
+      <Login />
     </>
   );
 }
