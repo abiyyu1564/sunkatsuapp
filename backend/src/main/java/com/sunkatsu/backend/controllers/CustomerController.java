@@ -2,9 +2,10 @@ package com.sunkatsu.backend.controllers;
 
 import com.sunkatsu.backend.models.Customer;
 import com.sunkatsu.backend.models.CustomerId;
+import com.sunkatsu.backend.models.Order;
 import com.sunkatsu.backend.models.ShoppingCart;
 import com.sunkatsu.backend.services.CustomerService;
-
+import com.sunkatsu.backend.services.OrderService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,9 @@ import java.util.List;
 public class CustomerController {
     @Autowired
     private CustomerService customerService;
+
+    @Autowired
+    private OrderService orderService;
 
     @GetMapping
     public List<Customer> getAllCustomers() {
@@ -61,6 +65,11 @@ public class CustomerController {
     public ResponseEntity<ShoppingCart> getCartByCustomerId(@PathVariable String id) {
         ShoppingCart cart = customerService.getCartByCustomerId(id);
         return cart != null ? ResponseEntity.ok(cart) : ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/{id}/orders")
+    public Order getOrderByUserId(@PathVariable int id) {
+        return orderService.getOrderByUserId(id);
     }
 
     @MessageMapping("/customer.disconnectCustomer")

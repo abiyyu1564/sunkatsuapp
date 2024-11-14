@@ -44,6 +44,12 @@ public class ShoppingCartController {
         return updatedCart != null ? ResponseEntity.ok(updatedCart) : ResponseEntity.notFound().build();
     }
 
+    @PostMapping("/{id}")
+    public ResponseEntity<Order> finishCart(@PathVariable int id) {
+        Order order = cartService.finishCart(id);
+        return order != null ? ResponseEntity.ok(order) : ResponseEntity.badRequest().build();
+    }
+
     /*@DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCart(@PathVariable int id) {
         return cartService.deleteCart(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();

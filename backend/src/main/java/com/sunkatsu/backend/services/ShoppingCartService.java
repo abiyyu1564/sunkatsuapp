@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.sunkatsu.backend.models.*;   
 import com.sunkatsu.backend.repositories.MenuRepository;
+import com.sunkatsu.backend.repositories.OrderRepository;
 import com.sunkatsu.backend.repositories.ShoppingCartRepository;
 
 import java.util.Optional;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -17,6 +19,9 @@ public class ShoppingCartService {
 
     @Autowired
     private MenuRepository menuRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
 
     @Autowired
     private SequenceGeneratorService sequenceGeneratorService;
@@ -35,7 +40,6 @@ public class ShoppingCartService {
     }
 
     public ShoppingCart updateCart(int id, ShoppingCart cart) {
-        cart.setId(id);
         cart.calculateTotal();
         return cartRepository.save(cart);
     }
@@ -67,6 +71,19 @@ public class ShoppingCartService {
             cart.addCartItem(newItem);
             cart.calculateTotal();
             return cartRepository.save(cart);
+        }
+        return null;
+    }
+
+    public Order finishCart(int cartId) {
+        Optional<ShoppingCart> cartOpt = cartRepository.findById(cartId);
+
+        if (cartOpt.isPresent()) {
+            ShoppingCart cart = cartOpt.get();
+            cartRepository.deleteById(cart.getId());
+
+            Order order = new Order(sequenceGeneratorService.generateSequence(Order.SEQUENCE_NAME), cart.getTotal(), cart.getDeliver(), cart.getUserID(), cart.getCartItems(), new Date(), "Not Paid");
+            return orderRepository.save(order);
         }
         return null;
     }
