@@ -4,16 +4,15 @@ import nameimg from "../../assets/tulisan_SUNKATSU.png";
 import { FaCartShopping, FaBell } from "react-icons/fa6";
 import { FaHome } from "react-icons/fa";
 import { IoReceipt } from "react-icons/io5";
+import { GrHelpBook } from "react-icons/gr";
 import { Link } from "react-router-dom";
 import defaultPP from "../../assets/defaultPP.png";
 
 const Navbar = () => {
- const popup = () => {
-   
- }
+  const popup = () => {};
 
   return (
-    <nav className="bg-[#FF0000] border-gray-200 dark:bg-gray-900">
+    <nav className="bg-[#FF0000] border-gray-200 dark:bg-gray-900 px-3">
       <div className="max-w-screen-xl flex items-center justify-between mx-auto p-1">
         {/* Logo */}
         <a href="/" className="flex items-center space-x-3">
@@ -64,8 +63,8 @@ const Navbar = () => {
 
           {/* Notifications */}
           <a href="#" className="flex flex-col items-center text-white">
-            <FaBell size={32} />
-            <p className="text-xs">Notifications</p>
+            <GrHelpBook size={32} />
+            <p className="text-xs">Help</p>
           </a>
 
           {/* My Order */}

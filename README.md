@@ -19,6 +19,23 @@ How to run backend locally:
    Yang di pake yang ada "/api" nya saja. Hiraukan yang tidak ada "/api"!
    Gw gtw cara ngilangin yg entity controllernya - Raygama
 
+Note:
+- Kalau ada error kaya not authenticated di mongodb, ke mongodb compass, hover koneksi mongodbnya nnti ada tulisan open mongosh.
+  ![image](https://github.com/user-attachments/assets/5498e572-ac91-48ab-be5c-8d85d17be425)
+  Klik open mongosh dan jalanin kode berikut (atau liat [ini](https://stackoverflow.com/questions/38921414/mongodb-what-are-the-default-user-and-password)):
+   use admin
+ db.createUser(
+   {
+     user: "contoh",
+     pwd: "contoh", // or cleartext password
+     roles: [ 
+       { role: "userAdminAnyDatabase", db: "admin" },
+       { role: "readWriteAnyDatabase", db: "admin" } 
+     ]
+   }
+ )
+Ganti "contoh" dengan yang kamu mau, nanti di application.properties ditambahin/ganti saja sesuai itu. Contoh:
+![image](https://github.com/user-attachments/assets/ae83a3c6-98af-4aeb-b151-4ace285cd939)
 
 
 
