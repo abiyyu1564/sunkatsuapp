@@ -26,6 +26,11 @@ document.addEventListener("DOMContentLoaded", () => {
   setInterval(fetchOnlineUsers, 5000); // Perbarui daftar setiap 5 detik
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+  findAndDisplayConnectedUsers();
+  setInterval(findAndDisplayConnectedUsers, 5000); // Perbarui daftar setiap 5 detik
+});
+
 function connect(event) {
   customerId = document.querySelector("#customerId").value.trim();
 
@@ -42,8 +47,9 @@ function connect(event) {
 }
 
 function onConnected() {
+  // Subscribe ke topik publik dan private untuk user tertentu
   stompClient.subscribe(
-    `/customer/${customerId}/queue/messages`,
+    `/user/${customerId}/queue/messages`,
     onMessageReceived
   );
   stompClient.subscribe(`/customer/public`, onMessageReceived);
@@ -55,19 +61,28 @@ function onConnected() {
     JSON.stringify({ customerId: customerId })
   );
 
-  findAndDisplayConnectedUsers().then();
+  findAndDisplayConnectedUsers();
 }
 
 async function findAndDisplayConnectedUsers() {
-  const connectedUsersResponse = await fetch("/api/customers/status");
-  let connectedUsers = await connectedUsersResponse.json();
-  connectedUsers = connectedUsers.filter((user) => user.id !== customerId);
-  const connectedUsersList = document.getElementById("connectedUsers");
-  connectedUsersList.innerHTML = "";
+  try {
+    const connectedUsersResponse = await fetch(
+      `/api/customers/status/${customerId}`
+    );
+    if (!connectedUsersResponse.ok) {
+      throw new Error("Failed to fetch connected users");
+    }
 
-  connectedUsers.forEach((user) => {
-    appendUserElement(user, connectedUsersList);
-  });
+    let connectedUsers = await connectedUsersResponse.json();
+    const connectedUsersList = document.getElementById("connectedUsers");
+    connectedUsersList.innerHTML = "";
+
+    connectedUsers.forEach((user) => {
+      appendUserElement(user, connectedUsersList);
+    });
+  } catch (error) {
+    console.error("Error fetching connected users:", error);
+  }
 }
 
 function appendUserElement(user, connectedUsersList) {
@@ -77,10 +92,10 @@ function appendUserElement(user, connectedUsersList) {
 
   const userImage = document.createElement("img");
   userImage.src = "../img/user_icon.png";
-  userImage.alt = user.fullName;
+  userImage.alt = user.username;
 
   const usernameSpan = document.createElement("span");
-  usernameSpan.textContent = user.fullName;
+  usernameSpan.textContent = user.username;
 
   const receivedMsgs = document.createElement("span");
   receivedMsgs.textContent = "0";
@@ -136,7 +151,7 @@ function displayMessage(senderId, content) {
     messageContainer.classList.add("sender");
   } else {
     messageContainer.classList.add("receiver");
-  }
+  } 
   const message = document.createElement("p");
   message.textContent = content;
   messageContainer.appendChild(message);
@@ -172,15 +187,19 @@ function onError() {
 
 function sendMessage(event) {
   const messageContent = messageInput.value.trim();
-  if (messageContent && stompClient) {
+  if (messageContent && stompClient && selectedUserId) {
     const chatMessage = {
       senderId: customerId,
-      recipientId: selectedUserId,
-      content: messageInput.value.trim(),
+      recipientId: selectedUserId, // Pastikan recipient ID diisi
+      content: messageContent,
       timestamp: new Date(),
     };
+
+    // Kirim pesan ke endpoint '/app/chat'
     stompClient.send("/app/chat", {}, JSON.stringify(chatMessage));
-    displayMessage(customerId, messageInput.value.trim());
+
+    // Tampilkan pesan di layar pengirim
+    displayMessage(customerId, messageContent);
     messageInput.value = "";
   }
   chatArea.scrollTop = chatArea.scrollHeight;
@@ -207,7 +226,7 @@ async function onMessageReceived(payload) {
 // Fungsi untuk mendapatkan daftar pengguna yang sedang online
 async function fetchOnlineUsers() {
   try {
-    const response = await fetch("/api/customers/status");
+    const response = await fetch(`/api/customers/status/${customerId}`);
     if (!response.ok) {
       throw new Error("Failed to fetch online users");
     }

@@ -1,16 +1,18 @@
 package com.sunkatsu.backend.services;
 
-import com.sunkatsu.backend.models.*;
-import com.sunkatsu.backend.repositories.CustomerRepository;
-import com.sunkatsu.backend.repositories.ShoppingCartRepository;
-
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.sunkatsu.backend.models.Customer;
+import com.sunkatsu.backend.models.ShoppingCart;
+import com.sunkatsu.backend.models.Status;
+import com.sunkatsu.backend.repositories.CustomerRepository;
+import com.sunkatsu.backend.repositories.ShoppingCartRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -64,8 +66,11 @@ public class CustomerService {
         }
     }
 
-    public List<Customer> findConnectedUsers() {
-        return customerRepository.findAllByStatus(Status.ONLINE);
-    }
+    public List<Customer> findConnectedUsersExcept(String userId) {
+    List<Customer> onlineUsers = customerRepository.findAllByStatus(Status.ONLINE);
+    onlineUsers.removeIf(user -> user.getId().equals(userId));
+    return onlineUsers;
+}
+
 
 }
