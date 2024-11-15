@@ -31,6 +31,12 @@ public class MenuService {
     private String saveFile(MultipartFile file) throws IOException {
         if (file.isEmpty()) return null;
         
+
+        Path uploadPath = Paths.get(uploadDir);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
         // Generate a unique filename
         String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
         Path filePath = Paths.get(uploadDir, filename);
