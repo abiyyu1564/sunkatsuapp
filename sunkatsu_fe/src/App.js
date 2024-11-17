@@ -19,7 +19,7 @@ import Sign from "./components/Fragment/signup";
 function App() {
   return (
     <>
-      <Login />
+      <Sign/>
     </>
   );
 }
