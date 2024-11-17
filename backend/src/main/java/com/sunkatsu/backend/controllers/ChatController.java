@@ -19,12 +19,14 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequiredArgsConstructor
 public class ChatController {
-        private final SimpMessagingTemplate messagingTemplate;
-        private final ChatMessageService chatMessageService;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final ChatMessageService chatMessageService;
 
-        @MessageMapping("/chat")
-        public void processMessage(@Payload ChatMessage chatMessage) {
+    @MessageMapping("/chat")
+    public void processMessage(@Payload ChatMessage chatMessage) {
         ChatMessage savedMsg = chatMessageService.save(chatMessage);
+
+        // Kirim notifikasi ke penerima berdasarkan ID
         messagingTemplate.convertAndSendToUser(
                 chatMessage.getRecipientId(), "/queue/messages",
                 new ChatNotification(
@@ -34,14 +36,15 @@ public class ChatController {
                         savedMsg.getContent()
                 )
         );
-        }
+    }
 
-
-        @GetMapping("/messages/{senderId}/{recipientId}")
-        public ResponseEntity<List<ChatMessage>> findChatMessages(@PathVariable String senderId,
-                                                                @PathVariable String recipientId) {
-                return ResponseEntity
-                        .ok(chatMessageService.findChatMessages(senderId, recipientId));
-        }
+    @GetMapping("/messages/{senderId}/{recipientId}")
+    public ResponseEntity<List<ChatMessage>> findChatMessages(
+            @PathVariable String senderId, 
+            @PathVariable String recipientId) {
+        return ResponseEntity
+                .ok(chatMessageService.findChatMessages(senderId, recipientId));
+    }
 }
+
 

@@ -10,7 +10,6 @@ import lombok.Setter;
 @Setter
 @Document(collection = "customers")
 public class Customer extends User {
-    protected Status status;
     
     @Transient
     public static final String SEQUENCE_NAME = "customer_sequence";

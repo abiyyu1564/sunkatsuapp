@@ -58,20 +58,37 @@ function connect(event) {
 function onConnected() {
   // Subscribe ke topik publik dan private untuk user tertentu
   stompClient.subscribe(`/user/${customerId}/queue/messages`, onMessageReceived);
-  stompClient.subscribe(`/customer/public`, onMessageReceived);
-
-  // Permintaan untuk mengambil informasi pelanggan berdasarkan customerId
-  stompClient.send("/app/customer.searchCustomer", {}, JSON.stringify({ customerId: customerId }));
-
+  stompClient.subscribe(`/user/public`, onMessageReceived);
+  stompClient.send("/app/user.searchUser", {}, customerId);
+  
   // Tampilkan pengguna yang terhubung
   findAndDisplayConnectedUsers();
+
+  // Fetch customer info setelah terkoneksi
+  fetchCustomerInfo(customerId);
 }
 
+async function fetchCustomerInfo(customerId) {
+  try {
+    const response = await fetch(`/api/users/${customerId}`);
+    if (response.ok) {
+      const customer = await response.json();
+      const fullnameElement = document.getElementById("connected-user-fullname");
+      if (fullnameElement && customer.username) {
+        fullnameElement.textContent = customer.username;
+      }
+    } else {
+      console.error("Failed to fetch customer info");
+    }
+  } catch (error) {
+    console.error("Error fetching customer info:", error);
+  }
+}
 
 async function findAndDisplayConnectedUsers() {
   try {
     const connectedUsersResponse = await fetch(
-      `/api/customers/status/${customerId}`
+      `/api/users/status/${customerId}`
     );
     if (!connectedUsersResponse.ok) {
       throw new Error("Failed to fetch connected users");
@@ -114,9 +131,6 @@ function appendUserElement(user, connectedUsersList) {
 
   connectedUsersList.appendChild(listItem);
 }
-
-
-
 
 function userItemClick(userId) {
   if (!userId) {
@@ -223,10 +237,15 @@ function sendMessage(event) {
 async function onMessageReceived(payload) {
   console.log("Message received", payload);
   const message = JSON.parse(payload.body);
-  
+
+  // Perbarui username jika pesan diterima
+  if (message.id === customerId) {
+    fetchCustomerInfo(customerId);
+  }
+
   // Panggil ulang fungsi untuk memperbarui daftar pengguna
   await findAndDisplayConnectedUsers();
-  
+
   // Cek apakah pesan berasal dari user yang sedang aktif
   if (selectedUserId && selectedUserId === message.senderId) {
     displayMessage(message.senderId, message.content);
@@ -240,16 +259,17 @@ async function onMessageReceived(payload) {
 
       // Update jumlah pesan yang belum dibaca
       const currentCount = parseInt(nbrMsg.textContent || "0");
-      nbrMsg.textContent = currentCount + 1; // Tambahkan jumlah pesan baru
+      nbrMsg.textContent = currentCount + 1;
     }
   }
 }
 
 
+
 // Fungsi untuk mendapatkan daftar pengguna yang sedang online
 async function fetchOnlineUsers() {
   try {
-    const response = await fetch(`/api/customers/status/${customerId}`);
+    const response = await fetch(`/api/users/status/${customerId}`);
     if (!response.ok) {
       throw new Error("Failed to fetch online users");
     }

@@ -8,17 +8,17 @@ public class User {
     protected String username;
     protected String password;
     protected String role;
+    protected Status status;
     
-
-
     public User() {
     }
 
-    public User(String id, String username, String password, String role) {
+    public User(String id, String username, String password, String role, Status status) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.role = role;
+        this.status = status;
     }
 
     public String getId() {
@@ -27,6 +27,14 @@ public class User {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public String getUsername() {

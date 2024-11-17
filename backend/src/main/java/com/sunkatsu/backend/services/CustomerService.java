@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.sunkatsu.backend.dto.CustomerDTO;
 import com.sunkatsu.backend.models.Customer;
 import com.sunkatsu.backend.models.ShoppingCart;
 import com.sunkatsu.backend.models.Status;
@@ -29,6 +30,16 @@ public class CustomerService {
     public List<Customer> findAllCustomers() {
         return customerRepository.findAll();
     }
+
+    public CustomerDTO convertToDTO(Customer customer) {
+        return new CustomerDTO(
+            customer.getId(),
+            customer.getUsername(),
+            customer.getRole(),
+            customer.getStatus()
+        );
+    }
+
 
     public Customer createCustomer(Customer customer) {
         customer.setId(String.valueOf(sequenceGeneratorService.generateSequence(Customer.SEQUENCE_NAME)));
@@ -67,10 +78,10 @@ public class CustomerService {
     }
 
     public List<Customer> findConnectedUsersExcept(String userId) {
-    List<Customer> onlineUsers = customerRepository.findAllByStatus(Status.ONLINE);
-    onlineUsers.removeIf(user -> user.getId().equals(userId));
-    return onlineUsers;
-}
+        List<Customer> onlineUsers = customerRepository.findAllByStatus(Status.ONLINE);
+        onlineUsers.removeIf(user -> user.getId().equals(userId));
+        return onlineUsers;
+    }
 
 
 }
