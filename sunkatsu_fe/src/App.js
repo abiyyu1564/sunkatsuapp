@@ -25,24 +25,7 @@ import FilterCategory from "./components/Fragment/filterCategory";
 function App() {
   return (
     <>
-      <BrowserRouter>
-        <GlobalProvider>
-          <Routes>
-            <Route path="/" element={<NewMenuCard />} />
-            <Route
-              path="/cart"
-              element={
-                <FilterCategory
-                  menu1="All Menu"
-                  menu2="Food"
-                  menu3="Drink"
-                  menu4="Special"
-                />
-              }
-            />
-          </Routes>
-        </GlobalProvider>
-      </BrowserRouter>
+      <Login />
     </>
   );
 }
