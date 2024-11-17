@@ -1,6 +1,8 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
+//gk dipake
+
 export const getAllMenu = (callback) => { 
     axios
         .get("/api/menu")

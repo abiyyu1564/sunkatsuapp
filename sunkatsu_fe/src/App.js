@@ -15,11 +15,34 @@ import Login from "./components/Fragment/loginPage";
 import Log from "./components/Fragment/login";
 import FailLogin from "./components/Fragment/FailLogin";
 import Sign from "./components/Fragment/signup";
+import NewMenuCard from "./components/Fragment/newMenuCard";
+import TestRemovebg from "./components/Fragment/testRemovebg";
+import NewShoppingCart from "./components/Fragment/newShoppingCart";
+import { GlobalProvider } from "./context/GlobalContext";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import FilterCategory from "./components/Fragment/filterCategory";
 
 function App() {
   return (
     <>
-      <Login />
+      <BrowserRouter>
+        <GlobalProvider>
+          <Routes>
+            <Route path="/" element={<NewMenuCard />} />
+            <Route
+              path="/cart"
+              element={
+                <FilterCategory
+                  menu1="All Menu"
+                  menu2="Food"
+                  menu3="Drink"
+                  menu4="Special"
+                />
+              }
+            />
+          </Routes>
+        </GlobalProvider>
+      </BrowserRouter>
     </>
   );
 }
