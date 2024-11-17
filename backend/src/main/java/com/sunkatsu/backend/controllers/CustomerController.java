@@ -1,20 +1,25 @@
 package com.sunkatsu.backend.controllers;
 
-import com.sunkatsu.backend.models.Customer;
-import com.sunkatsu.backend.models.CustomerId;
-import com.sunkatsu.backend.models.Order;
-import com.sunkatsu.backend.models.ShoppingCart;
-import com.sunkatsu.backend.services.CustomerService;
-import com.sunkatsu.backend.services.OrderService;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.sunkatsu.backend.dto.CustomerDTO;
+import com.sunkatsu.backend.models.Customer;
+import com.sunkatsu.backend.models.CustomerId;
+import com.sunkatsu.backend.models.Order;
+import com.sunkatsu.backend.models.ShoppingCart;
+import com.sunkatsu.backend.services.CustomerService;
+import com.sunkatsu.backend.services.OrderService;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -30,24 +35,24 @@ public class CustomerController {
         return customerService.findAllCustomers();
     }
 
-    @MessageMapping("/customer.createCustomer")
-    @SendTo("/customer/topic")
-    public Customer createCustomer(@Payload Customer customer) {
-        customerService.createCustomer(customer);
-        return customer;
-    }
+    // @MessageMapping("/customer.createCustomer")
+    // @SendTo("/customer/topic")
+    // public Customer createCustomer(@Payload Customer customer) {
+    //     customerService.createCustomer(customer);
+    //     return customer;
+    // }
     
-    @MessageMapping("/customer.searchCustomer")
-    @SendTo("/customer/public")
-    public Customer searchCustomer(@Payload CustomerId customerid) {
-        String id = customerid.getCustomerId();
-        Customer foundCustomer = customerService.getCustomerById(id);
-        if(foundCustomer != null) {
-            customerService.saveCustomer(foundCustomer);
-            return foundCustomer;
-        }
-        return null;
-    }
+    // @MessageMapping("/customer.searchCustomer")
+    // @SendTo("/customer/public")
+    // public CustomerDTO searchCustomer(@Payload CustomerId customerid) {
+    //     String id = customerid.getCustomerId();
+    //     Customer foundCustomer = customerService.getCustomerById(id);
+    //     if(foundCustomer != null) {
+    //         customerService.saveCustomer(foundCustomer);
+    //         return customerService.convertToDTO(foundCustomer);
+    //     }
+    //     return null;
+    // }
 
     @PostMapping
     public Customer addCustomerToDB(@Payload Customer customer) {
@@ -82,8 +87,8 @@ public class CustomerController {
         return customer;
     }
 
-    @GetMapping("/status")
-    public ResponseEntity<List<Customer>> findConnectedUsers() {
-        return ResponseEntity.ok(customerService.findConnectedUsers());
+    @GetMapping("/status/{customerId}")
+    public ResponseEntity<List<Customer>> findConnectedUsersExcept(@PathVariable String customerId) {
+        return ResponseEntity.ok(customerService.findConnectedUsersExcept(customerId));
     }
 }

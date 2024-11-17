@@ -64,7 +64,7 @@ public class ShoppingCartController {
         return updatedCart != null ? ResponseEntity.ok(updatedCart) : ResponseEntity.notFound().build();
     }
 
-    @PostMapping("/{cartId}/add-menu") //localhost:8080/api/carts/1/add-menu?menuId=1&quantity=2&note=gapedes
+    @PostMapping("/{cartId}/add-menu")
     public ResponseEntity<ShoppingCart> addMenuToCart(
             @PathVariable int cartId,
             @RequestParam int menuId,

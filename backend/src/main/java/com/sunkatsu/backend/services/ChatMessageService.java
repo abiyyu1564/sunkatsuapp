@@ -19,7 +19,7 @@ public class ChatMessageService {
     public ChatMessage save(ChatMessage chatMessage) {
         var chatId = chatRoomService
                 .getChatRoomId(chatMessage.getSenderId(), chatMessage.getRecipientId(), true)
-                .orElseThrow(); 
+                .orElseThrow();
         chatMessage.setChatId(chatId);
         repository.save(chatMessage);
         return chatMessage;
@@ -29,5 +29,5 @@ public class ChatMessageService {
         var chatId = chatRoomService.getChatRoomId(senderId, recipientId, false);
         return chatId.map(repository::findByChatId).orElse(new ArrayList<>());
     }
-    
 }
+
