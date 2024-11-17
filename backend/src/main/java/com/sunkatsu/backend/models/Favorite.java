@@ -21,7 +21,8 @@ public class Favorite {
 
     public Favorite(){};
 
-    public Favorite(int t, int mId, int uId){
+    public Favorite(int id, int t, int mId, int uId){
+        this.ID = id;
         this.timesBought = t;
         this.menuID = mId;
         this.userID = uId;
