@@ -18,6 +18,8 @@ import com.sunkatsu.backend.models.CustomerId;
 import com.sunkatsu.backend.models.User;
 import com.sunkatsu.backend.services.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -48,12 +50,20 @@ public class UserController {
         return null;
     }
 
+    @Operation(
+        summary = "Get user by id",
+        description = "Get user by id"
+    )
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable String id) {
         var user = userService.findUserById(id);
         return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
     }
 
+    @Operation(
+        summary = "Get all connected users except its id",
+        description = "Get all connected users except its id"
+    )
     @GetMapping("/status/{id}")
     public ResponseEntity<List<UserDTO>> findConnectedUsersExcept(@PathVariable String id) {
         List<UserDTO> connectedUsers = new ArrayList<>();

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sunkatsu.backend.models.Order;
 import com.sunkatsu.backend.services.OrderService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 @RestController
@@ -24,21 +25,37 @@ public class OrdersController {
     @Autowired
     private OrderService orderService;
 
+    @Operation(
+        summary = "Get all orders",
+        description = "Get all orders"
+    )
     @GetMapping
     public List<Order> getOrders(){
         return orderService.getAllOrder();
     }
 
+    @Operation(
+        summary = "Get Order by Status",
+        description = "Get Order by Status"
+    )
     @GetMapping("/{status}")
     public List<Order> getOrderByStatus(@PathVariable String status) {
         return orderService.getOrderByStatus(status);
     } 
 
+    @Operation(
+        summary="Delete an order by id",
+        description="Delete an order by id"
+    )
     @DeleteMapping("/{id}")
     public void deleteOrder(@PathVariable int id) throws Exception {
         orderService.deleteOrder(id);
     }
 
+    @Operation(
+        summary="Create a new order",
+        description="Create a new order"
+    )
     @PostMapping
     public ResponseEntity<Order> createOrder(
         @RequestParam int total,
@@ -49,6 +66,10 @@ public class OrdersController {
         return order != null ? ResponseEntity.ok(order) : ResponseEntity.badRequest().build();
     }
 
+    @Operation(
+        summary="Update an order",
+        description="Update an order"
+    )
     @PutMapping("/{id}")
     public ResponseEntity<Order> updateOrder(
         @PathVariable int id,
@@ -58,12 +79,20 @@ public class OrdersController {
         return updatedOrder != null ? ResponseEntity.ok(updatedOrder) : ResponseEntity.badRequest().build();
     }
 
+    @Operation(
+        summary="Accept an order",
+        description="Accept an order, changes its status to Accepted"
+    )
     @PutMapping("/{id}/accept")
     public ResponseEntity<Order> acceptOrder(@PathVariable int id) throws Exception {
         Order order = orderService.acceptOrder(id);
         return order != null ? ResponseEntity.ok(order) : ResponseEntity.badRequest().build();
     }
 
+    @Operation(
+        summary="Finish an order",
+        description="Finish an order, changes its status to Finished"
+    )
     @PutMapping("/{id}/finish")
     public ResponseEntity<Order> finishOrder(@PathVariable int id) throws Exception {
         Order order = orderService.finishOrder(id);

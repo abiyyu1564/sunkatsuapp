@@ -1,15 +1,19 @@
 package com.sunkatsu.backend.services;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.sunkatsu.backend.models.*;   
+   
+import com.sunkatsu.backend.models.CartItem;
+import com.sunkatsu.backend.models.Menu;
+import com.sunkatsu.backend.models.Order;
+import com.sunkatsu.backend.models.ShoppingCart;
 import com.sunkatsu.backend.repositories.MenuRepository;
 import com.sunkatsu.backend.repositories.OrderRepository;
 import com.sunkatsu.backend.repositories.ShoppingCartRepository;
-
-import java.util.Optional;
-import java.util.Date;
-import java.util.List;
 
 @Service
 public class ShoppingCartService {
@@ -60,7 +64,7 @@ public class ShoppingCartService {
             ShoppingCart cart = cartOpt.get();
             Menu menu = menuOpt.get();
 
-            if (cart.getCartItems().size() == 0) {
+            if (cart.getCartItems().isEmpty()) {
                 if (deliver == null) {
                     return null;
                 }

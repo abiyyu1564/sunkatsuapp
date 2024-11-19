@@ -14,6 +14,7 @@ import com.sunkatsu.backend.models.ChatMessage;
 import com.sunkatsu.backend.models.ChatNotification;
 import com.sunkatsu.backend.services.ChatMessageService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -38,6 +39,10 @@ public class ChatController {
         );
     }
 
+    @Operation(
+        summary = "Get all chat messages",
+        description = "Get all chat messages by recipient and sender id"
+    )
     @GetMapping("/messages/{senderId}/{recipientId}")
     public ResponseEntity<List<ChatMessage>> findChatMessages(
             @PathVariable String senderId, 

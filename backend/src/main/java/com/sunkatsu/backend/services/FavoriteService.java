@@ -1,14 +1,14 @@
 package com.sunkatsu.backend.services;
 
-import com.sunkatsu.backend.models.*;
-import com.sunkatsu.backend.repositories.FavoriteRepository;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.sunkatsu.backend.models.Favorite;
+import com.sunkatsu.backend.repositories.FavoriteRepository;
 
 @Service
 public class FavoriteService {
@@ -41,7 +41,7 @@ public class FavoriteService {
     }
 
     public List<Favorite> getFavoriteByUserId(int userId) {
-        return favoriteRepository.findByUserID(userId);
+        return favoriteRepository.findAllByUserID(userId);
     }
     
     public void timesBoughtIncrement(int Id) {
