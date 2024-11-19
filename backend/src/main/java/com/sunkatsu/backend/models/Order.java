@@ -1,5 +1,7 @@
 package com.sunkatsu.backend.models;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -7,9 +9,12 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 @Document(collection = "orders")
 public class Order extends ShoppingCart {
     @Indexed(expireAfterSeconds = 7200)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "Asia/Jakarta")
     private Date paymentDeadline;
     private String status;
 
@@ -30,10 +35,11 @@ public class Order extends ShoppingCart {
         }
     }
 
-    // Method untuk menambahkan 2 jam dari waktu saat ini
     public static Date calculatePaymentDeadline() {
-        Date currentTime = new Date();
-        return new Date(currentTime.getTime() + 2 * 60 * 60 * 1000); // Menambah 2 jam
+        // Zona waktu Asia/Jakarta
+        ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Jakarta")).plusHours(2);
+        // Konversi ke Date
+        return Date.from(zonedDateTime.toInstant());
     }
 
 

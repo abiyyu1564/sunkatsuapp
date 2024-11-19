@@ -86,7 +86,7 @@ public class ShoppingCartService {
             ShoppingCart cart = cartOpt.get();
             cartRepository.deleteById(cart.getId());
 
-            Order order = new Order(sequenceGeneratorService.generateSequence(Order.SEQUENCE_NAME), cart.getTotal(), cart.getDeliver(), cart.getUserID(), cart.getCartItems(), new Date(), "Not Paid");
+            Order order = new Order(sequenceGeneratorService.generateSequence(Order.SEQUENCE_NAME), cart.getTotal(), cart.getDeliver(), cart.getUserID(), cart.getCartItems(), Order.calculatePaymentDeadline(), "Not Paid");
             return orderRepository.save(order);
         }
         return null;
