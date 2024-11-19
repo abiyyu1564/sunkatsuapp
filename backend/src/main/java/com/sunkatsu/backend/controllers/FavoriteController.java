@@ -25,7 +25,7 @@ public class FavoriteController {
     @Autowired
     private FavoriteService favoriteService;
 
-    @PostMapping
+    @PostMapping("/saveOrUpdate")
     public ResponseEntity<Favorite> saveOrUpdateFavorite(@RequestBody Favorite favorite) {
         Favorite savedFavorite = favoriteService.saveOrUpdate(favorite);
         return ResponseEntity.ok(savedFavorite);
@@ -47,7 +47,8 @@ public class FavoriteController {
         return ResponseEntity.badRequest().build();
     }
 
-    @PostMapping
+    
+    @PostMapping("/create")
     public ResponseEntity<Favorite> createFavorite(@RequestParam int userId, @RequestParam int menuId) {
         Favorite f = favoriteService.createFavorite(userId, menuId);
         return ResponseEntity.ok(f);
