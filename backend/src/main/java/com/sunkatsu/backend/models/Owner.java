@@ -7,8 +7,8 @@ public class Owner extends User {
     public Owner() {
     }
 
-    public Owner(String id, String username, String password, String role, String contactInfo) {
-        super(id, username, password, role);
+    public Owner(String id, String username, String password, String role, String contactInfo, Status status) {
+        super(id, username, password, role, status);
         this.contactInfo = contactInfo;
     }
 
