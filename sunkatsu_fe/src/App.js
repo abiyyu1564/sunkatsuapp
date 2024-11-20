@@ -29,9 +29,12 @@ function App() {
   const menuItems = ["All", "Minuman", "Desert"];
   return (
     <>
+      {/*
       <GlobalProvider>
         <NewShoppingCart />
       </GlobalProvider>
+      */}
+      <Navbar/>
     </>
   );
 }

@@ -26,7 +26,7 @@ const Sign = () => {
             </div>
 
             {/* Content Section */}
-            <div className="flex items-center mt-24 relative left-10 h-96 ">
+            <div className="flex items-center mt-24 relative left-10 h-72 ">
                 {/* Form Container */}
                 <div className="bg-white bg-opacity-50 rounded-lg shadow-lg w-[550px] p-10">
                     <h1 className="text-3xl font-bold text-black mb-6">Welcome.</h1>
