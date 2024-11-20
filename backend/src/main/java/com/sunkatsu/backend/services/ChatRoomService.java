@@ -2,6 +2,7 @@ package com.sunkatsu.backend.services;
 
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sunkatsu.backend.models.ChatRoom;
@@ -12,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class ChatRoomService {
-
+    @Autowired
     private final ChatRoomRepository chatRoomRepository;
 
     public Optional<String> getChatRoomId(
