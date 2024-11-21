@@ -36,6 +36,7 @@ public class OrdersController {
     )
     @GetMapping
     public List<Order> getOrders(){
+        orderService.checkOrderToCancel();
         return orderService.getAllOrder();
     }
 

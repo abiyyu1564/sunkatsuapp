@@ -57,10 +57,13 @@ function connect(event) {
 
 function onConnected() {
   // Subscribe ke topik publik dan private untuk user tertentu
-  stompClient.subscribe(`/user/${customerId}/queue/messages`, onMessageReceived);
+  stompClient.subscribe(
+    `/user/${customerId}/queue/messages`,
+    onMessageReceived
+  );
   stompClient.subscribe(`/user/public`, onMessageReceived);
   stompClient.send("/app/user.searchUser", {}, customerId);
-  
+
   // Tampilkan pengguna yang terhubung
   findAndDisplayConnectedUsers();
 
@@ -73,7 +76,9 @@ async function fetchCustomerInfo(customerId) {
     const response = await fetch(`/api/users/${customerId}`);
     if (response.ok) {
       const customer = await response.json();
-      const fullnameElement = document.getElementById("connected-user-fullname");
+      const fullnameElement = document.getElementById(
+        "connected-user-fullname"
+      );
       if (fullnameElement && customer.username) {
         fullnameElement.textContent = customer.username;
       }
@@ -169,22 +174,21 @@ function userItemClick(userId) {
 function displayMessage(senderId, content) {
   const messageContainer = document.createElement("div");
   messageContainer.classList.add("message");
-  
+
   if (senderId === customerId) {
     messageContainer.classList.add("sender");
   } else {
     messageContainer.classList.add("receiver");
   }
-  
+
   const message = document.createElement("p");
   message.textContent = content;
   messageContainer.appendChild(message);
   chatArea.appendChild(messageContainer);
-  
+
   // Auto-scroll
   chatArea.scrollTop = chatArea.scrollHeight;
 }
-
 
 async function fetchAndDisplayUserChat() {
   try {
@@ -263,8 +267,6 @@ async function onMessageReceived(payload) {
     }
   }
 }
-
-
 
 // Fungsi untuk mendapatkan daftar pengguna yang sedang online
 async function fetchOnlineUsers() {

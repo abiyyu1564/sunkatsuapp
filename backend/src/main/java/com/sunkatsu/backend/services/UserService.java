@@ -38,18 +38,20 @@ public class UserService {
     }
 
     public void saveUser(User user) {
-        if (user.getRole() == "customer") {
+        if (user.getRole().equals("customer")) {
             Optional<Customer> customerOpt = customerRepository.findById(user.getId());
             if (customerOpt.isPresent()) {
+                System.out.println("CURRENT USER ID" + customerOpt.get().getId());
                 var customer = customerOpt.get();
                 customer.setStatus(Status.ONLINE);
                 customerRepository.save(customer);
             } else {
                 System.out.println("ID is not valid");
             }  
-        } else if (user.getRole() == "staff") {
+        } else if (user.getRole().equals("staff")) {
             Optional<Staff> staffOpt = staffRepository.findById(user.getId());
             if (staffOpt.isPresent()) {
+                System.out.println("CURRENT USER ID" + staffOpt.get().getId());
                 var staff = staffOpt.get();
                 staff.setStatus(Status.ONLINE);
                 staffRepository.save(staff);

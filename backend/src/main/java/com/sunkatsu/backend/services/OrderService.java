@@ -132,4 +132,26 @@ public class OrderService {
         return null;
     }
 
+    public void deleteCanceledOrder() {
+        var orders = orderRepository.findAll();
+        for (Order o : orders) {
+            if (o.getStatus().equals("Canceled")) {
+                orderRepository.delete(o);
+            }
+
+        }
+    }
+
+    public void checkOrderToCancel() {
+        var orders = orderRepository.findAll();
+        Date now = new Date();
+        for (Order o : orders) {
+            if (o.getPaymentDeadline() != null) {
+                if (now.after(o.getPaymentDeadline())) {
+                    orderRepository.delete(o);
+                }
+            }
+        }
+    }
+
 }
