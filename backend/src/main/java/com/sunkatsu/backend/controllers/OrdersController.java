@@ -1,12 +1,10 @@
 package com.sunkatsu.backend.controllers;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.time.ZonedDateTime;
-import java.time.ZoneId;
-import java.time.Instant;
-import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sunkatsu.backend.dto.Message;
 import com.sunkatsu.backend.models.Order;
 import com.sunkatsu.backend.services.OrderService;
 
@@ -46,8 +45,13 @@ public class OrdersController {
     )
     @GetMapping("/{status}")
     public ResponseEntity<Object> getOrderByStatus(@PathVariable String status) {
+        try {
+            status = URLDecoder.decode(status, StandardCharsets.UTF_8.toString());
+        } catch(Exception e) {
+            return ResponseEntity.badRequest().body(new Message("Error : Input tidak valid"));
+        }
         if (status != "Not Paid" || status != "Accepted" || status != "Finished" || status != "Canceled") {
-            return ResponseEntity.badRequest().body("Invalid status!");
+            return ResponseEntity.badRequest().body(new Message("Error : Invalid status!"));
         }
         return ResponseEntity.ok().body(orderService.getOrderByStatus(status));
     } 
@@ -61,9 +65,9 @@ public class OrdersController {
         var order = orderService.findOrderById(id);
         if (order != null) {
             orderService.deleteOrder(id);
-            return ResponseEntity.ok().body("Order deleted");
+            return ResponseEntity.ok().body(new Message("Error : Order deleted"));
         }
-        return ResponseEntity.badRequest().body("Failed to delete order");
+        return ResponseEntity.badRequest().body(new Message("Error : Failed to delete order"));
     }
 
     @Operation(
@@ -79,7 +83,7 @@ public class OrdersController {
         Pattern pattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
         Matcher matchDeliver = pattern.matcher(deliver);
         if (matchDeliver.find()) {
-            return ResponseEntity.badRequest().body("Invalid deliver method");
+            return ResponseEntity.badRequest().body(new Message("Error : Invalid deliver method"));
         }
         Order order = orderService.createOrder(total, deliver, userId);
         return order != null ? ResponseEntity.ok(order) : ResponseEntity.badRequest().build();
@@ -95,7 +99,7 @@ public class OrdersController {
         @RequestBody Order order
     ) {
         Order updatedOrder = orderService.updateOrder(id, order);
-        return updatedOrder != null ? ResponseEntity.ok(updatedOrder) : ResponseEntity.badRequest().body("Failed to update order");
+        return updatedOrder != null ? ResponseEntity.ok(updatedOrder) : ResponseEntity.badRequest().body(new Message("Error : Failed to update order"));
     }
 
     @Operation(
@@ -105,7 +109,7 @@ public class OrdersController {
     @PutMapping("/{id}/accept")
     public ResponseEntity<Object> acceptOrder(@PathVariable int id) throws Exception {
         Order order = orderService.acceptOrder(id);
-        return order != null ? ResponseEntity.ok(order) : ResponseEntity.badRequest().body("Failed to accept order");
+        return order != null ? ResponseEntity.ok(order) : ResponseEntity.badRequest().body(new Message("Error : Failed to accept order"));
     }
 
     @Operation(
@@ -115,6 +119,6 @@ public class OrdersController {
     @PutMapping("/{id}/finish")
     public ResponseEntity<Object> finishOrder(@PathVariable int id) throws Exception {
         Order order = orderService.finishOrder(id);
-        return order != null ? ResponseEntity.ok(order) : ResponseEntity.badRequest().body("Failed to finish order");
+        return order != null ? ResponseEntity.ok(order) : ResponseEntity.badRequest().body(new Message("Error : Failed to finish order"));
     }
 }

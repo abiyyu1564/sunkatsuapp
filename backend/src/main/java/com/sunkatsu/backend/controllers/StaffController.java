@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sunkatsu.backend.dto.Message;
 import com.sunkatsu.backend.dto.StaffDTO;
 import com.sunkatsu.backend.models.Staff;
-import com.sunkatsu.backend.models.User;
 import com.sunkatsu.backend.services.StaffService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -66,7 +66,7 @@ public class StaffController {
         Matcher matchUsrename = pattern.matcher(staff.getUsername());
         Matcher matchRoleDetail = pattern.matcher(staff.getRoleDetail());
         if (matchUsrename.find() || matchRoleDetail.find() || !staff.verify()) {
-            return ResponseEntity.badRequest().body("Invalid username or role detail");
+            return ResponseEntity.badRequest().body(new Message("Invalid username or role detail"));
         }
         return ResponseEntity.ok(staffService.createStaff(staff));
     }
