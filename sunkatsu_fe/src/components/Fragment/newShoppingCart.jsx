@@ -4,9 +4,8 @@ import { FaCirclePlus } from "react-icons/fa6";
 import { FaCircleMinus } from "react-icons/fa6";
 import { FaSquareCheck } from "react-icons/fa6";
 
-import SockJS from 'sockjs-client';
-import { Stomp } from '@stomp/stompjs';
-
+import SockJS from "sockjs-client";
+import { Stomp } from "@stomp/stompjs";
 
 const NewShoppingCart = () => {
   "use strict";

@@ -19,12 +19,11 @@ import NewMenuCard from "./components/Fragment/newMenuCard";
 import TestRemovebg from "./components/Fragment/testRemovebg";
 import NewShoppingCart from "./components/Fragment/newShoppingCart";
 import { GlobalProvider } from "./context/GlobalContext";
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import FilterCategory from "./components/Fragment/filterCategory";
 import LandingPage from "./components/Layout/Landing";
 import ListMenu from "./components/Layout/ListMenu";
 import CobaInputMenu from "./components/Fragment/cobaInputMenu";
-
 
 import Homepage from "./components/Pages/Dashboard/homePage";
 
@@ -33,7 +32,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Homepage />} />
+        <Route path="/" element={<NewShoppingCart />} />
       </Routes>
     </Router>
   );
