@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Document(collection = "orders")
 public class Order extends ShoppingCart {
-    @Indexed(expireAfterSeconds = 7200)
+    @Indexed(name = "paymentDeadline_ttl", expireAfterSeconds = 7200)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "Asia/Jakarta")
     private Date paymentDeadline;
     private String status;

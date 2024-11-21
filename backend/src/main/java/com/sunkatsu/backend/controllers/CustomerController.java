@@ -1,6 +1,9 @@
 package com.sunkatsu.backend.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sunkatsu.backend.dto.CustomerDTO;
 import com.sunkatsu.backend.models.Customer;
 import com.sunkatsu.backend.models.CustomerId;
 import com.sunkatsu.backend.models.Favorite;
@@ -41,8 +45,13 @@ public class CustomerController {
         description = "Get all customers"
     )
     @GetMapping
-    public List<Customer> getAllCustomers() {
-        return customerService.findAllCustomers();
+    public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
+        List<Customer> listCustomer = customerService.findAllCustomers();
+        List<CustomerDTO> listCustomerDTO = new ArrayList<>();
+        for (Customer customer : listCustomer) {
+            listCustomerDTO.add(customerService.convertToDTO(customer));
+        }
+        return ResponseEntity.ok(listCustomerDTO);
     }
 
     // @MessageMapping("/customer.createCustomer")
@@ -69,8 +78,13 @@ public class CustomerController {
         description = "Create a new customer"
     )
     @PostMapping
-    public Customer addCustomerToDB(@Payload Customer customer) {
-        return customerService.createCustomer(customer);
+    public ResponseEntity<Object> addCustomerToDB(@Payload Customer customer) {
+        Pattern pattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Matcher matchUsrename = pattern.matcher(customer.getUsername());
+        if (matchUsrename.find()) {
+            return ResponseEntity.badRequest().body("Invalid username");
+        }
+        return ResponseEntity.ok(customerService.convertToDTO(customerService.createCustomer(customer)));
     }
 
     @Operation(
@@ -78,9 +92,12 @@ public class CustomerController {
         description = "Get customer by id"
     )
     @GetMapping("/{id}")
-    public ResponseEntity<Customer> getCustomerById(@PathVariable String id) {
+    public ResponseEntity<Object> getCustomerById(@PathVariable String id) {
         Customer customer = customerService.getCustomerById(id);
-        return customer != null ? ResponseEntity.ok(customer) : ResponseEntity.notFound().build();
+        if (customer == null) {
+            return ResponseEntity.badRequest().body("Id not found");
+        }
+        return ResponseEntity.ok(customerService.convertToDTO(customer));
     }
 
     @Operation(
@@ -88,9 +105,12 @@ public class CustomerController {
         description = "Mendapatkan cart berdasarkan customer id"
     )
     @GetMapping("/{id}/cart")
-    public ResponseEntity<ShoppingCart> getCartByCustomerId(@PathVariable String id) {
+    public ResponseEntity<Object> getCartByCustomerId(@PathVariable String id) {
         ShoppingCart cart = customerService.getCartByCustomerId(id);
-        return cart != null ? ResponseEntity.ok(cart) : ResponseEntity.notFound().build();
+        if (cart == null) {
+            return ResponseEntity.badRequest().body("Id not found");
+        }
+        return ResponseEntity.ok(cart);
     }
 
     @Operation(
@@ -98,8 +118,12 @@ public class CustomerController {
         description = "Fetch all orders by customer id"
     )
     @GetMapping("/{id}/orders")
-    public Order getOrderByUserId(@PathVariable int id) {
-        return orderService.getOrderByUserId(id);
+    public ResponseEntity<Object> getOrderByUserId(@PathVariable int id) {
+        var order = orderService.getOrderByUserId(id);
+        if (order == null) {
+            return ResponseEntity.badRequest().body("Id not found");
+        }
+        return ResponseEntity.ok(order);
     }
 
     @MessageMapping("/customer.disconnectCustomer")
@@ -117,10 +141,9 @@ public class CustomerController {
         description = "Get all favorites by the inputted user id"
     )
     @GetMapping("/{id}/favorites")
-    public ResponseEntity<List<Favorite>> getFavoriteByUserId(@PathVariable int userId){
+    public ResponseEntity<Object> getFavoriteByUserId(@PathVariable int userId){
         List<Favorite> f = favoriteService.getFavoriteByUserId(userId);
-        return f != null ? ResponseEntity.ok(f) :
-        ResponseEntity.notFound().build();
+        return f != null ? ResponseEntity.ok(f) : ResponseEntity.badRequest().body("Id not found");
     }
 
     @Operation(
@@ -128,7 +151,16 @@ public class CustomerController {
         description = "Get customer by status except the inputted customer id"
     )
     @GetMapping("/status/{customerId}")
-    public ResponseEntity<List<Customer>> findConnectedUsersExcept(@PathVariable String customerId) {
-        return ResponseEntity.ok(customerService.findConnectedUsersExcept(customerId));
+    public ResponseEntity<Object> findConnectedUsersExcept(@PathVariable String customerId) {
+        Customer customer = customerService.getCustomerById(customerId);
+        if (customer == null) {
+            return ResponseEntity.badRequest().body("Id not found");
+        }
+        List<Customer> listCustomers =customerService.findConnectedUsersExcept(customerId);
+        List<CustomerDTO> listCustomersDTO = new ArrayList<>();
+        for (Customer c : listCustomers) {
+            listCustomersDTO.add(customerService.convertToDTO(customer));
+        }
+        return ResponseEntity.ok(listCustomersDTO);
     }
 }

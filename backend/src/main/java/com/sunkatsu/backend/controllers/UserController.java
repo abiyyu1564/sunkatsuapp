@@ -29,7 +29,6 @@ public class UserController {
     @MessageMapping("/user.searchUser")
     @SendTo("/user/public")
     public UserDTO findUserById(@Payload String customerId) {
-        System.out.println("CURRENT CUSTOMER ID: " + customerId);
         User user = userService.findUserById(customerId);
         if (user != null) {
             userService.saveUser(user);
@@ -55,9 +54,9 @@ public class UserController {
         description = "Get user by id"
     )
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable String id) {
+    public ResponseEntity<Object> getUserById(@PathVariable String id) {
         var user = userService.findUserById(id);
-        return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
+        return user != null ? ResponseEntity.ok(userService.convertToDTO(user)) : ResponseEntity.badRequest().body("Id not found");
     }
 
     @Operation(

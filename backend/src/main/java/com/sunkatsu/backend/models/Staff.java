@@ -2,7 +2,7 @@ package com.sunkatsu.backend.models;
 
 import org.springframework.data.annotation.Transient;
 
-public class Staff extends User {
+public class Staff extends User implements Verifiable {
     private String roleDetail;
 
     @Transient
@@ -30,5 +30,9 @@ public class Staff extends User {
         } else{
             System.out.println("Login Failed");
         }
+    }
+
+    public boolean verify() {
+        return roleDetail == "waiter" || roleDetail == "cook" || roleDetail == "cashier";
     }
 }
