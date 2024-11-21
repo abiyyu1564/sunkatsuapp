@@ -15,11 +15,11 @@ const Navbar = () => {
   const popup = () => {};
 
   return (
-    <nav className="flex items-center justify-between bg-white py-2 px-8 shadow-md">
-      <div className="flex items-center space-x-8">
+    <nav className="bg-white py-2 px-8 shadow-md">
+      <div className="flex items-center justify-between">
         {/* Logo */}
         <a href="/" className="flex items-center">
-          <img src={Logo} className="h-[75px] w-auto" alt="Logo" />
+          <img src={Logo} className="h-[80px] w-auto" alt="Logo" />
         </a>
 
         {/* Menu Items */}
@@ -30,34 +30,35 @@ const Navbar = () => {
         </ul>
 
         {/* Navbar icons and search */}
-        <div className="flex items-center space-x-8">
+        <div className="flex items-center space-x-10">
           {/* Search Bar */}
-          <a href="#" className="flex flex-col items-center text-black">
+          <a href="#" className="flex items-center text-black">
             <SearchIcon className="w-6 h-6" />
           </a>
 
           {/* Chat */}
-          <a href="#" className="flex flex-col items-center text-black">
+          <a href="#" className="flex items-center text-black">
             <ChatIcon className="w-6 h-6" />
           </a>         
 
           {/* cart */}
-          <a href="#" className="flex flex-col items-center text-black">
+          <a href="#" className="flex items-center text-black">
             <CartIcon className="w-6 h-6" />
           </a>
 
           {/* Notifications */}
-          <a href="#" className="flex flex-col items-center text-black">
+          <a href="#" className="flex items-center text-black">
             <NotificationIcon className="w-6 h-6" />
           </a>
 
           {/* Profile */}
-          <a href="#" className="flex flex-col items-center text-black">
-            <ProfileIcon className="w-10 h-10" />
-          </a>
+            <a href="#" className="flex items-center text-black">
+              <ProfileIcon className="w-10 h-10" />
+            </a>
 
           
-        
+          
+           
         </div>
       </div>
     </nav>

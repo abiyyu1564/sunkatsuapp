@@ -30,11 +30,16 @@ import Homepage from "./components/Pages/Dashboard/homePage";
 function App() {
   const menuItems = ["All", "Minuman", "Desert"];
   return (
-    <Router>
+    <div>
+      {/*
+      <Router>
       <Routes>
-        <Route path="/" element={<NewShoppingCart />} />
+      <Route path="/" element={<NewShoppingCart />} />
       </Routes>
-    </Router>
+      </Router>
+      */}
+      <Navbar/>
+    </div>
   );
 }
 
