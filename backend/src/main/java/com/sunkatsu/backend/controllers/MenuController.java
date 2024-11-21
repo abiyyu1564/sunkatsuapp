@@ -5,6 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -46,13 +48,22 @@ public class MenuController {
         description = "Create a new menu"
     )
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Menu> createMenu(
+    public ResponseEntity<Object> createMenu(
             @RequestParam("name") String name,
             @RequestParam("price") int price,
             @RequestParam("desc") String desc,
             @RequestParam("category") String category,
             @RequestParam("nums_bought") int numsBought,
             @RequestPart("file") MultipartFile file) throws IOException {
+        
+        Pattern pattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Matcher matchName = pattern.matcher(name);
+        Matcher matchDesc = pattern.matcher(desc);
+        Matcher matchCategory = pattern.matcher(category);
+                
+        if ((category != "makanan" || category != "minuman" || category != "desert") || matchName.find() || matchDesc.find() || matchCategory.find()) {
+            return ResponseEntity.badRequest().body("Input name, price, desc, atau category tidak valid");
+        }
         Menu menu = new Menu(name, null, null, price, desc, category, numsBought);
         Menu createdMenu = menuService.createMenu(menu, file);
         return ResponseEntity.ok(createdMenu);
@@ -63,17 +74,30 @@ public class MenuController {
         description = "Update an already existing menu"
     )
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Menu> updateMenu(
+    public ResponseEntity<Object> updateMenu(
             @PathVariable int id,
             @RequestParam("name") String name,
             @RequestParam("price") int price,
             @RequestParam("desc") String desc,
             @RequestParam("category") String category,
             @RequestParam("nums_bought") int numsBought,
-            @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+        
+        Pattern pattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Matcher matchName = pattern.matcher(name);
+        Matcher matchDesc = pattern.matcher(desc);
+        Matcher matchCategory = pattern.matcher(category);
+                        
+        if ((category != "makanan" || category != "minuman" || category != "desert") || matchName.find() || matchDesc.find() || matchCategory.find()) {
+            return ResponseEntity.badRequest().body("Input name, price, desc, atau category tidak valid");
+        }
         Menu menuDetails = new Menu(name, null, null, price, desc, category, numsBought);
-        Menu updatedMenu = menuService.updateMenu(id, menuDetails, file);
-        return updatedMenu != null ? ResponseEntity.ok(updatedMenu) : ResponseEntity.notFound().build();
+        try {
+            Menu updatedMenu = menuService.updateMenu(id, menuDetails, file);
+            return updatedMenu != null ? ResponseEntity.ok(updatedMenu) : ResponseEntity.badRequest().body("Something went wrong");
+        } catch(IOException e) {
+            return ResponseEntity.badRequest().body("Error: "+ e.getMessage());
+        }
     }   
 
     @Operation(
@@ -81,12 +105,12 @@ public class MenuController {
         description="Delete a single menu by its id"
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteMenu(@PathVariable int id) {
+    public ResponseEntity<Object> deleteMenu(@PathVariable int id) {
         boolean isDeleted = menuService.deleteMenu(id);
         if (isDeleted) {
             return ResponseEntity.ok("Menu with ID " + id + " has been successfully deleted.");
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().body("Something went wrong");
         }
     }
 

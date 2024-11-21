@@ -37,6 +37,10 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    public Order findOrderById(int id) {
+        return orderRepository.findById(id).isPresent() ? orderRepository.findById(id).get() : null;
+    }
+
     public Order updateOrder(int id, Order orderDetails) {
         return orderRepository.findById(id).map(order -> {
             order.setDeliver(orderDetails.getDeliver());
@@ -105,7 +109,8 @@ public class OrderService {
                 Optional<Menu> menuOpt = menuRepository.findById(c.getMenu().getId());
                 if (menuOpt.isPresent()) {
                     Menu menu = menuOpt.get();
-                    menu.setNumsBought(menu.getNumsBought()+1);
+                    menu.setNumsBought(menu.getNumsBought()+ c.getQuantity());
+                    menuRepository.save(menu);
                 } else {
                     return null;
                 }
@@ -113,10 +118,10 @@ public class OrderService {
                 Optional<Favorite> favOpt = favoriteRepository.findByUserIDAndMenuID(Integer.parseInt(customer.getId()), c.getMenu().getId());
                 if (favOpt.isPresent()) {
                     var fav = favOpt.get();
-                    fav.setTimesBought(fav.getTimesBought() + 1);
+                    fav.setTimesBought(fav.getTimesBought() + c.getQuantity());
                     favoriteRepository.save(fav);
                 } else {
-                    Favorite favBaru = new Favorite(sequenceGeneratorService.generateSequence(Favorite.SEQUENCE_NAME), 1, c.getMenu().getId(), Integer.parseInt(customer.getId()));
+                    Favorite favBaru = new Favorite(sequenceGeneratorService.generateSequence(Favorite.SEQUENCE_NAME), c.getQuantity(), c.getMenu().getId(), Integer.parseInt(customer.getId()));
                     favoriteRepository.save(favBaru);
                 }
             }

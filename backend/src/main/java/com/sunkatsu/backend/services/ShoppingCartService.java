@@ -39,8 +39,8 @@ public class ShoppingCartService {
         return cartRepository.save(cart);
     }
 
-    public Optional<ShoppingCart> getCartById(int id) {
-        return cartRepository.findById(id);
+    public ShoppingCart getCartById(int id) {
+        return cartRepository.findById(id).isPresent() ? cartRepository.findById(id).get() : null;
     }
 
     public ShoppingCart updateCart(int id, ShoppingCart cart) {

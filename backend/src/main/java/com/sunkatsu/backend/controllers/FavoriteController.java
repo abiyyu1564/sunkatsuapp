@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sunkatsu.backend.models.Favorite;
+import com.sunkatsu.backend.services.CustomerService;
 import com.sunkatsu.backend.services.FavoriteService;
+import com.sunkatsu.backend.services.MenuService;
 
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -26,12 +28,24 @@ public class FavoriteController {
     @Autowired
     private FavoriteService favoriteService;
 
+    @Autowired
+    private CustomerService customerService;
+
+    @Autowired
+    private MenuService menuService;
+
     @Operation(
         summary = "Update favorites",
         description = "Update favorites"
     )
     @PostMapping("/saveOrUpdate")
-    public ResponseEntity<Favorite> saveOrUpdateFavorite(@Payload Favorite favorite) {
+    public ResponseEntity<Object> saveOrUpdateFavorite(@Payload Favorite favorite) {
+        var customer = customerService.getCustomerById(String.valueOf(favorite.getUserID()));
+        var menu = menuService.getMenuById(favorite.getMenuID());
+        if (customer == null || menu == null || favorite.getTimesBought() < 0) {
+            return ResponseEntity.badRequest().body("Invalid input");
+        }
+
         Favorite savedFavorite = favoriteService.saveOrUpdate(favorite);
         return ResponseEntity.ok(savedFavorite);
     }
@@ -50,14 +64,14 @@ public class FavoriteController {
         description = "Get one favorite by ID"
     )
     @GetMapping("/{id}")
-    public ResponseEntity<Favorite> getFavoriteById(@PathVariable int id) {
+    public ResponseEntity<Object> getFavoriteById(@PathVariable int id) {
         Optional<Favorite> favOpt = favoriteService.getFavoriteById(id);
 
         if (favOpt.isPresent()) {
             Favorite f = favOpt.get();
             return ResponseEntity.ok(f);
         }
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.badRequest().body("Id not found");
     }
 
     @Operation(
@@ -65,7 +79,13 @@ public class FavoriteController {
         description = "Create a new favorite and save it in DB"
     )
     @PostMapping("/create")
-    public ResponseEntity<Favorite> createFavorite(@RequestParam int userId, @RequestParam int menuId) {
+    public ResponseEntity<Object> createFavorite(@RequestParam int userId, @RequestParam int menuId) {
+        var customer = customerService.getCustomerById(String.valueOf(userId));
+        var menu = menuService.getMenuById(menuId);
+        if (customer == null || menu == null) {
+            return ResponseEntity.badRequest().body("menu Id or user Id is not found");
+        }
+
         Favorite f = favoriteService.createFavorite(userId, menuId);
         return ResponseEntity.ok(f);
     }
@@ -75,8 +95,13 @@ public class FavoriteController {
         description="Delete one favorite by its id"
     )
     @DeleteMapping("/{id}")
-    public void deleteFavorite(@PathVariable int id) throws Exception {
-        favoriteService.deleteFavorite(id);
+    public ResponseEntity<Object> deleteFavorite(@PathVariable int id) throws Exception {
+        var favorite = favoriteService.getFavoriteById(id);
+        if (favorite.isPresent()) {
+            favoriteService.deleteFavorite(id);
+            return ResponseEntity.ok().body("Favorite successfully deleted");
+        }
+        return ResponseEntity.badRequest().body("Id is not found");
     }
 
     @Operation(
@@ -84,8 +109,12 @@ public class FavoriteController {
         description = "Increment a single favorite's timesBought"
     )
     @PostMapping("/increment/{id}")
-    public ResponseEntity<Void> incrementTimesBought(@PathVariable int id) {
-        favoriteService.timesBoughtIncrement(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Object> incrementTimesBought(@PathVariable int id) {
+        var fav = favoriteService.getFavoriteById(id);
+        if (fav != null) {
+            favoriteService.timesBoughtIncrement(id);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.badRequest().body("Id is not found");
     }
 }

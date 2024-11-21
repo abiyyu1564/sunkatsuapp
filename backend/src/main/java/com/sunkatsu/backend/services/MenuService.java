@@ -2,6 +2,7 @@ package com.sunkatsu.backend.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators.Log;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.sunkatsu.backend.models.Menu;
@@ -51,7 +52,7 @@ public class MenuService {
             Path filePath = Paths.get(uploadDir, filename);
             Files.deleteIfExists(filePath);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error" + e.getMessage());
         }
     }
 
