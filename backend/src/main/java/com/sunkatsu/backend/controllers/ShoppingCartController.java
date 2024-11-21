@@ -1,5 +1,7 @@
 package com.sunkatsu.backend.controllers;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,9 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sunkatsu.backend.dto.Message;
 import com.sunkatsu.backend.models.Order;
 import com.sunkatsu.backend.models.ShoppingCart;
-import com.sunkatsu.backend.models.User;
 import com.sunkatsu.backend.services.CustomerService;
 import com.sunkatsu.backend.services.ShoppingCartService;
 
@@ -59,10 +61,16 @@ public class ShoppingCartController {
     )
     @PostMapping
     public ResponseEntity<Object> createShoppingCart(@RequestBody ShoppingCart cart) {
+        var deliver = cart.getDeliver();
+        try {
+            deliver = URLDecoder.decode(cart.getDeliver(), StandardCharsets.UTF_8.toString());
+        } catch(Exception e) {
+            return ResponseEntity.badRequest().body(new Message("Input tidak valid"));
+        }
         Pattern pattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
-        Matcher matchDeliver = pattern.matcher(cart.getDeliver());
+        Matcher matchDeliver = pattern.matcher(deliver);
         if (matchDeliver.find()) {
-            ResponseEntity.badRequest().body("Invalid deliver type!");
+            ResponseEntity.badRequest().body(new Message("Invalid deliver type!"));
         }
         return ResponseEntity.ok().body(cartService.createCart(cart));
     }
@@ -73,7 +81,7 @@ public class ShoppingCartController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<Object> getCartById(@PathVariable int id) {
-        return cartService.getCartById(id) != null ? ResponseEntity.ok(cartService.getCartById(id)) : ResponseEntity.badRequest().body("id is not found");
+        return cartService.getCartById(id) != null ? ResponseEntity.ok(cartService.getCartById(id)) : ResponseEntity.badRequest().body(new Message("id is not found"));
     }
 
     @Operation(
@@ -83,7 +91,7 @@ public class ShoppingCartController {
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateCart(@PathVariable int id, @RequestBody ShoppingCart cartDetails) {
         ShoppingCart updatedCart = cartService.updateCart(id, cartDetails);
-        return updatedCart != null ? ResponseEntity.ok(updatedCart) : ResponseEntity.badRequest().body("Id is not valid");
+        return updatedCart != null ? ResponseEntity.ok(updatedCart) : ResponseEntity.badRequest().body(new Message("Id is not valid"));
     }
 
     @Operation(
@@ -93,7 +101,7 @@ public class ShoppingCartController {
     @PostMapping("/{id}")
     public ResponseEntity<Object> finishCart(@PathVariable int id) {
         Order order = cartService.finishCart(id);
-        return order != null ? ResponseEntity.ok(order) : ResponseEntity.badRequest().body("Id is not valid");
+        return order != null ? ResponseEntity.ok(order) : ResponseEntity.badRequest().body(new Message("Id is not valid"));
     }
 
     /*@DeleteMapping("/{id}")
@@ -111,7 +119,7 @@ public class ShoppingCartController {
         @PathVariable int cartItemId) 
     {
         ShoppingCart updatedCart = cartService.deleteCartItemFromShoppingCart(cartId, cartItemId);
-        return updatedCart != null ? ResponseEntity.ok(updatedCart) : ResponseEntity.badRequest().body("Invalid cart id or cart item id");
+        return updatedCart != null ? ResponseEntity.ok(updatedCart) : ResponseEntity.badRequest().body(new Message("Invalid cart id or cart item id"));
     }
 
     @Operation(
@@ -130,9 +138,9 @@ public class ShoppingCartController {
         Matcher matchDeliver = pattern.matcher(deliver);
         Matcher matchNote = pattern.matcher(note);
         if (matchDeliver.find() || matchNote.find() || quantity < 0) {
-            return ResponseEntity.badRequest().body("Invalid deliver method, note or quantity");
+            return ResponseEntity.badRequest().body(new Message("Error : Invalid deliver method, note or quantity"));
         }
         ShoppingCart updatedCart = cartService.addMenuToCart(cartId, menuId, quantity, deliver, note);
-        return updatedCart != null ? ResponseEntity.ok(updatedCart) : ResponseEntity.badRequest().body("Something went wrong");
+        return updatedCart != null ? ResponseEntity.ok(updatedCart) : ResponseEntity.badRequest().body(new Message("Error : Something went wrong"));
     }
 }

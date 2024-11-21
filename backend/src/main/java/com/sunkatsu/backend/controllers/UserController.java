@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sunkatsu.backend.dto.Message;
 import com.sunkatsu.backend.dto.UserDTO;
 import com.sunkatsu.backend.models.CustomerId;
 import com.sunkatsu.backend.models.User;
@@ -56,7 +57,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<Object> getUserById(@PathVariable String id) {
         var user = userService.findUserById(id);
-        return user != null ? ResponseEntity.ok(userService.convertToDTO(user)) : ResponseEntity.badRequest().body("Id not found");
+        return user != null ? ResponseEntity.ok(userService.convertToDTO(user)) : ResponseEntity.badRequest().body(new Message("Error : Id not found"));
     }
 
     @Operation(

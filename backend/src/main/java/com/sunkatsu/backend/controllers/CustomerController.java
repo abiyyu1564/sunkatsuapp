@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sunkatsu.backend.dto.CustomerDTO;
+import com.sunkatsu.backend.dto.Message;
 import com.sunkatsu.backend.models.Customer;
 import com.sunkatsu.backend.models.CustomerId;
 import com.sunkatsu.backend.models.Favorite;
-import com.sunkatsu.backend.models.Order;
 import com.sunkatsu.backend.models.ShoppingCart;
 import com.sunkatsu.backend.services.CustomerService;
 import com.sunkatsu.backend.services.FavoriteService;
@@ -82,7 +82,7 @@ public class CustomerController {
         Pattern pattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
         Matcher matchUsrename = pattern.matcher(customer.getUsername());
         if (matchUsrename.find()) {
-            return ResponseEntity.badRequest().body("Invalid username");
+            return ResponseEntity.badRequest().body(new Message("Error : Invalid username"));
         }
         return ResponseEntity.ok(customerService.convertToDTO(customerService.createCustomer(customer)));
     }
@@ -95,7 +95,7 @@ public class CustomerController {
     public ResponseEntity<Object> getCustomerById(@PathVariable String id) {
         Customer customer = customerService.getCustomerById(id);
         if (customer == null) {
-            return ResponseEntity.badRequest().body("Id not found");
+            return ResponseEntity.badRequest().body(new Message("Error : Id not found"));
         }
         return ResponseEntity.ok(customerService.convertToDTO(customer));
     }
@@ -108,7 +108,7 @@ public class CustomerController {
     public ResponseEntity<Object> getCartByCustomerId(@PathVariable String id) {
         ShoppingCart cart = customerService.getCartByCustomerId(id);
         if (cart == null) {
-            return ResponseEntity.badRequest().body("Id not found");
+            return ResponseEntity.badRequest().body(new Message("Error : Id not found"));
         }
         return ResponseEntity.ok(cart);
     }
@@ -121,7 +121,7 @@ public class CustomerController {
     public ResponseEntity<Object> getOrderByUserId(@PathVariable int id) {
         var order = orderService.getOrderByUserId(id);
         if (order == null) {
-            return ResponseEntity.badRequest().body("Id not found");
+            return ResponseEntity.badRequest().body(new Message("Error : Id not found"));
         }
         return ResponseEntity.ok(order);
     }
@@ -143,7 +143,7 @@ public class CustomerController {
     @GetMapping("/{id}/favorites")
     public ResponseEntity<Object> getFavoriteByUserId(@PathVariable int userId){
         List<Favorite> f = favoriteService.getFavoriteByUserId(userId);
-        return f != null ? ResponseEntity.ok(f) : ResponseEntity.badRequest().body("Id not found");
+        return f != null ? ResponseEntity.ok(f) : ResponseEntity.badRequest().body(new Message("Error : Id not found"));
     }
 
     @Operation(
@@ -154,7 +154,7 @@ public class CustomerController {
     public ResponseEntity<Object> findConnectedUsersExcept(@PathVariable String customerId) {
         Customer customer = customerService.getCustomerById(customerId);
         if (customer == null) {
-            return ResponseEntity.badRequest().body("Id not found");
+            return ResponseEntity.badRequest().body(new Message("Error: Id not found"));
         }
         List<Customer> listCustomers =customerService.findConnectedUsersExcept(customerId);
         List<CustomerDTO> listCustomersDTO = new ArrayList<>();

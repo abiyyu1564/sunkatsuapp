@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sunkatsu.backend.dto.Message;
 import com.sunkatsu.backend.models.Favorite;
 import com.sunkatsu.backend.services.CustomerService;
 import com.sunkatsu.backend.services.FavoriteService;
@@ -43,7 +44,7 @@ public class FavoriteController {
         var customer = customerService.getCustomerById(String.valueOf(favorite.getUserID()));
         var menu = menuService.getMenuById(favorite.getMenuID());
         if (customer == null || menu == null || favorite.getTimesBought() < 0) {
-            return ResponseEntity.badRequest().body("Invalid input");
+            return ResponseEntity.badRequest().body(new Message("Error : Invalid input"));
         }
 
         Favorite savedFavorite = favoriteService.saveOrUpdate(favorite);
@@ -71,7 +72,7 @@ public class FavoriteController {
             Favorite f = favOpt.get();
             return ResponseEntity.ok(f);
         }
-        return ResponseEntity.badRequest().body("Id not found");
+        return ResponseEntity.badRequest().body(new Message("Error: Id not found"));
     }
 
     @Operation(
@@ -83,7 +84,7 @@ public class FavoriteController {
         var customer = customerService.getCustomerById(String.valueOf(userId));
         var menu = menuService.getMenuById(menuId);
         if (customer == null || menu == null) {
-            return ResponseEntity.badRequest().body("menu Id or user Id is not found");
+            return ResponseEntity.badRequest().body(new Message("Error : menu Id or user Id is not found"));
         }
 
         Favorite f = favoriteService.createFavorite(userId, menuId);
@@ -99,9 +100,9 @@ public class FavoriteController {
         var favorite = favoriteService.getFavoriteById(id);
         if (favorite.isPresent()) {
             favoriteService.deleteFavorite(id);
-            return ResponseEntity.ok().body("Favorite successfully deleted");
+            return ResponseEntity.ok().body(new Message("Success :Favorite successfully deleted"));
         }
-        return ResponseEntity.badRequest().body("Id is not found");
+        return ResponseEntity.badRequest().body(new Message("Error : Id is not found"));
     }
 
     @Operation(
@@ -115,6 +116,6 @@ public class FavoriteController {
             favoriteService.timesBoughtIncrement(id);
             return ResponseEntity.ok().build();
         }
-        return ResponseEntity.badRequest().body("Id is not found");
+        return ResponseEntity.badRequest().body(new Message("Error : Id is not found"));
     }
 }

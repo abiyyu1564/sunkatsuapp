@@ -1,6 +1,8 @@
 package com.sunkatsu.backend.controllers;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.sunkatsu.backend.dto.Message;
 import com.sunkatsu.backend.models.Menu;
 import com.sunkatsu.backend.services.MenuService;
 
@@ -56,14 +59,37 @@ public class MenuController {
             @RequestParam("nums_bought") int numsBought,
             @RequestPart("file") MultipartFile file) throws IOException {
         
+        try {
+            name = URLDecoder.decode(name, StandardCharsets.UTF_8.toString());
+            desc = URLDecoder.decode(desc, StandardCharsets.UTF_8.toString());
+            category = URLDecoder.decode(category, StandardCharsets.UTF_8.toString());
+        } catch(Exception e) {
+            return ResponseEntity.badRequest().body(new Message("Error : " + e.getMessage()));
+        }
+        
         Pattern pattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
         Matcher matchName = pattern.matcher(name);
         Matcher matchDesc = pattern.matcher(desc);
         Matcher matchCategory = pattern.matcher(category);
-                
-        if ((category != "makanan" || category != "minuman" || category != "desert") || matchName.find() || matchDesc.find() || matchCategory.find()) {
-            return ResponseEntity.badRequest().body("Input name, price, desc, atau category tidak valid");
+                        
+        if ((category != "food" || category != "drink" || category != "dessert") || matchName.find() || matchDesc.find() || matchCategory.find()) {
+            return ResponseEntity.badRequest().body(new Message("Error : Input name, price, desc, atau category tidak valid. Category harus food, drink atau dessert"));
         }
+
+        // Validasi file: tipe MIME
+        String contentType = file.getContentType();
+        if (contentType == null || 
+            !(contentType.equals("image/jpeg") || contentType.equals("image/png"))) {
+            return ResponseEntity.badRequest().body(new Message("Error : File harus berupa gambar JPEG atau PNG"));
+        }
+
+        // Validasi file: ukuran
+        long fileSizeInBytes = file.getSize();
+        long maxFileSizeInBytes = 10 * 1024 * 1024; // 5 MB
+        if (fileSizeInBytes > maxFileSizeInBytes) {
+            return ResponseEntity.badRequest().body(new Message("Error : Ukuran file terlalu besar, maksimal 10 MB"));
+        }
+
         Menu menu = new Menu(name, null, null, price, desc, category, numsBought);
         Menu createdMenu = menuService.createMenu(menu, file);
         return ResponseEntity.ok(createdMenu);
@@ -82,21 +108,47 @@ public class MenuController {
             @RequestParam("category") String category,
             @RequestParam("nums_bought") int numsBought,
             @RequestPart(value = "file", required = false) MultipartFile file) {
+
+        // Decode input URL parameters to handle encoded characters like %20
+        try {
+            name = URLDecoder.decode(name, StandardCharsets.UTF_8.toString());
+            desc = URLDecoder.decode(desc, StandardCharsets.UTF_8.toString());
+            category = URLDecoder.decode(category, StandardCharsets.UTF_8.toString());
+        } catch(Exception e) {
+            return ResponseEntity.badRequest().body(new Message("Error : " + e.getMessage()));
+        }
         
         Pattern pattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
         Matcher matchName = pattern.matcher(name);
         Matcher matchDesc = pattern.matcher(desc);
         Matcher matchCategory = pattern.matcher(category);
                         
-        if ((category != "makanan" || category != "minuman" || category != "desert") || matchName.find() || matchDesc.find() || matchCategory.find()) {
-            return ResponseEntity.badRequest().body("Input name, price, desc, atau category tidak valid");
+        if ((category != "food" || category != "drink" || category != "dessert") || matchName.find() || matchDesc.find() || matchCategory.find()) {
+            return ResponseEntity.badRequest().body(new Message("Error : Input name, price, desc, atau category tidak valid"));
         }
+
+        if (file != null) {
+            // Validasi file: tipe MIME
+            String contentType = file.getContentType();
+            if (contentType == null || 
+                !(contentType.equals("image/jpeg") || contentType.equals("image/png"))) {
+                return ResponseEntity.badRequest().body(new Message("Error : File harus berupa gambar JPEG atau PNG"));
+            }
+
+            // Validasi file: ukuran
+            long fileSizeInBytes = file.getSize();
+            long maxFileSizeInBytes = 10 * 1024 * 1024; // 5 MB
+            if (fileSizeInBytes > maxFileSizeInBytes) {
+                return ResponseEntity.badRequest().body(new Message("Error : Ukuran file terlalu besar, maksimal 10 MB"));
+            }
+        }
+
         Menu menuDetails = new Menu(name, null, null, price, desc, category, numsBought);
         try {
             Menu updatedMenu = menuService.updateMenu(id, menuDetails, file);
-            return updatedMenu != null ? ResponseEntity.ok(updatedMenu) : ResponseEntity.badRequest().body("Something went wrong");
+            return updatedMenu != null ? ResponseEntity.ok(updatedMenu) : ResponseEntity.badRequest().body(new Message("Error : Something went wrong"));
         } catch(IOException e) {
-            return ResponseEntity.badRequest().body("Error: "+ e.getMessage());
+            return ResponseEntity.badRequest().body(new Message("Error: "+ e.getMessage()));
         }
     }   
 
@@ -108,9 +160,9 @@ public class MenuController {
     public ResponseEntity<Object> deleteMenu(@PathVariable int id) {
         boolean isDeleted = menuService.deleteMenu(id);
         if (isDeleted) {
-            return ResponseEntity.ok("Menu with ID " + id + " has been successfully deleted.");
+            return ResponseEntity.ok(new Message("Success : Menu with ID " + id + " has been successfully deleted."));
         } else {
-            return ResponseEntity.badRequest().body("Something went wrong");
+            return ResponseEntity.badRequest().body(new Message("Error : Something went wrong"));
         }
     }
 
