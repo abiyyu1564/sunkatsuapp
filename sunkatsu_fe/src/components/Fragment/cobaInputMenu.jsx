@@ -6,11 +6,6 @@ import { GlobalContext } from "../../context/GlobalContext";
 const CobaInputMenu = () => {
   const { input, setInput } = useContext(GlobalContext);
 
-  //   const handleSubmit = (e) => {
-  //     e.preventDefault();
-  //     createMenu(input);
-  //   };
-
   const handleInput = (event) => {
     const { name, value, files } = event.target;
 
@@ -34,7 +29,7 @@ const CobaInputMenu = () => {
     }
 
     const formData = new FormData();
-    formData.append("image", image);
+    formData.append("file", image);
 
     axios
       .post("http://localhost:8080/api/menus", formData, {
@@ -42,10 +37,10 @@ const CobaInputMenu = () => {
           "Content-Type": "multipart/form-data",
         },
         params: {
-          name,
-          desc,
-          price,
-          category,
+          name: encodeURIComponent(name),
+          desc: encodeURIComponent(desc),
+          price: encodeURIComponent(price),
+          category: encodeURIComponent(category),
           nums_bought: 0, // Tambahkan nums_bought langsung di params
         },
       })
