@@ -2,6 +2,7 @@ package com.sunkatsu.backend.controllers;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -14,6 +15,7 @@ import com.sunkatsu.backend.models.ChatMessage;
 import com.sunkatsu.backend.models.ChatNotification;
 import com.sunkatsu.backend.services.ChatMessageService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -25,6 +27,8 @@ public class ChatController {
     @MessageMapping("/chat")
     public void processMessage(@Payload ChatMessage chatMessage) {
         ChatMessage savedMsg = chatMessageService.save(chatMessage);
+
+        // Kirim notifikasi ke penerima berdasarkan ID
         messagingTemplate.convertAndSendToUser(
                 chatMessage.getRecipientId(), "/queue/messages",
                 new ChatNotification(
@@ -36,11 +40,17 @@ public class ChatController {
         );
     }
 
+    @Operation(
+        summary = "Get all chat messages",
+        description = "Get all chat messages by recipient and sender id"
+    )
     @GetMapping("/messages/{senderId}/{recipientId}")
-    public ResponseEntity<List<ChatMessage>> findChatMessages(@PathVariable String senderId,
-                                                              @PathVariable String recipientId) {
+    public ResponseEntity<List<ChatMessage>> findChatMessages(
+            @PathVariable String senderId, 
+            @PathVariable String recipientId) {
         return ResponseEntity
                 .ok(chatMessageService.findChatMessages(senderId, recipientId));
     }
 }
+
 

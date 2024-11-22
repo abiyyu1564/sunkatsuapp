@@ -3,6 +3,7 @@ package com.sunkatsu.backend.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sunkatsu.backend.models.ChatMessage;
@@ -19,7 +20,7 @@ public class ChatMessageService {
     public ChatMessage save(ChatMessage chatMessage) {
         var chatId = chatRoomService
                 .getChatRoomId(chatMessage.getSenderId(), chatMessage.getRecipientId(), true)
-                .orElseThrow(); 
+                .orElseThrow();
         chatMessage.setChatId(chatId);
         repository.save(chatMessage);
         return chatMessage;
@@ -29,5 +30,5 @@ public class ChatMessageService {
         var chatId = chatRoomService.getChatRoomId(senderId, recipientId, false);
         return chatId.map(repository::findByChatId).orElse(new ArrayList<>());
     }
-    
 }
+

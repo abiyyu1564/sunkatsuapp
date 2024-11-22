@@ -15,12 +15,34 @@ import Login from "./components/Fragment/loginPage";
 import Log from "./components/Fragment/login";
 import FailLogin from "./components/Fragment/FailLogin";
 import Sign from "./components/Fragment/signup";
+import NewMenuCard from "./components/Fragment/newMenuCard";
+import TestRemovebg from "./components/Fragment/testRemovebg";
+import NewShoppingCart from "./components/Fragment/newShoppingCart";
+import { GlobalProvider } from "./context/GlobalContext";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import FilterCategory from "./components/Fragment/filterCategory";
+import LandingPage from "./components/Layout/Landing";
+import ListMenu from "./components/Layout/ListMenu";
+import CobaInputMenu from "./components/Fragment/cobaInputMenu";
+import NewLanding from "./components/Fragment/newLanding";
+import NewLandingFooter from "./components/Fragment/newLandingFooter";
+import Choice from "./components/Fragment/choiceMenu";
+
+import Homepage from "./components/Pages/Dashboard/homePage";
 
 function App() {
+  const menuItems = ["All", "Minuman", "Desert"];
   return (
-    <>
-      <Login />
-    </>
+    <div>
+      {/*
+      <Router>
+      <Routes>
+      <Route path="/" element={<NewShoppingCart />} />
+      </Routes>
+      </Router>
+      */}
+      <Choice/>
+    </div>
   );
 }
 

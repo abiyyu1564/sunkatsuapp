@@ -23,4 +23,6 @@ public class ChatMessage {
     private String recipientId;
     private String content;
     private Date timestamp;
+    private String senderType; // user or staff
 }
+

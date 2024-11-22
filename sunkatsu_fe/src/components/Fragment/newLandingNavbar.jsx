@@ -7,7 +7,7 @@ import { CiShoppingCart } from "react-icons/ci";
 import { GoBell } from "react-icons/go";
 import { VscAccount } from "react-icons/vsc";
 
-const NewLandingNavbar = () => {
+const NewNavbar = () => {
   return (
     <nav className="bg-white dark:bg-gray-900 m-5">
       <div className="max-w-screen-xl flex items-center justify-between mx-auto p-1">
@@ -41,4 +41,4 @@ const NewLandingNavbar = () => {
   );
 };
 
-export default NewLandingNavbar;
+export default NewNavbar;
