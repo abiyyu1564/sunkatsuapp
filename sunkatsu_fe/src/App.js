@@ -24,8 +24,12 @@ import FilterCategory from "./components/Fragment/filterCategory";
 import LandingPage from "./components/Layout/Landing";
 import ListMenu from "./components/Layout/ListMenu";
 import CobaInputMenu from "./components/Fragment/cobaInputMenu";
+import NewLanding from "./components/Fragment/newLanding";
+import NewLandingFooter from "./components/Fragment/newLandingFooter";
+import Choice from "./components/Fragment/ketMenu";
 
 import Homepage from "./components/Pages/Dashboard/homePage";
+import KetMenu from "./components/Fragment/ketMenu";
 
 function App() {
   const menuItems = ["All", "Minuman", "Desert"];
@@ -38,7 +42,7 @@ function App() {
       </Routes>
       </Router>
       */}
-      <Navbar/>
+      <KetMenu/>
     </div>
   );
 }
