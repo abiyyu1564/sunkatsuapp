@@ -3,7 +3,10 @@ package com.sunkatsu.backend.services;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
+import org.springdoc.core.converters.models.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -77,11 +80,27 @@ public class OrderService {
     }
 
     public List<Order> getAllOrder() {
-        return orderRepository.findAll();
+        List<Order> orders = orderRepository.findAll();
+
+        // Prioritas status: Accepted > Not Paid > Finished
+        List<String> statusPriority = List.of("Accepted", "Not Paid", "Finished");
+
+        // Sort orders berdasarkan prioritas status
+        return orders.stream()
+                .sorted(Comparator.comparingInt(o -> statusPriority.indexOf(o.getStatus())))
+                .collect(Collectors.toList());
     }
 
-    public Order getOrderByUserId(int Userid) {
-        return orderRepository.findByUserID(Userid);
+    public List<Order> getOrderByUserId(int Userid) {
+        List<Order> orders = orderRepository.findAllByUserID(Userid);
+
+        // Prioritas status: Accepted > Not Paid > Finished
+        List<String> statusPriority = List.of("Accepted", "Not Paid", "Finished");
+
+        // Sort orders berdasarkan prioritas status
+        return orders.stream()
+                .sorted(Comparator.comparingInt(o -> statusPriority.indexOf(o.getStatus())))
+                .collect(Collectors.toList());
     }
 
     public List<Order> getOrderByStatus(String status) {

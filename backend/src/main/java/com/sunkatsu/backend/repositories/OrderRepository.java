@@ -9,6 +9,6 @@ import com.sunkatsu.backend.models.Order;
 
 @Repository
 public interface OrderRepository extends MongoRepository<Order, Integer> {
-    Order findByUserID(int userID);
+    List<Order> findAllByUserID(int userID);
     List<Order> findAllByStatus(String status);
 }

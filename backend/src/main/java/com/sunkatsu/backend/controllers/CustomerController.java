@@ -21,6 +21,7 @@ import com.sunkatsu.backend.dto.Message;
 import com.sunkatsu.backend.models.Customer;
 import com.sunkatsu.backend.models.CustomerId;
 import com.sunkatsu.backend.models.Favorite;
+import com.sunkatsu.backend.models.Order;
 import com.sunkatsu.backend.models.ShoppingCart;
 import com.sunkatsu.backend.services.CustomerService;
 import com.sunkatsu.backend.services.FavoriteService;
@@ -158,5 +159,14 @@ public class CustomerController {
         // }
         List<Customer> listCustomers = customerService.findConnectedUsersExcept(customerId);
         return ResponseEntity.ok(listCustomers);
+    }
+
+    @Operation(
+        summary = "Get orders by user id",
+        description = "Get all orders by user id"
+    )
+    @GetMapping("/{id}/orders")
+    public ResponseEntity<List<Order>> getOrdersByUserId(@PathVariable String id) {
+        return ResponseEntity.ok(orderService.getOrderByUserId(Integer.parseInt(id)));
     }
 }
