@@ -57,10 +57,12 @@ const NewShoppingCart = () => {
           <div className="flex w-5/6 mb-2 bg-white p-5 mx-auto items-center justify-between">
             {/* <input type="checkbox" className="w-8 h-8 rounded-sm accent-red-500" /> */}
             <FaSquareCheck size={50} color="red" />
-            <img src={Katsu} alt="katsu" className="w-40 h-40" />
-            <h1 className="text-4xl font-semibold">Chicken Katsu Curry</h1>
+            <img src={Katsu} alt="katsu" className="w-24 h-24" />
+            <h1 className="text-3xl w-7/12 text-center font-semibold">
+              Chicken Katsu Curry
+            </h1>
             <div>
-              <h2 className="text-2xl font-semibold my-2">Rp. 15.000</h2>
+              <h2 className="text-xl font-semibold my-2">Rp. 15.000</h2>
               <div className="flex w-fit h-fit gap-4 border-black border-2 rounded-2xl p-2">
                 <button onClick={decreaseCounter}>
                   <FaCircleMinus size={30} color="red" />
@@ -74,13 +76,15 @@ const NewShoppingCart = () => {
               </div>
             </div>
           </div>
-          <div className="flex w-5/6 bg-white p-5 mx-auto items-center justify-between">
+          <div className="flex w-5/6 mb-2 bg-white p-5 mx-auto items-center justify-between">
             {/* <input type="checkbox" className="w-8 h-8 rounded-sm accent-red-500" /> */}
             <FaSquareCheck size={50} color="red" />
-            <img src={Katsu} alt="katsu" className="w-40 h-40" />
-            <h1 className="text-4xl font-semibold">Chicken Katsu Curry</h1>
+            <img src={Katsu} alt="katsu" className="w-24 h-24" />
+            <h1 className="text-3xl w-7/12 text-center font-semibold">
+              Chicken Katsu Curry
+            </h1>
             <div>
-              <h2 className="text-2xl font-semibold my-2">Rp. 15.000</h2>
+              <h2 className="text-xl font-semibold my-2">Rp. 15.000</h2>
               <div className="flex w-fit h-fit gap-4 border-black border-2 rounded-2xl p-2">
                 <button onClick={decreaseCounter}>
                   <FaCircleMinus size={30} color="red" />

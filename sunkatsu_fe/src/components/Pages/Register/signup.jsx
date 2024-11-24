@@ -1,6 +1,7 @@
 import React from "react";
-import Logo from "../../assets/Logo_Sunkatsu.png";
-import Vector from "../../assets/Vector_4.png";
+import Logo from "../../../assets/Logo_Sunkatsu.png";
+import Vector from "../../../assets/Vector_4.png";
+import { Link } from "react-router-dom";
 
 const Sign = () => {
   return (
@@ -56,7 +57,7 @@ const Sign = () => {
             {/* Button */}
             <div className="flex items-start pl-6 pt-2">
               <button className="px-6 py-2 bg-[#8E0808] text-white rounded shadow hover:shadow-lg transition-shadow">
-                Sign Up
+                <Link to="/login">Sign Up</Link>
               </button>
             </div>
           </div>

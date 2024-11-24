@@ -3,6 +3,7 @@ import Vector from "../../assets/NewLanding_vector.png";
 import Katsu from "../../assets/NewLanding_Katsu.png";
 import Masak from "../../assets/orangMasak.png";
 import Vector_3 from "../../assets/Vector_3.png";
+import { Link } from "react-router-dom";
 
 const NewLanding = () => {
   return (
@@ -33,7 +34,7 @@ const NewLanding = () => {
               CLASSIC RECIPE SINCE 1998!
             </h2>
             <button className="bg-[#8E0808] flex items-center justify-center mt-5 text-white font-bold py-2 px-4 w-36 h-8 rounded-md">
-              Order Now!
+              <Link to="/login">Order Now!</Link>
             </button>
           </div>
         </div>

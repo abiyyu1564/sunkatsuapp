@@ -6,7 +6,6 @@ import { Link } from "react-router-dom";
 
 const NewMenuCard = () => {
   const { menu } = useContext(GlobalContext);
-  console.log(menu);
 
   const baseURL = "http://localhost:8080";
 

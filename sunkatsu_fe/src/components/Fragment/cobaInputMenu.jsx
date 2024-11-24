@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import axios from "axios";
 import { GlobalContext } from "../../context/GlobalContext";
 
@@ -29,9 +29,14 @@ const removeBackground = async (file) => {
 
     // Konversi blob hasil API menjadi file baru
     const removedBgBlob = response.data;
-    const removedBgFile = new File([removedBgBlob], "image_no_bg.png", {
-      type: removedBgBlob.type,
-    });
+    const timestamp = Date.now();
+    const removedBgFile = new File(
+      [removedBgBlob],
+      `image_no_bg_${timestamp}.png`,
+      {
+        type: removedBgBlob.type,
+      }
+    );
 
     return removedBgFile; // File dengan background dihapus
   } catch (error) {
@@ -43,6 +48,8 @@ const removeBackground = async (file) => {
 const CobaInputMenu = () => {
   const { input, setInput, setFetchStatus, fetchStatus } =
     useContext(GlobalContext);
+
+  const [isProcessingImage, setIsProcessingImage] = useState(false); // Flag untuk melacak status penghapusan background
 
   const handleInput = async (e) => {
     const { name, value, files } = e.target;
@@ -57,6 +64,8 @@ const CobaInputMenu = () => {
       }
 
       try {
+        setIsProcessingImage(true); // Mulai proses penghapusan background
+
         // Hapus background dari file yang diunggah
         const fileWithoutBg = await removeBackground(file);
 
@@ -65,12 +74,18 @@ const CobaInputMenu = () => {
           ...prevState,
           image: fileWithoutBg,
         }));
+
         console.log("Background removed successfully.");
       } catch (error) {
+        console.error("Failed to remove background:", error);
         alert("Failed to remove background. Please try again.");
+      } finally {
+        setIsProcessingImage(false); // Selesai proses penghapusan background
       }
     } else if (name === "image_url") {
       try {
+        setIsProcessingImage(true); // Mulai proses pengunduhan dan penghapusan background
+
         // Unduh file dari URL
         const blob = await fetchBlob(value);
         const file = new File([blob], "image.png", { type: blob.type });
@@ -88,6 +103,8 @@ const CobaInputMenu = () => {
       } catch (error) {
         console.error("Error processing image:", error);
         alert("Failed to process the image. Please try again.");
+      } finally {
+        setIsProcessingImage(false); // Selesai proses
       }
     } else {
       // Untuk input lain
@@ -101,7 +118,8 @@ const CobaInputMenu = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const { name, desc, price, image, category } = input;
+    const { image, name, desc, price, category } = input;
+    console.log("Input:", input);
 
     // Validasi input
     if (!name || !desc || !price || !image || !category) {
@@ -112,8 +130,6 @@ const CobaInputMenu = () => {
 
     try {
       const formData = new FormData();
-
-      // Tambahkan file ke FormData
       formData.append("file", image);
 
       // Kirim file ke server
@@ -136,6 +152,16 @@ const CobaInputMenu = () => {
 
       console.log("response:", response.data);
       setFetchStatus((prevStatus) => !prevStatus);
+
+      // Reset input form setelah submit
+      setInput({
+        name: "",
+        desc: "",
+        price: "",
+        image: null,
+        category: "",
+      });
+      window.location.reload();
     } catch (error) {
       console.error(
         "Error creating menu:",
@@ -173,17 +199,16 @@ const CobaInputMenu = () => {
       />
       <input
         type="text"
-        name="image_url"
-        placeholder="Paste image URL (optional)"
-        onChange={handleInput}
-      />
-      <input
-        type="text"
         name="category"
         placeholder="category"
         onChange={handleInput}
       />
-      <button onClick={handleSubmit}>Create Menu</button>
+      <button
+        onClick={handleSubmit}
+        disabled={isProcessingImage} // Nonaktifkan tombol saat proses berlangsung
+      >
+        {isProcessingImage ? "Processing..." : "Create Menu"}
+      </button>
     </form>
   );
 };
