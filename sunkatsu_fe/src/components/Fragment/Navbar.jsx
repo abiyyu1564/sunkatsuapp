@@ -16,7 +16,7 @@ const Navbar = () => {
     <nav className="bg-white px-8 shadow-md">
       <div className="flex items-center justify-between">
         {/* Logo */}
-        <a href="/" className="flex items-center">
+        <a href="/home" className="flex items-center">
           <img src={Logo} className="h-[80px] w-auto" alt="Logo" />
         </a>
 
