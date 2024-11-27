@@ -124,7 +124,7 @@ public class ShoppingCartController {
 
     @Operation(
         summary="Add menu to cart",
-        description="Add a single menu to cart"
+        description="Add a single menu to cart. Valid deliver: take away, in store"
     )
     @PostMapping("/{cartId}/add-menu")
     public ResponseEntity<Object> addMenuToCart(
