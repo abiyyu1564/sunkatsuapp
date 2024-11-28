@@ -2,7 +2,8 @@
  
 How to run backend locally:
 
-1. Install mongo DB:
+
+1. Install mongo DB: (Skip klo application.properties dah ngikut grup wa)
    ikutin ini https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-windows/
    install jg MongoDB Compass biar bisa tracking datanya
 2. Install Spring Boot https://docs.spring.io/spring-boot/installing.html (harusnya ini diskip aja aman klo dah ada jdk 23)
