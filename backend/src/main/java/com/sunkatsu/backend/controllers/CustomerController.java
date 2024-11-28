@@ -160,13 +160,4 @@ public class CustomerController {
         List<Customer> listCustomers = customerService.findConnectedUsersExcept(customerId);
         return ResponseEntity.ok(listCustomers);
     }
-
-    @Operation(
-        summary = "Get orders by user id",
-        description = "Get all orders by user id"
-    )
-    @GetMapping("/{id}/orders")
-    public ResponseEntity<List<Order>> getOrdersByUserId(@PathVariable String id) {
-        return ResponseEntity.ok(orderService.getOrderByUserId(Integer.parseInt(id)));
-    }
 }

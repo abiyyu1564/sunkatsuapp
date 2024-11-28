@@ -7,9 +7,10 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import com.sunkatsu.backend.models.Favorite;
+import com.sunkatsu.backend.models.Menu;
 
 @Repository
 public interface FavoriteRepository extends MongoRepository<Favorite, Integer> {
     List<Favorite> findAllByUserID(int userID);
-    Optional<Favorite> findByUserIDAndMenuID(int userID, int menuID);
+    Optional<Favorite> findByUserIDAndMenu(int userID, Menu menu);
 }

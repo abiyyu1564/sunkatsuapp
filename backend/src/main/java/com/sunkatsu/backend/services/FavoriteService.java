@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.sunkatsu.backend.models.Favorite;
+import com.sunkatsu.backend.models.Menu;
 import com.sunkatsu.backend.repositories.FavoriteRepository;
 
 @Service
@@ -31,8 +32,8 @@ public class FavoriteService {
         return favoriteRepository.findById(id);
     }
 
-    public Favorite createFavorite(int userId, int menuId) {
-        Favorite f = new Favorite(sequenceGeneratorService.generateSequence(Favorite.SEQUENCE_NAME), 0, menuId, userId);
+    public Favorite createFavorite(int userId, Menu menu) {
+        Favorite f = new Favorite(sequenceGeneratorService.generateSequence(Favorite.SEQUENCE_NAME), 0, menu, userId);
         return favoriteRepository.save(f);
     }
 

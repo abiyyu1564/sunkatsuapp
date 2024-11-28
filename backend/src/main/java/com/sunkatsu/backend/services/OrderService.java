@@ -134,13 +134,13 @@ public class OrderService {
                     return null;
                 }
 
-                Optional<Favorite> favOpt = favoriteRepository.findByUserIDAndMenuID(Integer.parseInt(customer.getId()), c.getMenu().getId());
+                Optional<Favorite> favOpt = favoriteRepository.findByUserIDAndMenu(Integer.parseInt(customer.getId()), c.getMenu());
                 if (favOpt.isPresent()) {
                     var fav = favOpt.get();
                     fav.setTimesBought(fav.getTimesBought() + c.getQuantity());
                     favoriteRepository.save(fav);
                 } else {
-                    Favorite favBaru = new Favorite(sequenceGeneratorService.generateSequence(Favorite.SEQUENCE_NAME), c.getQuantity(), c.getMenu().getId(), Integer.parseInt(customer.getId()));
+                    Favorite favBaru = new Favorite(sequenceGeneratorService.generateSequence(Favorite.SEQUENCE_NAME), c.getQuantity(), c.getMenu(), Integer.parseInt(customer.getId()));
                     favoriteRepository.save(favBaru);
                 }
             }
