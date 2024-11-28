@@ -12,6 +12,7 @@ import MenuStaff from "./components/Pages/Menu/menuStaff";
 import MenuOwner from "./components/Pages/Menu/menuOwner";
 
 import Chat from "./components/Pages/Dashboard/chat";
+import TestPage from "./components/Pages/Dashboard/testpage";
 
 function App() {
 
@@ -28,6 +29,8 @@ i    <Router>
         <Route path="/menuStaff" element={<MenuStaff />} />
         <Route path="/menuOwner" element={<MenuOwner />} />
         <Route path="/chat" element={<Chat />} />
+
+        <Route path="/test" element={<TestPage />} /> 
 
       </Routes>
     </Router>
