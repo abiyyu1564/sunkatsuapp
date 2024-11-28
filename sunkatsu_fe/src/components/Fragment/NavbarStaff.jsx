@@ -5,9 +5,8 @@ import { ReactComponent as ChatIcon } from "../Icon/Chat.svg";
 import { ReactComponent as CartIcon } from "../Icon/Cart.svg";
 import { ReactComponent as NotificationIcon } from "../Icon/notification.svg";
 import { ReactComponent as ProfileIcon } from "../Icon/Profile.svg";
-import { ReactComponent as SearchIcon } from "../Icon/Search.svg"
 
-const Navbar = () => {
+const NavbarStaff = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -17,13 +16,14 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 w-full h-16 z-[99] shadow-lg bg-white transition ease-in-out duration-200">
       <div className="flex justify-between items-center px-10">
+        {/* Logo */}
         <a href="/home">
           <img src={Logo} className="h-16 w-auto" alt="Logo" />
         </a>
 
         {/* Menu Items (Desktop) */}
         <div className="hidden md:flex gap-14 items-center">
-          <a className="text-black hover:text-red-700 pb-1" href="/home">Home</a>
+          <a className="text-black hover:text-red-700 pb-1" href="/homr">Home</a>
           <a className="text-black hover:text-red-700 pb-1" href="/menu">Menu</a>
           <a className="text-black hover:text-red-700 pb-1" href="/order">My Order</a>
         </div>
@@ -48,10 +48,6 @@ const Navbar = () => {
         </div>
 
         {/* Hamburger Button (Mobile) */}
-        <div className="flex flex-row gap-4 md:hidden">
-          <SearchIcon className="w-6 h-6 md:hidden"
-          onClick={toggleMenu}
-        />
         <button
           className="block md:hidden text-gray-700 "
           onClick={toggleMenu}
@@ -62,7 +58,6 @@ const Navbar = () => {
             <AiOutlineMenu className="w-6 h-6" />
           )}
         </button>
-        </div>
       </div>
 
       {/* Menu for Mobile */}
@@ -75,17 +70,11 @@ const Navbar = () => {
 
           <a className="text-black" href="/home">Home</a>
           <a className="text-black" href="/menu">Menu</a>
-          <a className="text-black" href="/order">My Order</a>
+          <a className="text-black" href="/order">Orders</a>
 
           <a href="/chat" className="flex items-center">
             <div className="flex flex-row justify-center items-center gap-1">
               <ChatIcon className="w-4 h-4" /><p>Chat</p>
-            </div>
-          </a>
-
-          <a href="/cart" className="flex items-center">
-            <div className="flex flex-row justify-center items-center gap-1">
-              <CartIcon className="w-4 h-4"/><p>Cart</p>
             </div>
           </a>
 
@@ -107,4 +96,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default NavbarStaff;

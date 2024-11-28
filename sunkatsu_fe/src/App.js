@@ -19,10 +19,10 @@ function App() {
   return (
     <>
     <GlobalProvider>
-i    <Router>
+    <Router>
       <Routes>
         
-        <Route path="/" element={<Sign />} />
+        <Route path="/signup" element={<Sign />} />
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<Home />} />
         <Route path="/menuCustomer" element={<MenuCustomer />} />
