@@ -66,7 +66,7 @@ public class StaffController {
         Matcher matchUsrename = pattern.matcher(staff.getUsername());
         Matcher matchRoleDetail = pattern.matcher(staff.getRoleDetail());
         if (matchUsrename.find() || matchRoleDetail.find() || !staff.verify()) {
-            return ResponseEntity.badRequest().body(new Message("Invalid username or role detail"));
+            return ResponseEntity.badRequest().body(new Message("Error : Invalid username or role detail"));
         }
         return ResponseEntity.ok(staffService.createStaff(staff));
     }

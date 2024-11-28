@@ -2,13 +2,14 @@
  
 How to run backend locally:
 
-1. Install mongo DB:
+
+1. Install mongo DB: (Skip klo application.properties dah ngikut grup wa)
    ikutin ini https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-windows/
    install jg MongoDB Compass biar bisa tracking datanya
 2. Install Spring Boot https://docs.spring.io/spring-boot/installing.html (harusnya ini diskip aja aman klo dah ada jdk 23)
    Intall JDK 23 di : https://www.oracle.com/cis/java/technologies/downloads/
-4. di MongoDB compass buat db baru serah namanya
-5. di folder backend ada application.properties yang, ganti aja nama databasenya sisanya aman
+4. di MongoDB compass buat db baru serah namanya (Skip step 4 dan 5 kalau application.properties dah pake yg dari grup)
+5. di folder backend ada application.properties yang, ganti aja nama databasenya sisanya aman 
 6. di VS Code, install:
    - Code Generator for Java
    - Extension Pack for Java
@@ -20,22 +21,7 @@ How to run backend locally:
    Gw gtw cara ngilangin yg entity controllernya - Raygama
 
 Note:
-- Kalau ada error kaya not authenticated di mongodb, ke mongodb compass, hover koneksi mongodbnya nnti ada tulisan open mongosh.
-  ![image](https://github.com/user-attachments/assets/5498e572-ac91-48ab-be5c-8d85d17be425)
-  Klik open mongosh dan jalanin kode berikut (atau liat [ini](https://stackoverflow.com/questions/38921414/mongodb-what-are-the-default-user-and-password)):
-   use admin
- db.createUser(
-   {
-     user: "contoh",
-     pwd: "contoh", // or cleartext password
-     roles: [ 
-       { role: "userAdminAnyDatabase", db: "admin" },
-       { role: "readWriteAnyDatabase", db: "admin" } 
-     ]
-   }
- )
-Ganti "contoh" dengan yang kamu mau, nanti di application.properties ditambahin/ganti saja sesuai itu. Contoh:
-![image](https://github.com/user-attachments/assets/ae83a3c6-98af-4aeb-b151-4ace285cd939)
+- Ganti application properties dengan yang gw kirim di wa (pake mongo uri yg gw kasi)
 
 
 
@@ -172,10 +158,4 @@ Ganti "contoh" dengan yang kamu mau, nanti di application.properties ditambahin/
 
 
 
-
-
-
-
-
-is this shit even worth it?
   

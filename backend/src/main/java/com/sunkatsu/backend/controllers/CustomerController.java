@@ -21,6 +21,7 @@ import com.sunkatsu.backend.dto.Message;
 import com.sunkatsu.backend.models.Customer;
 import com.sunkatsu.backend.models.CustomerId;
 import com.sunkatsu.backend.models.Favorite;
+import com.sunkatsu.backend.models.Order;
 import com.sunkatsu.backend.models.ShoppingCart;
 import com.sunkatsu.backend.services.CustomerService;
 import com.sunkatsu.backend.services.FavoriteService;
@@ -152,15 +153,11 @@ public class CustomerController {
     )
     @GetMapping("/status/{customerId}")
     public ResponseEntity<Object> findConnectedUsersExcept(@PathVariable String customerId) {
-        Customer customer = customerService.getCustomerById(customerId);
-        if (customer == null) {
-            return ResponseEntity.badRequest().body(new Message("Error: Id not found"));
-        }
-        List<Customer> listCustomers =customerService.findConnectedUsersExcept(customerId);
-        List<CustomerDTO> listCustomersDTO = new ArrayList<>();
-        for (Customer c : listCustomers) {
-            listCustomersDTO.add(customerService.convertToDTO(customer));
-        }
-        return ResponseEntity.ok(listCustomersDTO);
+        // Customer customer = customerService.getCustomerById(customerId);
+        // if (customer == null) {
+        //     return ResponseEntity.badRequest().body(new Message("Error: Id not found"));
+        // }
+        List<Customer> listCustomers = customerService.findConnectedUsersExcept(customerId);
+        return ResponseEntity.ok(listCustomers);
     }
 }
