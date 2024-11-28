@@ -38,7 +38,7 @@ public class UserService {
     }
 
     public void saveUser(User user) {
-        if (user.getRole() == "customer") {
+        if (user.getRole().equals("customer")) {
             Optional<Customer> customerOpt = customerRepository.findById(user.getId());
             if (customerOpt.isPresent()) {
                 var customer = customerOpt.get();
@@ -47,7 +47,7 @@ public class UserService {
             } else {
                 System.out.println("ID is not valid");
             }  
-        } else if (user.getRole() == "staff") {
+        } else if (user.getRole().equals("staff")) {
             Optional<Staff> staffOpt = staffRepository.findById(user.getId());
             if (staffOpt.isPresent()) {
                 var staff = staffOpt.get();

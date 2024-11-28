@@ -16,15 +16,15 @@ public class Favorite {
     @Id
     private int ID;
     private int timesBought;
-    private int menuID;
+    private Menu menu;
     private int userID;
 
     public Favorite(){};
 
-    public Favorite(int id, int t, int mId, int uId){
+    public Favorite(int id, int t, Menu menu, int uId){
         this.ID = id;
         this.timesBought = t;
-        this.menuID = mId;
+        this.menu = menu;
         this.userID = uId;
     }
     // public void setID(int ID){
@@ -36,8 +36,8 @@ public class Favorite {
     public int getTimesBought(){
         return this.timesBought;
     }
-    public int getMenuID(){
-        return this.menuID;
+    public Menu getMenu(){
+        return this.menu;
     }
     public int getUserID(){
         return this.userID;
@@ -46,8 +46,8 @@ public class Favorite {
     public void setTimesBought(int timesBought){
         this.timesBought = timesBought;
     }
-    public void setMenuID(int menuID){
-        this.menuID = menuID;
+    public void setMenu(Menu menu){
+        this.menu = menu;
     }
     public void setUserID(int userID){
         this.userID = userID;
