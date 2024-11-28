@@ -26,10 +26,10 @@ let customerId = null;
 //   setInterval(fetchOnlineUsers, 5000); // Perbarui daftar setiap 5 detik
 // });
 
-// document.addEventListener("DOMContentLoaded", () => {
-//   findAndDisplayConnectedUsers();
-//   setInterval(findAndDisplayConnectedUsers, 5000); // Perbarui daftar setiap 5 detik
-// });
+document.addEventListener("DOMContentLoaded", () => {
+  findAndDisplayConnectedUsers();
+  setInterval(findAndDisplayConnectedUsers, 5000); // Perbarui daftar setiap 5 detik
+});
 
 // Mulai pengambilan pesan otomatis setiap detik setelah DOM dimuat
 document.addEventListener("DOMContentLoaded", () => {

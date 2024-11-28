@@ -22,6 +22,8 @@ function RemoveBackground() {
     formData.append("image_file", selectedImage);
     formData.append("size", "auto");
 
+    console.log(selectedImage);
+
     const api_key = "thRZjco6HahxbEPxoWdQi5JU";
 
     try {
@@ -39,6 +41,7 @@ function RemoveBackground() {
 
       const outputUrl = URL.createObjectURL(response.data);
       setOutputImage(outputUrl);
+      console.log(outputImage);
     } catch (error) {
       console.error("Error menghapus background:", error);
       alert("Gagal menghapus background");

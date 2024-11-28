@@ -6,9 +6,7 @@ import { Link } from "react-router-dom";
 
 const NewMenuCard = () => {
   const { menu } = useContext(GlobalContext);
-  console.log(menu);
-
-  const baseURL = "http://localhost:8080";
+  const baseURL = "http://localhost:8080"; 
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F0F3F7]">

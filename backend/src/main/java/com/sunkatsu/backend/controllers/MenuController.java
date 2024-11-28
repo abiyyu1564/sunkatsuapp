@@ -48,7 +48,7 @@ public class MenuController {
 
     @Operation(
         summary = "Create a new menu",
-        description = "Create a new menu"
+        description = "Create a new menu. Valid category: food, drink, dessert."
     )
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Object> createMenu(
@@ -101,7 +101,7 @@ public class MenuController {
 
     @Operation(
         summary = "Update a menu",
-        description = "Update an already existing menu"
+        description = "Update an already existing menu. Valid category: food, drink, dessert."
     )
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> updateMenu(

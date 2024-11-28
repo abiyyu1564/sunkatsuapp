@@ -1,9 +1,9 @@
 import React from "react";
-import Logo from "../../assets/Logo_Sunkatsu.png";
-import Vector from "../../assets/Vector_4.png";
+import Logo from "../../../assets/Logo_Sunkatsu.png";
+import Vector from "../../../assets/Vector_4.png";
 import { Link } from "react-router-dom";
 
-const Login2 = () => {
+const Sign = () => {
   return (
     <div className="bg-[#F8F9FA] min-h-screen relative">
       {/* Header */}
@@ -19,7 +19,7 @@ const Login2 = () => {
           </button>
           <button className="px-10 py-1 bg-[#8E0808] text-white rounded-r shadow hover:shadow-lg transition-shadow">
             <a href="#" className="font-bold">
-              <Link to="/register">Sign Up</Link>
+              Sign Up
             </a>
           </button>
         </div>
@@ -48,11 +48,16 @@ const Login2 = () => {
                 placeholder="Enter your password"
                 className="w-full px-4 py-2 border border-black rounded focus:outline-none"
               />
+              <input
+                type="password"
+                placeholder="Re-enter your password"
+                className="w-full px-4 py-2 border border-black rounded focus:outline-none"
+              />
             </form>
             {/* Button */}
             <div className="flex items-start pl-6 pt-2">
               <button className="px-6 py-2 bg-[#8E0808] text-white rounded shadow hover:shadow-lg transition-shadow">
-                <Link to="/home">Log in</Link>
+                <Link to="/login">Sign Up</Link>
               </button>
             </div>
           </div>
@@ -70,4 +75,4 @@ const Login2 = () => {
   );
 };
 
-export default Login2;
+export default Sign;
