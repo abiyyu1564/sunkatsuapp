@@ -157,10 +157,4 @@ Note:
 
 
 
-
-
-
-
-
-is this shit even worth it?
   
