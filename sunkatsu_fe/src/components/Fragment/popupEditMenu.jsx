@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ReactComponent as AddImage } from "../Icon/addImage.svg";
 
-const EditMenu = () => {
+const EditMenu = ({ show, onClose }) => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   const handleImageChange = (event) => {
@@ -12,8 +12,10 @@ const EditMenu = () => {
     }
   };
 
+  if (!show) return null;
+
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-50">
+    <div className="flex justify-center items-center h-screen fixed inset-0 bg-gray-800 bg-opacity-50 z-50">
       <div className="flex border-secondary border-8 w-8/12 rounded-2xl p-8 bg-white shadow-md gap-8">
         {/* Left Section */}
         <div className="w-1/2 flex flex-col justify-center items-center">
@@ -88,7 +90,10 @@ const EditMenu = () => {
           </div>
           {/* Buttons */}
           <div className="flex justify-end gap-4 mt-4">
-            <button className="bg-black text-white font-bold py-2 px-6 rounded-md hover:opacity-90">
+            <button
+              className="bg-black text-white font-bold py-2 px-6 rounded-md hover:opacity-90"
+              onClick={onClose}
+            >
               Cancel
             </button>
             <button className="bg-secondary text-white font-bold py-2 px-6 rounded-md hover:bg-red-700">
