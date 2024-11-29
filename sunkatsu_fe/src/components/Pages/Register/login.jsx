@@ -46,16 +46,11 @@ const Login = () => {
                 placeholder="Enter your password"
                 className="w-full px-4 py-2 border border-black rounded focus:outline-none text-sm sm:text-base"
               />
-              <input
-                type="password"
-                placeholder="Enter your password"
-                className="w-full px-4 py-2 border border-black rounded focus:outline-none text-sm sm:text-base"
-              />
             </form>
             {/* Button */}
             <div className="flex items-start sm:pl-6 pt-4 sm:pt-0">
               <button className="w-full sm:w-auto px-6 py-2 bg-[#8E0808] text-white rounded shadow hover:shadow-lg transition-shadow text-sm sm:text-base">
-                <Link to="/home">Sign Up</Link>
+                <Link to="/home">Login</Link>
               </button>
             </div>
           </div>

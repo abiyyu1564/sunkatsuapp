@@ -8,6 +8,7 @@ import DetailMenu from "./detailMenu";
 
 const NewMenuCard = () => {
   const { menu } = useContext(GlobalContext);
+
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);

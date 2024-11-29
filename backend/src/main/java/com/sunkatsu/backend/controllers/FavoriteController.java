@@ -42,7 +42,7 @@ public class FavoriteController {
     @PostMapping("/saveOrUpdate")
     public ResponseEntity<Object> saveOrUpdateFavorite(@Payload Favorite favorite) {
         var customer = customerService.getCustomerById(String.valueOf(favorite.getUserID()));
-        var menu = menuService.getMenuById(favorite.getMenuID());
+        var menu = menuService.getMenuById(favorite.getMenu().getId());
         if (customer == null || menu == null || favorite.getTimesBought() < 0) {
             return ResponseEntity.badRequest().body(new Message("Error : Invalid input"));
         }
@@ -82,12 +82,12 @@ public class FavoriteController {
     @PostMapping("/create")
     public ResponseEntity<Object> createFavorite(@RequestParam int userId, @RequestParam int menuId) {
         var customer = customerService.getCustomerById(String.valueOf(userId));
-        var menu = menuService.getMenuById(menuId);
+        var menu = menuService.getMenuById(menuId).get();
         if (customer == null || menu == null) {
             return ResponseEntity.badRequest().body(new Message("Error : menu Id or user Id is not found"));
         }
 
-        Favorite f = favoriteService.createFavorite(userId, menuId);
+        Favorite f = favoriteService.createFavorite(userId, menu);
         return ResponseEntity.ok(f);
     }
 
@@ -96,7 +96,7 @@ public class FavoriteController {
         description="Delete one favorite by its id"
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteFavorite(@PathVariable int id) throws Exception {
+    public ResponseEntity<Object> deleteFavorite(@PathVariable int id) {
         var favorite = favoriteService.getFavoriteById(id);
         if (favorite.isPresent()) {
             favoriteService.deleteFavorite(id);

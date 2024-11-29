@@ -36,6 +36,7 @@ public class OrdersController {
     )
     @GetMapping
     public List<Order> getOrders(){
+        orderService.checkOrderToCancel();
         return orderService.getAllOrder();
     }
 
@@ -61,11 +62,15 @@ public class OrdersController {
         description="Delete an order by id"
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteOrder(@PathVariable int id) throws Exception {
+    public ResponseEntity<Object> deleteOrder(@PathVariable int id) {
         var order = orderService.findOrderById(id);
         if (order != null) {
-            orderService.deleteOrder(id);
-            return ResponseEntity.ok().body(new Message("Error : Order deleted"));
+            try {
+                orderService.deleteOrder(id);
+                return ResponseEntity.ok().body(new Message("Error : Order deleted"));
+            } catch (Exception e) {
+                return ResponseEntity.internalServerError().body(new Message("Error: "+ e.getMessage()));
+            }
         }
         return ResponseEntity.badRequest().body(new Message("Error : Failed to delete order"));
     }
@@ -107,7 +112,7 @@ public class OrdersController {
         description="Accept an order, changes its status to Accepted"
     )
     @PutMapping("/{id}/accept")
-    public ResponseEntity<Object> acceptOrder(@PathVariable int id) throws Exception {
+    public ResponseEntity<Object> acceptOrder(@PathVariable int id) {
         Order order = orderService.acceptOrder(id);
         return order != null ? ResponseEntity.ok(order) : ResponseEntity.badRequest().body(new Message("Error : Failed to accept order"));
     }
@@ -117,7 +122,7 @@ public class OrdersController {
         description="Finish an order, changes its status to Finished"
     )
     @PutMapping("/{id}/finish")
-    public ResponseEntity<Object> finishOrder(@PathVariable int id) throws Exception {
+    public ResponseEntity<Object> finishOrder(@PathVariable int id) {
         Order order = orderService.finishOrder(id);
         return order != null ? ResponseEntity.ok(order) : ResponseEntity.badRequest().body(new Message("Error : Failed to finish order"));
     }

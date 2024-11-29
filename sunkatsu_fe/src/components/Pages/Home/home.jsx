@@ -1,16 +1,16 @@
 import React from "react";
-import Navbar from "../../Fragment/Navbar";
+import NewLanding from "../../Fragment/newLanding";
 import NewLandingFooter from "../../Fragment/newLandingFooter";
-import NewMenuCard from "../../Fragment/newMenuCard";
+import Navbar from "../../Fragment/Navbar";
 
-const Home = () => {
+const LandingPage = () => {
   return (
     <>
       <Navbar />
-      <NewMenuCard />
+      <NewLanding />
       <NewLandingFooter />
     </>
   );
 };
 
-export default Home;
+export default LandingPage;
