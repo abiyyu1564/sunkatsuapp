@@ -16,7 +16,7 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 w-full h-16 z-[99] shadow-lg bg-white transition ease-in-out duration-200">
-      <div className="flex justify-between items-center px-10">
+      <div className="flex justify-between items-center px-3">
         <a href="/home">
           <img src={Logo} className="h-16 w-auto" alt="Logo" />
         </a>
