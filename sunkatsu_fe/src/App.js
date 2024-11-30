@@ -1,4 +1,5 @@
 import "./App.css";
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { GlobalProvider } from "./context/GlobalContext";
 
@@ -15,26 +16,23 @@ import Chat from "./components/Pages/Dashboard/chat";
 import TestPage from "./components/Pages/Dashboard/testpage";
 
 function App() {
-
   return (
     <>
-    <GlobalProvider>
-    <Router>
-      <Routes>
-        
-        <Route path="/signup" element={<Sign />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/menuCustomer" element={<MenuCustomer />} />
-        <Route path="/menuStaff" element={<MenuStaff />} />
-        <Route path="/menuOwner" element={<MenuOwner />} />
-        <Route path="/chat" element={<Chat />} />
+      <GlobalProvider>
+        <Router>
+          <Routes>
+            <Route path="/signup" element={<Sign />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/menuCustomer" element={<MenuCustomer />} />
+            <Route path="/menuStaff" element={<MenuStaff />} />
+            <Route path="/menuOwner" element={<MenuOwner />} />
+            <Route path="/chat" element={<Chat />} />
 
-        <Route path="/test" element={<TestPage />} /> 
-
-      </Routes>
-    </Router>
-    </GlobalProvider>
+            <Route path="/test" element={<TestPage />} />
+          </Routes>
+        </Router>
+      </GlobalProvider>
     </>
   );
 }
