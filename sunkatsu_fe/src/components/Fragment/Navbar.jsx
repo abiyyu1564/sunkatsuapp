@@ -5,7 +5,7 @@ import { ReactComponent as ChatIcon } from "../Icon/Chat.svg";
 import { ReactComponent as CartIcon } from "../Icon/Cart.svg";
 import { ReactComponent as NotificationIcon } from "../Icon/notification.svg";
 import { ReactComponent as ProfileIcon } from "../Icon/Profile.svg";
-import { ReactComponent as SearchIcon } from "../Icon/Search.svg"
+import { ReactComponent as SearchIcon } from "../Icon/Search.svg";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,16 +23,25 @@ const Navbar = () => {
 
         {/* Menu Items (Desktop) */}
         <div className="hidden md:flex gap-14 items-center">
-          <a className="text-black hover:text-red-700 pb-1" href="/home">Home</a>
-          <a className="text-black hover:text-red-700 pb-1" href="/menu">Menu</a>
-          <a className="text-black hover:text-red-700 pb-1" href="/order">My Order</a>
+          <a className="text-black hover:text-red-700 pb-1" href="/home">
+            Home
+          </a>
+          <a className="text-black hover:text-red-700 pb-1" href="/menu">
+            Menu
+          </a>
+          <a className="text-black hover:text-red-700 pb-1" href="/order">
+            My Order
+          </a>
         </div>
 
         {/* Navbar Icons (Desktop) */}
         <div className="hidden md:flex gap-8 items-center">
           <div className="flex items-center">
-            <input className="h-9 border md p-2 rounded-lg bg-gray-50" placeholder="Search.."/>
-            </div>
+            <input
+              className="h-9 border md p-2 rounded-lg bg-gray-50"
+              placeholder="Search.."
+            />
+          </div>
           <a href="/chat" className="flex items-center">
             <ChatIcon className="w-6 h-6" />
           </a>
@@ -49,58 +58,67 @@ const Navbar = () => {
 
         {/* Hamburger Button (Mobile) */}
         <div className="flex flex-row gap-4 md:hidden">
-          <SearchIcon className="w-6 h-6 md:hidden"
-          onClick={toggleMenu}
-        />
-        <button
-          className="block md:hidden text-gray-700 "
-          onClick={toggleMenu}
-        >
-          {isMenuOpen ? (
-            <AiOutlineClose className="w-6 h-6" />
-          ) : (
-            <AiOutlineMenu className="w-6 h-6" />
-          )}
-        </button>
+          <SearchIcon className="w-6 h-6 md:hidden" onClick={toggleMenu} />
+          <button
+            className="block md:hidden text-gray-700 "
+            onClick={toggleMenu}
+          >
+            {isMenuOpen ? (
+              <AiOutlineClose className="w-6 h-6" />
+            ) : (
+              <AiOutlineMenu className="w-6 h-6" />
+            )}
+          </button>
         </div>
       </div>
 
       {/* Menu for Mobile */}
       {isMenuOpen && (
         <div className="md:hidden flex flex-col items-center gap-2 bg-white shadow-md py-4">
-
           <div className="flex items-center">
-          <input className="h-9 border md p-2 rounded-lg bg-gray-50" placeholder="Search..."/>
+            <input
+              className="h-9 border md p-2 rounded-lg bg-gray-50"
+              placeholder="Search..."
+            />
           </div>
 
-          <a className="text-black" href="/home">Home</a>
-          <a className="text-black" href="/menu">Menu</a>
-          <a className="text-black" href="/order">My Order</a>
+          <a className="text-black" href="/home">
+            Home
+          </a>
+          <a className="text-black" href="/menu">
+            Menu
+          </a>
+          <a className="text-black" href="/order">
+            My Order
+          </a>
 
           <a href="/chat" className="flex items-center">
             <div className="flex flex-row justify-center items-center gap-1">
-              <ChatIcon className="w-4 h-4" /><p>Chat</p>
+              <ChatIcon className="w-4 h-4" />
+              <p>Chat</p>
             </div>
           </a>
 
           <a href="/cart" className="flex items-center">
             <div className="flex flex-row justify-center items-center gap-1">
-              <CartIcon className="w-4 h-4"/><p>Cart</p>
+              <CartIcon className="w-4 h-4" />
+              <p>Cart</p>
             </div>
           </a>
 
           <a href="/notification" className="flex items-center">
             <div className="flex flex-row justify-center items-center gap-1">
-              <NotificationIcon className="w-4 h-4"/><p>Notification</p>
+              <NotificationIcon className="w-4 h-4" />
+              <p>Notification</p>
             </div>
           </a>
 
           <a href="/profile" className="flex items-center">
             <div className="flex flex-row justify-center items-center gap-1">
-              <ProfileIcon className="w-4 h-4"/><p>Profile</p>
+              <ProfileIcon className="w-4 h-4" />
+              <p>Profile</p>
             </div>
           </a>
-
         </div>
       )}
     </nav>

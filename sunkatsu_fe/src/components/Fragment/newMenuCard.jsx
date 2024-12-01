@@ -5,6 +5,7 @@ import { GlobalContext } from "../../context/GlobalContext";
 import { Link } from "react-router-dom";
 import EditMenu from "./popupEditMenu";
 import DetailMenu from "./detailMenu";
+import AddMenu from "./popupAddMenu";
 
 const NewMenuCard = () => {
   const { menu } = useContext(GlobalContext);
@@ -63,7 +64,7 @@ const NewMenuCard = () => {
         >
           Tambah data Menu
         </button>
-        <EditMenu show={showAddPopup} onClose={handleAddClick} />
+        <AddMenu show={showAddPopup} onClose={handleAddClick} />
       </div>
     </div>
   );

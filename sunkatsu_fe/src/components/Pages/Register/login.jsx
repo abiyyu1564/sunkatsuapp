@@ -13,7 +13,7 @@ const Login = () => {
             <img src={Logo} className="h-12 sm:h-16 w-auto" alt="Logo" />
           </a>
         </div>
-        
+
         <div className="flex flex-row items-center justify-center gap-4 mt-2 sm:mt-0">
           <button className="px-4 sm:px-10 py-1 rounded-lg bg-white text-black shadow hover:shadow-xl transition-shadow">
             <a href="/login" className="font-bold text-sm sm:text-base">
@@ -32,7 +32,9 @@ const Login = () => {
       <div className="flex flex-col min-h-screen sm:flex-row items-center justify-start md:justify-start md:mt-0 sm:mt-2 relative px-4 sm:px-10 gap-4 py-2">
         {/* Form Container */}
         <div className="bg-white bg-opacity-50 rounded-lg shadow-lg w-full sm:w-[550px] p-6 sm:p-10 mb-8 sm:mb-0">
-          <h1 className="text-2xl sm:text-3xl font-bold text-black mb-6">Welcome.</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-black mb-6">
+            Welcome.
+          </h1>
           <div className="flex flex-col sm:flex-row">
             {/* Form Fields */}
             <form className="space-y-4 flex-1">
@@ -64,10 +66,9 @@ const Login = () => {
           </h1>
         </div>
       </div>
-      <NewLandingFooter/>
+      <NewLandingFooter />
     </div>
   );
 };
 
 export default Login;
-
