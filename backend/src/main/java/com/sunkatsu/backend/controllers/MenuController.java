@@ -47,6 +47,15 @@ public class MenuController {
     }
 
     @Operation(
+        summary = "Get menu by id",
+        description = "Get a single menu by id"
+    )
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> getMenuById(@PathVariable int id) {
+        return menuService.getMenuById(id).isPresent() ? ResponseEntity.ok(menuService.getMenuById(id).get()) : ResponseEntity.badRequest().body(new Message("Error: id not found")) ;
+    }
+
+    @Operation(
         summary = "Create a new menu",
         description = "Create a new menu. Valid category: food, drink, dessert."
     )
