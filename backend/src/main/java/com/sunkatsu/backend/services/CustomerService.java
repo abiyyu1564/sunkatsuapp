@@ -51,10 +51,6 @@ public class CustomerService {
         customerRepository.save(customer);
     }
 
-    public Customer getCustomerByIdAndPassword(String id, String password) {
-        return customerRepository.findByIdAndPassword(id, password);
-    }
-
     public Customer getCustomerById(String id) {
         return customerRepository.findById(id).orElse(null);
     }
