@@ -1,16 +1,20 @@
 package com.sunkatsu.backend.models;
 
-public class Staff extends User {
+import org.springframework.data.annotation.Transient;
+
+public class Staff extends User implements Verifiable {
     private String roleDetail;
+
+    @Transient
+    public static final String SEQUENCE_NAME = "customer_sequence";
 
     public Staff() {
     }
 
-    public Staff(String id, String username, String password, String role, String rd) {
-        super(id,username,password,role);
+    public Staff(String id, String username, String password, String role, String rd, Status status) {
+        super(id,username,password,role, status);
         roleDetail = rd;
     }
-
 
     public String getRoleDetail() {
         return this.roleDetail;
@@ -26,5 +30,9 @@ public class Staff extends User {
         } else{
             System.out.println("Login Failed");
         }
+    }
+
+    public boolean verify() {
+        return roleDetail == "waiter" || roleDetail == "cook" || roleDetail == "cashier";
     }
 }

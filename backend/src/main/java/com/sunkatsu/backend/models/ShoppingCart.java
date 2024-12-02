@@ -73,33 +73,6 @@ public class ShoppingCart {
         this.cartItems = cartItems;
     }
 
-    public ShoppingCart id(int id) {
-        setId(id);
-        return this;
-    }
-
-    public ShoppingCart total(int total) {
-        setTotal(total);
-        return this;
-    }
-
-    public ShoppingCart deliver(String deliver) {
-        setDeliver(deliver);
-        return this;
-    }
-
-    public ShoppingCart UserID(int UserID) {
-        setUserID(UserID);
-        return this;
-    }
-
-    public ShoppingCart cartItems(List<CartItem> cartItems) {
-        setCartItems(cartItems);
-        return this;
-    }
-
-
-
     // Method to add an item to cart and calculate the total price
     public void addCartItem(CartItem cartItem) {
         this.cartItems.add(cartItem);

@@ -1,87 +1,126 @@
-import React from "react";
-import Logo from "../../assets/combined_logo_fixed.png";
-import nameimg from "../../assets/tulisan_SUNKATSU.png";
-import { FaCartShopping, FaBell } from "react-icons/fa6";
-import { FaHome } from "react-icons/fa";
-import { IoReceipt } from "react-icons/io5";
-import { GrHelpBook } from "react-icons/gr";
-import { Link } from "react-router-dom";
-import defaultPP from "../../assets/defaultPP.png";
+import React, { useState } from "react";
+import Logo from "../../assets/Logo_Sunkatsu.png";
+import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
+import { ReactComponent as ChatIcon } from "../Icon/Chat.svg";
+import { ReactComponent as CartIcon } from "../Icon/Cart.svg";
+import { ReactComponent as NotificationIcon } from "../Icon/notification.svg";
+import { ReactComponent as ProfileIcon } from "../Icon/Profile.svg";
+import { ReactComponent as SearchIcon } from "../Icon/Search.svg";
 
 const Navbar = () => {
-  const popup = () => {};
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
-    <nav className="bg-[#FF0000] border-gray-200 dark:bg-gray-900 px-3">
-      <div className="max-w-screen-xl flex items-center justify-between mx-auto p-1">
-        {/* Logo */}
-        <a href="/" className="flex items-center space-x-3">
-          <img src={Logo} className="h-16 w-16" alt="Logo" />
-          <span className="text-2xl font-semibold whitespace-nowrap dark:text-white">
-            <img src={nameimg} alt="Sunkatsu" />
-          </span>
+    <nav className="fixed top-0 w-full h-16 z-[99] shadow-lg bg-white transition ease-in-out duration-200">
+      <div className="flex justify-between items-center px-3">
+        <a href="/home">
+          <img src={Logo} className="h-16 w-auto" alt="Logo" />
         </a>
 
-        {/* Navbar icons and search */}
-        <div className="flex items-center space-x-8">
-          {/* Cart */}
-          <a href="#" className="flex flex-col items-center text-white">
-            <FaCartShopping size={32} />
-            <p className="text-xs">Cart</p>
+        {/* Menu Items (Desktop) */}
+        <div className="hidden md:flex gap-14 items-center">
+          <a className="text-black hover:text-red-700 pb-1" href="/home">
+            Home
           </a>
-
-          {/* Search Bar */}
-          <div className="relative">
-            <input
-              type="text"
-              id="search-navbar"
-              className="block w-80 p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-              placeholder="Search..."
-            />
-            <svg
-              className="absolute top-1/2 left-3 transform -translate-y-1/2 w-4 h-4 text-gray-500"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 20 20"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-              />
-            </svg>
-          </div>
-
-          {/* Home */}
-          <a href="#" className="flex flex-col items-center text-white">
-            <FaHome size={32} />
-            <p className="text-xs">Home</p>
+          <a className="text-black hover:text-red-700 pb-1" href="/menu">
+            Menu
           </a>
-
-          {/* Notifications */}
-          <a href="#" className="flex flex-col items-center text-white">
-            <GrHelpBook size={32} />
-            <p className="text-xs">Help</p>
-          </a>
-
-          {/* My Order */}
-          <a href="#" className="flex flex-col items-center text-white">
-            <IoReceipt size={32} />
-            <p className="text-xs">My Order</p>
+          <a className="text-black hover:text-red-700 pb-1" href="/order">
+            My Order
           </a>
         </div>
 
-        <button>
-          <img
-            src={defaultPP}
-            alt="profile"
-            className=" w-12 h-12 rounded-full"
-          />
-        </button>
+        {/* Navbar Icons (Desktop) */}
+        <div className="hidden md:flex gap-8 items-center">
+          <div className="flex items-center">
+            <input
+              className="h-9 border md p-2 rounded-lg bg-gray-50"
+              placeholder="Search.."
+            />
+          </div>
+          <a href="/chat" className="flex items-center">
+            <ChatIcon className="w-6 h-6" />
+          </a>
+          <a href="/cart" className="flex items-center">
+            <CartIcon className="w-6 h-6" />
+          </a>
+          <a href="/notification" className="flex items-center">
+            <NotificationIcon className="w-6 h-6" />
+          </a>
+          <a href="#/profile" className="flex items-center">
+            <ProfileIcon className="w-10 h-10" />
+          </a>
+        </div>
+
+        {/* Hamburger Button (Mobile) */}
+        <div className="flex flex-row gap-4 md:hidden">
+          <SearchIcon className="w-6 h-6 md:hidden" onClick={toggleMenu} />
+          <button
+            className="block md:hidden text-gray-700 "
+            onClick={toggleMenu}
+          >
+            {isMenuOpen ? (
+              <AiOutlineClose className="w-6 h-6" />
+            ) : (
+              <AiOutlineMenu className="w-6 h-6" />
+            )}
+          </button>
+        </div>
       </div>
+
+      {/* Menu for Mobile */}
+      {isMenuOpen && (
+        <div className="md:hidden flex flex-col items-center gap-2 bg-white shadow-md py-4">
+          <div className="flex items-center">
+            <input
+              className="h-9 border md p-2 rounded-lg bg-gray-50"
+              placeholder="Search..."
+            />
+          </div>
+
+          <a className="text-black" href="/home">
+            Home
+          </a>
+          <a className="text-black" href="/menu">
+            Menu
+          </a>
+          <a className="text-black" href="/order">
+            My Order
+          </a>
+
+          <a href="/chat" className="flex items-center">
+            <div className="flex flex-row justify-center items-center gap-1">
+              <ChatIcon className="w-4 h-4" />
+              <p>Chat</p>
+            </div>
+          </a>
+
+          <a href="/cart" className="flex items-center">
+            <div className="flex flex-row justify-center items-center gap-1">
+              <CartIcon className="w-4 h-4" />
+              <p>Cart</p>
+            </div>
+          </a>
+
+          <a href="/notification" className="flex items-center">
+            <div className="flex flex-row justify-center items-center gap-1">
+              <NotificationIcon className="w-4 h-4" />
+              <p>Notification</p>
+            </div>
+          </a>
+
+          <a href="/profile" className="flex items-center">
+            <div className="flex flex-row justify-center items-center gap-1">
+              <ProfileIcon className="w-4 h-4" />
+              <p>Profile</p>
+            </div>
+          </a>
+        </div>
+      )}
     </nav>
   );
 };

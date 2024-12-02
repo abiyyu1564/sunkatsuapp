@@ -15,15 +15,29 @@ let selectedUserId = null;
 
 let customerId = null;
 
-// Panggil fetchOnlineUsers ketika halaman dimuat
+// // Panggil fetchOnlineUsers ketika halaman dimuat
+// document.addEventListener("DOMContentLoaded", () => {
+//   fetchOnlineUsers();
+// });
+
+// // Panggil fetchOnlineUsers ketika halaman dimuat dan setiap 5 detik
+// document.addEventListener("DOMContentLoaded", () => {
+//   fetchOnlineUsers();
+//   setInterval(fetchOnlineUsers, 5000); // Perbarui daftar setiap 5 detik
+// });
+
 document.addEventListener("DOMContentLoaded", () => {
-  fetchOnlineUsers();
+  findAndDisplayConnectedUsers();
+  setInterval(findAndDisplayConnectedUsers, 5000); // Perbarui daftar setiap 5 detik
 });
 
-// Panggil fetchOnlineUsers ketika halaman dimuat dan setiap 5 detik
+// Mulai pengambilan pesan otomatis setiap detik setelah DOM dimuat
 document.addEventListener("DOMContentLoaded", () => {
-  fetchOnlineUsers();
-  setInterval(fetchOnlineUsers, 5000); // Perbarui daftar setiap 5 detik
+  setInterval(() => {
+    if (selectedUserId) {
+      fetchAndDisplayUserChat();
+    }
+  }, 1000); // 1000 ms = 1 detik
 });
 
 function connect(event) {
@@ -42,32 +56,59 @@ function connect(event) {
 }
 
 function onConnected() {
+  // Subscribe ke topik publik dan private untuk user tertentu
   stompClient.subscribe(
-    `/customer/${customerId}/queue/messages`,
+    `/user/${customerId}/queue/messages`,
     onMessageReceived
   );
-  stompClient.subscribe(`/customer/public`, onMessageReceived);
+  stompClient.subscribe(`/user/public`, onMessageReceived);
+  stompClient.send("/app/user.searchUser", {}, customerId);
 
-  // Permintaan untuk mengambil informasi pelanggan berdasarkan customerId
-  stompClient.send(
-    "/app/customer.searchCustomer",
-    {},
-    JSON.stringify({ customerId: customerId })
-  );
+  // Tampilkan pengguna yang terhubung
+  findAndDisplayConnectedUsers();
 
-  findAndDisplayConnectedUsers().then();
+  // Fetch customer info setelah terkoneksi
+  fetchCustomerInfo(customerId);
+}
+
+async function fetchCustomerInfo(customerId) {
+  try {
+    const response = await fetch(`/api/users/${customerId}`);
+    if (response.ok) {
+      const customer = await response.json();
+      const fullnameElement = document.getElementById(
+        "connected-user-fullname"
+      );
+      if (fullnameElement && customer.username) {
+        fullnameElement.textContent = customer.username;
+      }
+    } else {
+      console.error("Failed to fetch customer info");
+    }
+  } catch (error) {
+    console.error("Error fetching customer info:", error);
+  }
 }
 
 async function findAndDisplayConnectedUsers() {
-  const connectedUsersResponse = await fetch("/api/customers/status");
-  let connectedUsers = await connectedUsersResponse.json();
-  connectedUsers = connectedUsers.filter((user) => user.id !== customerId);
-  const connectedUsersList = document.getElementById("connectedUsers");
-  connectedUsersList.innerHTML = "";
+  try {
+    const connectedUsersResponse = await fetch(
+      `/api/users/status/${customerId}`
+    );
+    if (!connectedUsersResponse.ok) {
+      throw new Error("Failed to fetch connected users");
+    }
 
-  connectedUsers.forEach((user) => {
-    appendUserElement(user, connectedUsersList);
-  });
+    let connectedUsers = await connectedUsersResponse.json();
+    const connectedUsersList = document.getElementById("connectedUsers");
+    connectedUsersList.innerHTML = "";
+
+    connectedUsers.forEach((user) => {
+      appendUserElement(user, connectedUsersList);
+    });
+  } catch (error) {
+    console.error("Error fetching connected users:", error);
+  }
 }
 
 function appendUserElement(user, connectedUsersList) {
@@ -77,14 +118,15 @@ function appendUserElement(user, connectedUsersList) {
 
   const userImage = document.createElement("img");
   userImage.src = "../img/user_icon.png";
-  userImage.alt = user.fullName;
+  userImage.alt = user.username;
 
   const usernameSpan = document.createElement("span");
-  usernameSpan.textContent = user.fullName;
+  usernameSpan.textContent = user.username;
 
+  // Elemen untuk notifikasi jumlah pesan
   const receivedMsgs = document.createElement("span");
-  receivedMsgs.textContent = "0";
-  receivedMsgs.classList.add("nbr-msg", "hidden");
+  receivedMsgs.textContent = ""; // Kosongkan teks di awal
+  receivedMsgs.classList.add("nbr-msg", "hidden"); // Tetap hidden jika belum ada pesan baru
 
   listItem.appendChild(userImage);
   listItem.appendChild(usernameSpan);
@@ -101,7 +143,6 @@ function userItemClick(userId) {
     return;
   }
 
-  // Menggunakan selector dengan tanda kutip di sekitar ID
   const clickedUser = document.querySelector(`li[id="${userId}"]`);
   if (!clickedUser) {
     console.error("User not found:", userId);
@@ -119,28 +160,34 @@ function userItemClick(userId) {
   clickedUser.classList.add("active");
   messageForm.classList.remove("hidden");
 
-  // Tampilkan chat untuk user yang diklik
-  fetchAndDisplayUserChat().then();
-
+  // Reset notifikasi hanya untuk user yang diklik
   const nbrMsg = clickedUser.querySelector(".nbr-msg");
   if (nbrMsg) {
     nbrMsg.classList.add("hidden");
-    nbrMsg.textContent = "0";
+    nbrMsg.textContent = ""; // Kosongkan teks setelah reset
   }
+
+  // Tampilkan chat untuk user yang diklik
+  fetchAndDisplayUserChat().then();
 }
 
 function displayMessage(senderId, content) {
   const messageContainer = document.createElement("div");
   messageContainer.classList.add("message");
+
   if (senderId === customerId) {
     messageContainer.classList.add("sender");
   } else {
     messageContainer.classList.add("receiver");
   }
+
   const message = document.createElement("p");
   message.textContent = content;
   messageContainer.appendChild(message);
   chatArea.appendChild(messageContainer);
+
+  // Auto-scroll
+  chatArea.scrollTop = chatArea.scrollHeight;
 }
 
 async function fetchAndDisplayUserChat() {
@@ -172,15 +219,19 @@ function onError() {
 
 function sendMessage(event) {
   const messageContent = messageInput.value.trim();
-  if (messageContent && stompClient) {
+  if (messageContent && stompClient && selectedUserId) {
     const chatMessage = {
       senderId: customerId,
-      recipientId: selectedUserId,
-      content: messageInput.value.trim(),
+      recipientId: selectedUserId, // Pastikan recipient ID diisi
+      content: messageContent,
       timestamp: new Date(),
     };
+
+    // Kirim pesan ke endpoint '/app/chat'
     stompClient.send("/app/chat", {}, JSON.stringify(chatMessage));
-    displayMessage(customerId, messageInput.value.trim());
+
+    // Tampilkan pesan di layar pengirim
+    displayMessage(customerId, messageContent);
     messageInput.value = "";
   }
   chatArea.scrollTop = chatArea.scrollHeight;
@@ -188,26 +239,39 @@ function sendMessage(event) {
 }
 
 async function onMessageReceived(payload) {
-  await findAndDisplayConnectedUsers();
   console.log("Message received", payload);
   const message = JSON.parse(payload.body);
+
+  // Perbarui username jika pesan diterima
+  if (message.id === customerId) {
+    fetchCustomerInfo(customerId);
+  }
+
+  // Panggil ulang fungsi untuk memperbarui daftar pengguna
+  await findAndDisplayConnectedUsers();
+
+  // Cek apakah pesan berasal dari user yang sedang aktif
   if (selectedUserId && selectedUserId === message.senderId) {
     displayMessage(message.senderId, message.content);
     chatArea.scrollTop = chatArea.scrollHeight;
-  }
+  } else {
+    // Jika pesan dari user lain, tampilkan notifikasi
+    const notifiedUser = document.querySelector(`li[id="${message.senderId}"]`);
+    if (notifiedUser) {
+      const nbrMsg = notifiedUser.querySelector(".nbr-msg");
+      nbrMsg.classList.remove("hidden");
 
-  const notifiedUser = document.querySelector(`#${message.senderId}`);
-  if (notifiedUser && !notifiedUser.classList.contains("active")) {
-    const nbrMsg = notifiedUser.querySelector(".nbr-msg");
-    nbrMsg.classList.remove("hidden");
-    nbrMsg.textContent = "";
+      // Update jumlah pesan yang belum dibaca
+      const currentCount = parseInt(nbrMsg.textContent || "0");
+      nbrMsg.textContent = currentCount + 1;
+    }
   }
 }
 
 // Fungsi untuk mendapatkan daftar pengguna yang sedang online
 async function fetchOnlineUsers() {
   try {
-    const response = await fetch("/api/customers/status");
+    const response = await fetch(`/api/users/status/${customerId}`);
     if (!response.ok) {
       throw new Error("Failed to fetch online users");
     }
