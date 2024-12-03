@@ -40,7 +40,7 @@ const Login = () => {
             <form className="space-y-4 flex-1">
               <input
                 type="text"
-                placeholder="Enter your email address or username"
+                placeholder="Enter your username"
                 className="w-full px-4 py-2 border border-black rounded focus:outline-none text-sm sm:text-base"
               />
               <input

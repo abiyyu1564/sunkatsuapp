@@ -19,11 +19,12 @@ const NewMenuCard = () => {
     setShowAddPopup(!showAddPopup);
   };
 
-  const handleDetailClick = () => {
+  const handleDetailClick = (menu) => {
     setShowDetailMenu(!showDetailMenu);
+    setSelectedMenuItem(menu);
   };
 
-  const baseURL = "http://localhost:8080";
+  const baseURL = "https://sunkatsu-sunkatsu.azuremicroservices.io";
 
   return (
     <div className="flex flex-col max-h-screen">
@@ -32,7 +33,7 @@ const NewMenuCard = () => {
           menu.map((menuItem) => (
             <button
               className="relative w-64 h-64 bg-gradient-to-br from-red-500 to-65% shadow-xl rounded-2xl"
-              onClick={handleDetailClick}
+              onClick={() => handleDetailClick(menuItem)}
             >
               <img
                 src={`${baseURL}${menuItem.imageURL}`}
@@ -55,7 +56,13 @@ const NewMenuCard = () => {
               </div>
             </button>
           ))}
-        <DetailMenu show={showDetailMenu} onClose={handleDetailClick} />
+        {selectedMenuItem && (
+          <EditMenu
+            menuId={selectedMenuItem}
+            show={showDetailMenu}
+            onClose={handleDetailClick}
+          />
+        )}
       </div>
       <div className="fixed bottom-10 right-10">
         <button

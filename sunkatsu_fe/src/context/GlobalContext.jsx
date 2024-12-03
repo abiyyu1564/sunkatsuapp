@@ -94,6 +94,41 @@ export const GlobalProvider = ({ children }) => {
     }
   };
 
+  const removeBackground = async (file) => {
+    const formData = new FormData();
+    formData.append("image_file", file);
+    formData.append("size", "auto");
+
+    try {
+      const response = await axios.post(
+        "https://api.remove.bg/v1.0/removebg",
+        formData,
+        {
+          headers: {
+            "X-Api-Key": api_key,
+          },
+          responseType: "blob", // Agar mendapatkan data gambar dalam format blob
+        }
+      );
+
+      // Konversi blob hasil API menjadi file baru
+      const removedBgBlob = response.data;
+      const timestamp = Date.now();
+      const removedBgFile = new File(
+        [removedBgBlob],
+        `image_no_bg_${timestamp}.png`,
+        {
+          type: removedBgBlob.type,
+        }
+      );
+
+      return removedBgFile; // File dengan background dihapus
+    } catch (error) {
+      console.error("Error removing background:", error);
+      throw new Error("Failed to remove background.");
+    }
+  };
+
   return (
     <GlobalContext.Provider
       value={{
@@ -104,6 +139,7 @@ export const GlobalProvider = ({ children }) => {
         fetchStatus,
         setFetchStatus,
         handleInput,
+        removeBackground,
       }}
     >
       {children}

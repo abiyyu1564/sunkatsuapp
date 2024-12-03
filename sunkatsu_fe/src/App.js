@@ -11,10 +11,13 @@ import Home from "./components/Pages/Home/home";
 import MenuCustomer from "./components/Pages/Menu/menuCustomer";
 import MenuStaff from "./components/Pages/Menu/menuStaff";
 import MenuOwner from "./components/Pages/Menu/menuOwner";
+import Payment from "./components/Fragment/payment";
+import PaymentDone from "./components/Fragment/paymentDone";
 
 import Chat from "./components/Pages/Dashboard/chat";
 import TestPage from "./components/Pages/Dashboard/testpage";
 import Menu from "./components/Pages/Menu/menu";
+import LandingPage from "./components/Pages/Home/home";
 
 function App() {
   return (
@@ -29,6 +32,8 @@ function App() {
             <Route path="/menuStaff" element={<MenuStaff />} />
             <Route path="/menuOwner" element={<MenuOwner />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/payment" element={<Payment />} />
+            <Route path="/paymentd" element={<PaymentDone />} />
 
             <Route path="/menu" element={<Menu/>} />
 

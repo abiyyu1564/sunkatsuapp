@@ -1,31 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
 import Katsu from "../../assets/curry.png";
 
-const DetailMenu = ({ show, onClose }) => {
+const DetailMenu = ({ show, onClose, menuId }) => {
+  console.log(menuId);
+
+  const baseURL = "http://localhost:8080";
+
   if (!show) return null;
   return (
     <div className="flex justify-center  items-center h-screen fixed inset-0 bg-gray-800 bg-opacity-50 z-50">
       <div className="flex border-secondary border-8 gap-5 w-7/12 rounded-2xl p-6 bg-white shadow-md">
         {/* Left Section */}
         <div className="w-1/2 flex flex-col items-center">
-          <h1 className="font-bold text-2xl mb-6 text-black">
-            Chicken Curry Katsu
-          </h1>
+          <h1 className="font-bold text-2xl mb-6 text-black">{menuId.name}</h1>
           <img
-            src={Katsu}
+            src={`${baseURL}${menuId.imageURL}`}
             alt="katsu"
-            className="w-48 h-48 object-cover rounded-full"
+            className="w-48 h-48  rounded-full"
           />
         </div>
 
         <div className="w-1/2 flex flex-col justify-evenly">
           <p className="text-sm text-gray-700  leading-relaxed">
-            Classic Japanese style homemade curry mixed with our secret spices
-            combined with our juicy yet tender katsu will warm your heart.
+            {menuId.desc}
           </p>
           <div>
             <h2 className="text-secondary mb-6 font-bold text-2xl">
-              Rp. 15.000
+              {menuId.price}
             </h2>
           </div>
           <input
