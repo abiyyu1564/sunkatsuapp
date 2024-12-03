@@ -6,7 +6,7 @@ import CobaInputMenu from "./cobaInputMenu";
 
 const AddMenu = ({ show, onClose }) => {
   const [selectedImage, setSelectedImage] = useState(null);
-  const { input, setInput, setFetchStatus, fetchStatus } =
+  const { input, setInput, setFetchStatus, fetchStatus, removeBackground } =
     useContext(GlobalContext);
 
   const [isProcessingImage, setIsProcessingImage] = useState(false);
@@ -35,47 +35,10 @@ const AddMenu = ({ show, onClose }) => {
 
   // Handle form submission
 
-  const api_key = "thRZjco6HahxbEPxoWdQi5JU";
-
   const fetchBlob = async (url) => {
     const response = await fetch(url); // Unduh file dari URL
     const blob = await response.blob(); // Konversi response ke Blob
     return blob;
-  };
-
-  const removeBackground = async (file) => {
-    const formData = new FormData();
-    formData.append("image_file", file);
-    formData.append("size", "auto");
-
-    try {
-      const response = await axios.post(
-        "https://api.remove.bg/v1.0/removebg",
-        formData,
-        {
-          headers: {
-            "X-Api-Key": api_key,
-          },
-          responseType: "blob", // Agar mendapatkan data gambar dalam format blob
-        }
-      );
-
-      // Konversi blob hasil API menjadi file baru
-      const removedBgBlob = response.data;
-      const timestamp = Date.now();
-      const removedBgFile = new File(
-        [removedBgBlob],
-        `image_no_bg_${timestamp}.png`,
-        {
-          type: removedBgBlob.type,
-        }
-      );
-
-      return removedBgFile; // File dengan background dihapus
-    } catch (error) {
-      console.error("Error removing background:", error);
-      throw new Error("Failed to remove background.");
-    }
   };
 
   // Flag untuk melacak status penghapusan background
@@ -93,7 +56,6 @@ const AddMenu = ({ show, onClose }) => {
     event.preventDefault();
 
     const { image, name, desc, price, category } = input;
-    console.log("Input:", input);
 
     // Validasi input
     if (!name || !desc || !price || !image || !category) {
@@ -108,7 +70,7 @@ const AddMenu = ({ show, onClose }) => {
 
       // Kirim file ke server
       const response = await axios.post(
-        "http://localhost:8080/api/menus",
+        "https://sunkatsu-sunkatsu.azuremicroservices.io/api/menus",
         formData,
         {
           headers: {

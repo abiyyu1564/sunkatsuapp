@@ -16,6 +16,7 @@ import PaymentDone from "./components/Fragment/paymentDone";
 
 import Chat from "./components/Pages/Dashboard/chat";
 import TestPage from "./components/Pages/Dashboard/testpage";
+import LandingPage from "./components/Pages/Home/home";
 
 function App() {
   return (
