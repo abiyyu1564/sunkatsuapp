@@ -21,11 +21,11 @@ const FilterCategory = ({ menuItems }) => {
   }, [activeIndex, menuItems]); // Re-run jika menuItems berubah
 
   return (
-    <div className="flex items-end justify-center mt-16 h-24 bg-primary">
-      <div className="relative  flex items-center bg-white rounded-xl shadow-2xl justify-around w-3/4 h-fit py-1 mx-auto  gap-10 overflow-hidden">
+    <div className="flex items-center justify-center h-24">
+      <div className="relative flex items-center bg-white rounded-xl shadow-2xl justify-around max-w-screen-sm h-10 py-1 mx-auto gap-10 overflow-hidden">
         {/* Latar belakang merah yang bergerak */}
         <div
-          className="absolute bg-[#8E0808] rounded-xl h-14 transition-all duration-300 ease-in-out"
+          className="absolute bg-[#8E0808] rounded-xl h-10 transition-all duration-300 ease-in-out"
           style={{
             left: `${indicatorPosition.left}px`,
             width: `${indicatorPosition.width}px`,

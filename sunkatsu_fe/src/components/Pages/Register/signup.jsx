@@ -2,7 +2,7 @@ import React from "react";
 import Logo from "../../../assets/Logo_Sunkatsu.png";
 import Vector from "../../../assets/Vector_4.png";
 import { Link } from "react-router-dom";
-import NewLandingFooter from "../../Fragment/newLandingFooter";
+import NewLandingFooter from "../../Fragment/newFooter";
 
 const Login = () => {
   return (

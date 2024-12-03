@@ -26,8 +26,8 @@ const NewMenuCard = () => {
   const baseURL = "http://localhost:8080";
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F0F3F7]">
-      <div className="flex flex-wrap gap-32 mt-32 items-center justify-center m-20">
+    <div className="flex flex-col max-h-screen">
+      <div className="flex flex-wrap gap-32 mt-12 items-center justify-center m-20">
         {menu.length > 0 &&
           menu.map((menuItem) => (
             <button
@@ -62,7 +62,7 @@ const NewMenuCard = () => {
           className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-2xl"
           onClick={handleAddClick}
         >
-          Tambah data Menu
+        Tambah data Menu
         </button>
         <AddMenu show={showAddPopup} onClose={handleAddClick} />
       </div>

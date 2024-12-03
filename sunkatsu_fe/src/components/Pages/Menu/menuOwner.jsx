@@ -3,7 +3,7 @@ import React from "react";
 import Navbar from "../../Fragment/Navbar";
 import FilterCategory from "../../Fragment/filterCategory";
 import NewMenuCard from "../../Fragment/newMenuCard";
-import NewLandingFooter from "../../Fragment/newLandingFooter";
+import NewLandingFooter from "../../Fragment/newFooter";
 
 import { GlobalProvider } from "../../../context/GlobalContext";
 import EditMenu from "../../Fragment/popupEditMenu";
@@ -17,9 +17,7 @@ const MenuOwner = () => {
             <Navbar />
             <FilterCategory menuItems={menuItems} />
             <NewMenuCard />
-            if (onClick){
                 <EditMenu />
-            }
             </div>
         <NewLandingFooter />            
         </div>

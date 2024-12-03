@@ -14,6 +14,7 @@ import MenuOwner from "./components/Pages/Menu/menuOwner";
 
 import Chat from "./components/Pages/Dashboard/chat";
 import TestPage from "./components/Pages/Dashboard/testpage";
+import Menu from "./components/Pages/Menu/menu";
 
 function App() {
   return (
@@ -29,7 +30,9 @@ function App() {
             <Route path="/menuOwner" element={<MenuOwner />} />
             <Route path="/chat" element={<Chat />} />
 
-            <Route path="/test" element={<TestPage />} />
+            <Route path="/menu" element={<Menu/>} />
+
+            <Route path="/" element={<TestPage />} />
           </Routes>
         </Router>
       </GlobalProvider>
