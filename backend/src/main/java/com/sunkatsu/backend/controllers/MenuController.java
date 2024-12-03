@@ -136,8 +136,12 @@ public class MenuController {
         Matcher matchDesc = pattern.matcher(desc);
         Matcher matchCategory = pattern.matcher(category);
                         
-        if ((category != "food" || category != "drink" || category != "dessert") || matchName.find() || matchDesc.find() || matchCategory.find()) {
-            return ResponseEntity.badRequest().body(new Message("Error : Input name, price, desc, atau category tidak valid"));
+        if (!(category != "food" || category != "drink" || category != "dessert")) {
+            return ResponseEntity.badRequest().body(new Message("Error : Category harus food, drink atau dessert"));
+        }
+
+        if (matchName.find() || matchDesc.find() || matchCategory.find()) {
+            return ResponseEntity.badRequest().body(new Message("Error: Invalid name, desc, or category input!"));
         }
 
         if (file != null) {
