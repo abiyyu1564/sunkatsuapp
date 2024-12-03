@@ -142,7 +142,7 @@ public class ShoppingCartController {
         }
 
         if (!deliver.equals("take away") && !deliver.equals("in store")) {
-            return ResponseEntity.badRequest().body(new Message("Error : Invalid deliver method"));
+            return ResponseEntity.badRequest().body(new Message("Error : Invalid deliver method. Valid deliver: take away, in store"));
         }
         ShoppingCart updatedCart = cartService.addMenuToCart(cartId, menuId, quantity, deliver, note);
         return updatedCart != null ? ResponseEntity.ok(updatedCart) : ResponseEntity.badRequest().body(new Message("Error : Something went wrong"));
