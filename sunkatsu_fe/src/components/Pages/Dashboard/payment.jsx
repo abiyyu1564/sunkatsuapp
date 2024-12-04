@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import Katsu from "../../assets/curry.png";
+import Katsu from "../../../assets/katsu.png";
 import { FaCirclePlus } from "react-icons/fa6";
 import { FaCircleMinus } from "react-icons/fa6";
 import { FaSquareCheck } from "react-icons/fa6";
-import qrcode from "../../assets/qrcode.png";
+import qrcode from "../../../assets/qrcode.png";
 
-import Navbar from "./Navbar";
+import Navbar from "../../Fragment/Navbar";
 
 const Payment = () => {
   const [counter, setCounter] = useState(1);
