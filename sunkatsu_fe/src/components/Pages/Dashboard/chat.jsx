@@ -61,7 +61,7 @@ const Chat = () => {
       <main className="flex flex-grow flex-col gap-5 mx-8 sm:mx-16 lg:mx-32">
         {/* Chat Header */}
         <section className="bg-tertiary text-white p-3 rounded-t-xl">
-          <h1 className="text-2xl font-bold">Sunkatsu</h1>
+          <h1 className="text-2xl font-semibold">Sunkatsu</h1>
         </section>
 
         {/* Messages Section */}
