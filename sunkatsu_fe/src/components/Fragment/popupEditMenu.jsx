@@ -8,13 +8,13 @@ const EditMenu = ({ show, onClose, menuId }) => {
   const { input, setInput, setFetchStatus, fetchStatus, removeBackground } =
     useContext(GlobalContext);
   const [isProcessingImage, setIsProcessingImage] = useState(false);
+  console.log(menuId);
+  const baseURL = "http://localhost:8080";
 
   useEffect(() => {
     if (menuId) {
       axios
-        .get(
-          `https://sunkatsu-sunkatsu.azuremicroservices.io/api/menus/${menuId.id}`
-        )
+        .get(`http://localhost:8080/api/menus/${menuId.id}`)
         .then((res) => {
           console.log(res.data);
           setInput({
@@ -24,7 +24,8 @@ const EditMenu = ({ show, onClose, menuId }) => {
             category: res.data.category,
             image: res.data.image,
           });
-          // setSelectedImage(res.data.image);
+          setSelectedImage(`${baseURL}` + res.data.imageURL);
+          console.log("selectedImage:", selectedImage);
         })
         .catch((err) => {
           console.error("Error fetching menu data:", err);
@@ -82,7 +83,7 @@ const EditMenu = ({ show, onClose, menuId }) => {
 
       // Kirim file ke server untuk update menu
       const response = await axios.put(
-        `https://sunkatsu-sunkatsu.azuremicroservices.io/api/menus/${menuId.id}`, // Gunakan ID menu
+        `http://localhost:8080/api/menus/${menuId.id}`, // Gunakan ID menu
         formData,
         {
           headers: {
@@ -90,10 +91,10 @@ const EditMenu = ({ show, onClose, menuId }) => {
           },
           params: {
             name,
-            desc,
             price,
+            desc,
             category,
-            nums_bought: menuId.nums_bought,
+            nums_bought: menuId.numsBought,
           },
         }
       );
@@ -111,6 +112,7 @@ const EditMenu = ({ show, onClose, menuId }) => {
         category: "",
       });
       alert("Menu updated successfully!");
+      window.location.reload();
     } catch (error) {
       console.error(
         "Error updating menu:",

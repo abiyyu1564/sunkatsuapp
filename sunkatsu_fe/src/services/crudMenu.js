@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 
 export const getAllMenu = (callback) => {
   axios
-    .get("https://sunkatsu-sunkatsu.azuremicroservices.io/api/menus")
+    .get("http://localhost:8080/api/menus")
     .then((res) => {
       callback(res.data);
     })
@@ -14,7 +14,7 @@ export const getAllMenu = (callback) => {
 
 export const getMenuById = async (id, callback) => {
   axios
-    .get(`https://sunkatsu-sunkatsu.azuremicroservices.io/api/menus/${id}`)
+    .get(`http://localhost:8080/api/menus/${id}`)
     .then((res) => {
       callback(res.data);
     })
@@ -33,11 +33,7 @@ export const createMenu = async (data, callback) => {
   };
 
   axios
-    .post(
-      "https://sunkatsu-sunkatsu.azuremicroservices.io/api/menus",
-      data,
-      config
-    )
+    .post("http://localhost:8080/api/menus", data, config)
     .then((res) => {
       callback(res.data.data);
     })
@@ -56,11 +52,7 @@ export const updateMenu = async (id, data, callback) => {
   };
 
   axios
-    .put(
-      `https://sunkatsu-sunkatsu.azuremicroservices.io/api/menus/${id}`,
-      data,
-      config
-    )
+    .put(`http://localhost:8080/api/menus/${id}`, data, config)
     .then((res) => {
       callback(res.data.data);
     })
@@ -79,10 +71,7 @@ export const deleteMenu = async (id, callback) => {
   };
 
   axios
-    .delete(
-      `https://sunkatsu-sunkatsu.azuremicroservices.io/api/menus/${id}`,
-      config
-    )
+    .delete(`http://localhost:8080/api/menus/${id}`, config)
     .then((res) => {
       callback(res.data.data);
     })

@@ -70,7 +70,7 @@ const AddMenu = ({ show, onClose }) => {
 
       // Kirim file ke server
       const response = await axios.post(
-        "https://sunkatsu-sunkatsu.azuremicroservices.io/api/menus",
+        "http://localhost:8080/api/menus",
         formData,
         {
           headers: {

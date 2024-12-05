@@ -8,18 +8,18 @@ import NewLandingFooter from "../../Fragment/newFooter";
 import { GlobalProvider } from "../../../context/GlobalContext";
 
 const MenuCustomer = () => {
-    const menuItems = ["All", "Food", "Drink", "Dessert"];
-    const menu = ['Food', 'Drink', 'Dessert'];
-    return(
-        <div>
-            <div>
-            <Navbar />
-            <FilterCategory menuItems={menuItems} />
-            <NewMenuCard />
-            </div>
-        <NewLandingFooter />            
-        </div>
-    )
+  const menuItems = ["All", "Food", "Drink", "Dessert"];
+  const menu = ["Food", "Drink", "Dessert"];
+  return (
+    <div>
+      <div>
+        <Navbar />
+        <FilterCategory menuItems={menuItems} />
+        <NewMenuCard />
+        <NewLandingFooter />
+      </div>
+    </div>
+  );
 };
 
 export default MenuCustomer;
