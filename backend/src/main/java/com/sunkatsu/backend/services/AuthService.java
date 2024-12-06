@@ -1,9 +1,7 @@
 package com.sunkatsu.backend.services;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +27,7 @@ public class AuthService {
             return "Username already exists";
         }
         customer.setPassword(encoder.encode(customer.getPassword()));
-        customer.setRole(Role.CUSTOMER);
+        customer.setRole(customer.getRole());
         customer.setId(String.valueOf(sequenceGeneratorService.generateSequence(Customer.SEQUENCE_NAME)));
         customerRepository.save(customer);
         return "Customer registered successfully";
