@@ -1,8 +1,6 @@
 package com.sunkatsu.backend.config;
 
-import com.sunkatsu.backend.models.Customer;
-import com.sunkatsu.backend.models.Owner;
-import com.sunkatsu.backend.models.Staff;
+import com.sunkatsu.backend.models.*;
 import com.sunkatsu.backend.repositories.CustomerRepository;
 import com.sunkatsu.backend.repositories.OwnerRepository;
 import com.sunkatsu.backend.repositories.StaffRepository;
@@ -28,6 +26,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import static org.springframework.http.HttpMethod.DELETE;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
 
 import java.util.Optional;
 
@@ -41,15 +43,28 @@ public class SecurityConfig {
     private final OwnerRepository ownerRepository;
     private final JwtAuthFilter jwtAuthFilter;
     private final MyUserDetailService userDetailService;
+    private static final String[] WHITE_LIST_URL = {"/api/auth/**",
+            "/v2/api-docs",
+            "/v3/api-docs",
+            "/v3/api-docs/**",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui/**",
+            "/webjars/**",
+            "/swagger-ui.html"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(customizer -> customizer.disable())
-                .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/api/auth/**")
-                        .permitAll()
-                        .anyRequest().authenticated()
+                .authorizeHttpRequests(req ->
+                        req.requestMatchers(WHITE_LIST_URL)
+                                .permitAll()
+                                .requestMatchers(POST, "/api/menus/some-secure-action/**").hasAnyAuthority(Permission.OWNER_CREATE.name())
+                                .anyRequest()
+                                .authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
