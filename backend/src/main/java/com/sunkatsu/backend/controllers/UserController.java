@@ -32,6 +32,7 @@ public class UserController {
     public UserDTO findUserById(@Payload String customerId) {
         User user = userService.findUserById(customerId);
         if (user != null) {
+            System.out.println("CURRENT USER ID " + user.getId());
             userService.saveUser(user);
             return userService.convertToDTO(user);
         }

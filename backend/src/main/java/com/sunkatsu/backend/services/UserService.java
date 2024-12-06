@@ -35,6 +35,7 @@ public class UserService {
     }
 
     public void saveUser(User user) {
+
         if (user.getRole() == Role.CUSTOMER) {
             Optional<Customer> customerOpt = customerRepository.findById(user.getId());
             if (customerOpt.isPresent()) {

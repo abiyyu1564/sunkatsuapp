@@ -21,28 +21,30 @@ const FilterCategory = ({ menuItems }) => {
   }, [activeIndex, menuItems]); // Re-run jika menuItems berubah
 
   return (
-    <div className="relative flex items-center bg-white rounded-xl shadow-2xl justify-around w-3/4 h-fit py-1 mx-auto my-10 gap-10 overflow-hidden">
-      {/* Latar belakang merah yang bergerak */}
-      <div
-        className="absolute bg-[#8E0808] rounded-xl h-14 transition-all duration-300 ease-in-out"
-        style={{
-          left: `${indicatorPosition.left}px`,
-          width: `${indicatorPosition.width}px`,
-        }}
-      ></div>
+    <div className="flex w-screen items-center justify-center h-24">
+      <div className="relative flex w-fit justify-around items-center h-10 py-1 mx-10 gap-2 rounded-xl shadow-2xl overflow-hidden bg-white">
+        {/* Latar belakang merah yang bergerak */}
+        <div
+          className="absolute bg-tertiary rounded-xl h-10 transition-all duration-300 ease-in-out"
+          style={{
+            left: `${indicatorPosition.left}px`,
+            width: `${indicatorPosition.width}px`,
+          }}
+        ></div>
 
-      {menuItems.map((item, index) => (
-        <button
-          key={index}
-          ref={(el) => (buttonRefs.current[index] = el)} // Simpan referensi tombol
-          className={`relative z-10 flex items-center justify-center font-sans w-96 text-xl font-semibold py-2 px-4 rounded-xl transition-all duration-300 ${
-            activeIndex === index ? "text-white" : "text-[#8E0808]"
-          }`}
-          onClick={() => setActiveIndex(index)}
-        >
-          {item}
-        </button>
-      ))}
+        {menuItems.map((item, index) => (
+          <button
+            key={index}
+            ref={(el) => (buttonRefs.current[index] = el)} // Simpan referensi tombol
+            className={`relative z-0 flex items-center justify-center font-sans w-56 sm:w-96 text-md sm:text-xl font-semibold rounded-xl transition-all duration-300 ${
+              activeIndex === index ? "text-white" : "text-[#8E0808]"
+            }`}
+            onClick={() => setActiveIndex(index)}
+          >
+            {item}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

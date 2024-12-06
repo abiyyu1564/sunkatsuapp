@@ -47,8 +47,17 @@ public class MenuController {
     }
 
     @Operation(
+        summary = "Get menu by id",
+        description = "Get a single menu by id"
+    )
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> getMenuById(@PathVariable int id) {
+        return menuService.getMenuById(id).isPresent() ? ResponseEntity.ok(menuService.getMenuById(id).get()) : ResponseEntity.badRequest().body(new Message("Error: id not found")) ;
+    }
+
+    @Operation(
         summary = "Create a new menu",
-        description = "Create a new menu"
+        description = "Create a new menu. Valid category: food, drink, dessert."
     )
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Object> createMenu(
@@ -101,7 +110,7 @@ public class MenuController {
 
     @Operation(
         summary = "Update a menu",
-        description = "Update an already existing menu"
+        description = "Update an already existing menu. Valid category: food, drink, dessert."
     )
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> updateMenu(
@@ -127,8 +136,12 @@ public class MenuController {
         Matcher matchDesc = pattern.matcher(desc);
         Matcher matchCategory = pattern.matcher(category);
                         
-        if ((category != "food" || category != "drink" || category != "dessert") || matchName.find() || matchDesc.find() || matchCategory.find()) {
-            return ResponseEntity.badRequest().body(new Message("Error : Input name, price, desc, atau category tidak valid"));
+        if (!(category != "food" || category != "drink" || category != "dessert")) {
+            return ResponseEntity.badRequest().body(new Message("Error : Category harus food, drink atau dessert"));
+        }
+
+        if (matchName.find() || matchDesc.find() || matchCategory.find()) {
+            return ResponseEntity.badRequest().body(new Message("Error: Invalid name, desc, or category input!"));
         }
 
         if (file != null) {

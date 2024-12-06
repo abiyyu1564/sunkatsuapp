@@ -10,6 +10,9 @@ const MenuDetail = () => {
   const counterMinus = () => {
     setCount(count - 1);
   };
+
+  if (!show) return null;
+
   return (
     <div className="w-2/3 mx-10 my-10 p-10 flex gap-10 justify-between">
       <img src={Katsu} alt="katsu" className="w-56 h-56" />

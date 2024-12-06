@@ -124,7 +124,7 @@ public class ShoppingCartController {
 
     @Operation(
         summary="Add menu to cart",
-        description="Add a single menu to cart"
+        description="Add a single menu to cart. Valid deliver: take away, in store"
     )
     @PostMapping("/{cartId}/add-menu")
     public ResponseEntity<Object> addMenuToCart(
@@ -139,6 +139,10 @@ public class ShoppingCartController {
         Matcher matchNote = pattern.matcher(note);
         if (matchDeliver.find() || matchNote.find() || quantity < 0) {
             return ResponseEntity.badRequest().body(new Message("Error : Invalid deliver method, note or quantity"));
+        }
+
+        if (!deliver.equals("take away") && !deliver.equals("in store")) {
+            return ResponseEntity.badRequest().body(new Message("Error : Invalid deliver method. Valid deliver: take away, in store"));
         }
         ShoppingCart updatedCart = cartService.addMenuToCart(cartId, menuId, quantity, deliver, note);
         return updatedCart != null ? ResponseEntity.ok(updatedCart) : ResponseEntity.badRequest().body(new Message("Error : Something went wrong"));

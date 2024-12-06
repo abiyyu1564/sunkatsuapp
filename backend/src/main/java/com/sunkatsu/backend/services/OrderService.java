@@ -3,7 +3,10 @@ package com.sunkatsu.backend.services;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
+import org.springdoc.core.converters.models.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -77,11 +80,27 @@ public class OrderService {
     }
 
     public List<Order> getAllOrder() {
-        return orderRepository.findAll();
+        List<Order> orders = orderRepository.findAll();
+
+        // Prioritas status: Accepted > Not Paid > Finished
+        List<String> statusPriority = List.of("Accepted", "Not Paid", "Finished");
+
+        // Sort orders berdasarkan prioritas status
+        return orders.stream()
+                .sorted(Comparator.comparingInt(o -> statusPriority.indexOf(o.getStatus())))
+                .collect(Collectors.toList());
     }
 
-    public Order getOrderByUserId(int Userid) {
-        return orderRepository.findByUserID(Userid);
+    public List<Order> getOrderByUserId(int Userid) {
+        List<Order> orders = orderRepository.findAllByUserID(Userid);
+
+        // Prioritas status: Accepted > Not Paid > Finished
+        List<String> statusPriority = List.of("Accepted", "Not Paid", "Finished");
+
+        // Sort orders berdasarkan prioritas status
+        return orders.stream()
+                .sorted(Comparator.comparingInt(o -> statusPriority.indexOf(o.getStatus())))
+                .collect(Collectors.toList());
     }
 
     public List<Order> getOrderByStatus(String status) {
@@ -115,13 +134,13 @@ public class OrderService {
                     return null;
                 }
 
-                Optional<Favorite> favOpt = favoriteRepository.findByUserIDAndMenuID(Integer.parseInt(customer.getId()), c.getMenu().getId());
+                Optional<Favorite> favOpt = favoriteRepository.findByUserIDAndMenu(Integer.parseInt(customer.getId()), c.getMenu());
                 if (favOpt.isPresent()) {
                     var fav = favOpt.get();
                     fav.setTimesBought(fav.getTimesBought() + c.getQuantity());
                     favoriteRepository.save(fav);
                 } else {
-                    Favorite favBaru = new Favorite(sequenceGeneratorService.generateSequence(Favorite.SEQUENCE_NAME), c.getQuantity(), c.getMenu().getId(), Integer.parseInt(customer.getId()));
+                    Favorite favBaru = new Favorite(sequenceGeneratorService.generateSequence(Favorite.SEQUENCE_NAME), c.getQuantity(), c.getMenu(), Integer.parseInt(customer.getId()));
                     favoriteRepository.save(favBaru);
                 }
             }
@@ -130,6 +149,28 @@ public class OrderService {
             return orderRepository.save(order);
         }
         return null;
+    }
+
+    public void deleteCanceledOrder() {
+        var orders = orderRepository.findAll();
+        for (Order o : orders) {
+            if (o.getStatus().equals("Canceled")) {
+                orderRepository.delete(o);
+            }
+
+        }
+    }
+
+    public void checkOrderToCancel() {
+        var orders = orderRepository.findAll();
+        Date now = new Date();
+        for (Order o : orders) {
+            if (o.getPaymentDeadline() != null) {
+                if (now.after(o.getPaymentDeadline())) {
+                    orderRepository.delete(o);
+                }
+            }
+        }
     }
 
 }
