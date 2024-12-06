@@ -24,9 +24,13 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
-//    public String extractRole(String token) {
-//        return extractClaim(token, Claims::);
-//    }
+    public String extractId(String token) {
+        return extractClaim(token, claims -> claims.get("id").toString());
+    }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role").toString());
+    }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimResolver){
         final Claims claims = extractAllClaims(token);
