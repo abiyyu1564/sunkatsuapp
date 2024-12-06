@@ -1,7 +1,9 @@
 package com.sunkatsu.backend.controllers;
 
+import com.sunkatsu.backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -10,12 +12,17 @@ import com.sunkatsu.backend.models.*;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    
+
+    @Autowired
+    AuthenticationManager authenticationManager;
+
     @Autowired
     private AuthService authService;
 
@@ -30,12 +37,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody User user) {
-        Optional<? extends User> loggedInUser = authService.loginUser(user.getUsername(), user.getPassword());
-        if (loggedInUser.isPresent()){
-            return ResponseEntity.ok("Login successful!");
-        } else {
-            return ResponseEntity.badRequest().body("Invalid username or password");
+    public ResponseEntity<?> loginUser(@RequestBody User user) {
+        try {
+            String token = authService.loginUser(user.getUsername(), user.getPassword());
+            return ResponseEntity.ok(Map.of("message", "Login successful!", "token", token));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid username or password"));
         }
     }
 }
