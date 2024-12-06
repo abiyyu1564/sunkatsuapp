@@ -11,7 +11,7 @@ public class Staff extends User implements Verifiable {
     public Staff() {
     }
 
-    public Staff(String id, String username, String password, String role, String rd, Status status) {
+    public Staff(String id, String username, String password, Role role, String rd, Status status) {
         super(id,username,password,role, status);
         roleDetail = rd;
     }

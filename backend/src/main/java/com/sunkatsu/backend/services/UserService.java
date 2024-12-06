@@ -4,14 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.sunkatsu.backend.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sunkatsu.backend.dto.UserDTO;
-import com.sunkatsu.backend.models.Customer;
-import com.sunkatsu.backend.models.Staff;
-import com.sunkatsu.backend.models.Status;
-import com.sunkatsu.backend.models.User;
 import com.sunkatsu.backend.repositories.CustomerRepository;
 import com.sunkatsu.backend.repositories.StaffRepository;
 
@@ -38,7 +35,8 @@ public class UserService {
     }
 
     public void saveUser(User user) {
-        if (user.getRole().equals("customer")) {
+
+        if (user.getRole() == Role.CUSTOMER) {
             Optional<Customer> customerOpt = customerRepository.findById(user.getId());
             if (customerOpt.isPresent()) {
                 var customer = customerOpt.get();
@@ -47,7 +45,7 @@ public class UserService {
             } else {
                 System.out.println("ID is not valid");
             }  
-        } else if (user.getRole().equals("staff")) {
+        } else if (user.getRole() == Role.STAFF) {
             Optional<Staff> staffOpt = staffRepository.findById(user.getId());
             if (staffOpt.isPresent()) {
                 var staff = staffOpt.get();
@@ -87,7 +85,7 @@ public class UserService {
     }
 
     public void disconnect(User user) {
-        if (user.getRole() == "customer") {
+        if (user.getRole() == Role.CUSTOMER) {
             Optional<Customer> customerOpt = customerRepository.findById(user.getId());
             if (customerOpt.isPresent()) {
                 var customer = customerOpt.get();
@@ -96,7 +94,7 @@ public class UserService {
             } else {
                 System.out.println("ID is not valid");
             } 
-        } else if (user.getRole() == "staff") {
+        } else if (user.getRole() == Role.STAFF) {
             Optional<Staff> staffOpt = staffRepository.findById(user.getId());
             if (staffOpt.isPresent()) {
                 var staff = staffOpt.get();

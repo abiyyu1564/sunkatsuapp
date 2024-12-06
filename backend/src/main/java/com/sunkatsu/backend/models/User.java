@@ -1,19 +1,20 @@
 package com.sunkatsu.backend.models;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public class User {
     @Id
     protected String id;
     protected String username;
     protected String password;
-    protected String role;
+    protected Role role;
     protected Status status;
     
     public User() {
     }
 
-    public User(String id, String username, String password, String role, Status status) {
+    public User(String id, String username, String password, Role role, Status status) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -53,33 +54,11 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return this.role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
-
-    public User id(String id) {
-        setId(id);
-        return this;
-    }
-
-    public User username(String username) {
-        setUsername(username);
-        return this;
-    }
-
-    public User password(String password) {
-        setPassword(password);
-        return this;
-    }
-
-    public User role(String role) {
-        setRole(role);
-        return this;
-    }
-
-
 }
