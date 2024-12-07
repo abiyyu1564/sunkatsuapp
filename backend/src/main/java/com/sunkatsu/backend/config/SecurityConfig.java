@@ -63,7 +63,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
-                                .requestMatchers(OPTIONS, "/**").permitAll()
+                        .requestMatchers(OPTIONS, "/**").permitAll()
+                                .requestMatchers("/api/menus/images/**").permitAll()
                                 .requestMatchers(POST, "/api/menus/some-secure-action/**").hasAnyAuthority(Permission.OWNER_CREATE.name())
                                 .anyRequest()
                                 .authenticated()

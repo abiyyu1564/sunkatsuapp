@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { ReactComponent as AddImage } from "../Icon/addImage.svg";
 import { GlobalContext } from "../../context/GlobalContext";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 const EditMenu = ({ show, onClose, menuId }) => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -14,7 +15,11 @@ const EditMenu = ({ show, onClose, menuId }) => {
   useEffect(() => {
     if (menuId) {
       axios
-        .get(`http://localhost:8080/api/menus/${menuId.id}`)
+        .get(`http://localhost:8080/api/menus/${menuId.id}`, {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`,
+          },
+        })
         .then((res) => {
           console.log(res.data);
           setInput({
@@ -87,6 +92,7 @@ const EditMenu = ({ show, onClose, menuId }) => {
         formData,
         {
           headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`,
             "Content-Type": "multipart/form-data",
           },
           params: {
