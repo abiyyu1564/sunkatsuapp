@@ -1,12 +1,15 @@
 import { createContext, useEffect, useState } from "react";
 import { getAllMenu } from "../services/crudMenu";
 import axios from "axios";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 export const GlobalContext = createContext();
 
 export const GlobalProvider = ({ children }) => {
   const [menu, setMenu] = useState([]);
   const [fetchStatus, setFetchStatus] = useState(true);
+  const [decode, setDecode] = useState({});
   const [input, setInput] = useState({
     name: "",
     desc: "",
@@ -14,6 +17,12 @@ export const GlobalProvider = ({ children }) => {
     image: "",
     category: "",
   });
+
+  const getUser = () => {
+    const decode = jwtDecode(Cookies.get("token"));
+
+    return decode;
+  };
 
   useEffect(() => {
     if (fetchStatus) {
@@ -140,6 +149,8 @@ export const GlobalProvider = ({ children }) => {
         setFetchStatus,
         handleInput,
         removeBackground,
+        getUser,
+        formatRupiah,
       }}
     >
       {children}

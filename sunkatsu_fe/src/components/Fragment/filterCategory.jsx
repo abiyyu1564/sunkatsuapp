@@ -21,7 +21,7 @@ const FilterCategory = ({ menuItems }) => {
   }, [activeIndex, menuItems]); // Re-run jika menuItems berubah
 
   return (
-    <div className="flex w-screen items-center justify-center h-24">
+    <div className="flex w-screen items-center justify-center h-24 lg:mt-16">
       <div className="relative flex w-fit justify-around items-center h-10 py-1 mx-10 gap-2 rounded-xl shadow-2xl overflow-hidden bg-white">
         {/* Latar belakang merah yang bergerak */}
         <div

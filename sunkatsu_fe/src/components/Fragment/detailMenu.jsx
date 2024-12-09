@@ -1,11 +1,10 @@
-import React, { useState } from "react";
-import Cookies from "js-cookie";
-import { jwtDecode } from "jwt-decode";
+import React, { useState, useContext } from "react";
+import { GlobalContext } from "../../context/GlobalContext";
 import EditMenu from "./popupEditMenu";
 import { deleteMenu } from "../../services/crudMenu";
 
 const DetailMenu = ({ show, onClose, menuId }) => {
-  console.log(menuId);
+  const { getUser } = useContext(GlobalContext);
 
   const [showEditPopup, setShowEditPopup] = useState(false);
 
@@ -19,12 +18,6 @@ const DetailMenu = ({ show, onClose, menuId }) => {
     setShowEditPopup(false);
   };
 
-  const getRole = () => {
-    const decode = jwtDecode(Cookies.get("token"));
-    console.log(decode.role);
-    return decode.role;
-  };
-
   const deleteHandler = (id) => {
     deleteMenu(id, () => {
       alert("Menu deleted successfully!");
@@ -32,7 +25,7 @@ const DetailMenu = ({ show, onClose, menuId }) => {
     });
   };
 
-  const role = "owner";
+  const user = getUser();
 
   const baseURL = "http://localhost:8080";
 
@@ -71,7 +64,7 @@ const DetailMenu = ({ show, onClose, menuId }) => {
             name="note"
             className="border-2 border-gray-300 rounded-md p-2"
           />
-          {role === "owner" ? (
+          {user.role === "OWNER" ? (
             <div className="flex justify-end gap-4 mt-4">
               <button
                 className="bg-black h-10 w-40 mt-6 text-white font-bold py-2 px-6 rounded-md hover:opacity-90"
