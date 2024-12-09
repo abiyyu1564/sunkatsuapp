@@ -109,6 +109,15 @@ public class MenuController {
     }
 
     @Operation(
+        summary = "Get all menu by category",
+        description = "Get all menu by a single category"
+    )
+    @GetMapping("/category")
+    public ResponseEntity<Object> getMenuByCategory(@RequestParam String category) {
+        return ResponseEntity.ok(menuService.getMenuByCategory(category));
+    }
+
+    @Operation(
         summary = "Update a menu",
         description = "Update an already existing menu. Valid category: food, drink, dessert."
     )
