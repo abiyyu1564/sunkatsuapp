@@ -50,7 +50,7 @@ export const GlobalProvider = ({ children }) => {
     return prefix == null ? rupiah : rupiah ? "Rp " + rupiah : "";
   };
 
-  const api_key = "thRZjco6HahxbEPxoWdQi5JU";
+  const api_key = "i2JX8g4VbxvisCReGm7gr4Eg";
   const handleInput = async (e) => {
     const { name, value, files } = e.target;
 

@@ -20,7 +20,7 @@ import Menu from "./components/Pages/Menu/menu";
 import LandingPage from "./components/Pages/Home/home";
 import Cart from "./components/Pages/Dashboard/cart";
 import Order from "./components/Pages/Dashboard/myorder";
-import AuthComponent from "./components/Fragment/authorize";
+
 
 function App() {
   return (
@@ -39,6 +39,7 @@ function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/menu" element={<Menu />} />
             <Route path="/order" element={<Order />} />
+            <Route path="/payment" element={<Payment />}/>
 
             <Route path="/" element={<TestPage />} />
           </Routes>

@@ -13,19 +13,6 @@ const Login = () => {
             <img src={Logo} className="h-12 sm:h-16 w-auto" alt="Logo" />
           </a>
         </div>
-        
-        <div className="flex flex-row items-center justify-center gap-4 mt-2 sm:mt-0">
-          <button className="px-4 sm:px-10 py-1 rounded-lg bg-white text-black shadow hover:shadow-xl transition-shadow">
-            <a href="/login" className="font-bold text-sm sm:text-base">
-              Log in
-            </a>
-          </button>
-          <button className="px-4 sm:px-10 py-1 rounded-lg bg-secondary text-white shadow hover:shadow-xl transition-shadow">
-            <a href="/signup" className="font-bold text-sm sm:text-base">
-              Sign Up
-            </a>
-          </button>
-        </div>
       </nav>
 
       {/* Content Section */}
@@ -51,7 +38,14 @@ const Login = () => {
                 placeholder="Enter your password"
                 className="w-full px-4 py-2 border border-black rounded focus:outline-none text-sm sm:text-base"
               />
+              <div className="flex flex-row">
+                <p className="mr-3">Already have an account?</p>
+                  <button className="flex flex-row hover:text-tertiary">
+                    <a href="/login">Login</a>
+                  </button>
+              </div>
             </form>
+
             {/* Button */}
             <div className="flex items-start sm:pl-6 pt-4 sm:pt-0">
               <button className="w-full sm:w-auto px-6 py-2 bg-[#8E0808] text-white rounded shadow hover:shadow-lg transition-shadow text-sm sm:text-base">
