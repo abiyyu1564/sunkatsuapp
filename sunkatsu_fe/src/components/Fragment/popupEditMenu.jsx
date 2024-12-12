@@ -1,14 +1,130 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { ReactComponent as AddImage } from "../Icon/addImage.svg";
+import { GlobalContext } from "../../context/GlobalContext";
+import axios from "axios";
+import Cookies from "js-cookie";
 
-const EditMenu = ({ show, onClose }) => {
+const EditMenu = ({ show, onClose, menuId }) => {
   const [selectedImage, setSelectedImage] = useState(null);
+  const { input, setInput, setFetchStatus, fetchStatus, removeBackground } =
+    useContext(GlobalContext);
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
+  console.log(menuId);
+  const baseURL = "http://localhost:8080";
 
-  const handleImageChange = (event) => {
+  useEffect(() => {
+    if (menuId) {
+      axios
+        .get(`http://localhost:8080/api/menus/${menuId.id}`, {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`,
+          },
+        })
+        .then((res) => {
+          console.log(res.data);
+          setInput({
+            name: res.data.name,
+            desc: res.data.desc,
+            price: res.data.price,
+            category: res.data.category,
+            image: res.data.image,
+          });
+          setSelectedImage(`${baseURL}` + res.data.imageURL);
+          console.log("selectedImage:", selectedImage);
+        })
+        .catch((err) => {
+          console.error("Error fetching menu data:", err);
+        });
+    }
+  }, [menuId]);
+
+  const handleImageChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setSelectedImage(imageUrl);
+
+      try {
+        setIsProcessingImage(true);
+        const fileWithoutBg = await removeBackground(file); // Proses penghapusan background
+        setInput((prevState) => ({
+          ...prevState,
+          image: fileWithoutBg, // Simpan file tanpa background
+        }));
+      } catch (error) {
+        console.error("Failed to process image:", error);
+        alert("Error processing image. Please try again.");
+      } finally {
+        setIsProcessingImage(false);
+      }
+    }
+  };
+
+  const handleInput = (event) => {
+    const { name, value } = event.target;
+
+    setInput((prevState) => ({
+      ...prevState,
+      [name]: value, // Perbarui state berdasarkan `name` field
+    }));
+  };
+
+  const handleUpdate = async (event) => {
+    event.preventDefault();
+
+    const { image, name, desc, price, category } = input;
+    console.log("Input for update:", input);
+
+    // Validasi input
+    if (!name || !desc || !price || !image || !category) {
+      console.error("All fields are required!");
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("file", image);
+
+      // Kirim file ke server untuk update menu
+      const response = await axios.put(
+        `http://localhost:8080/api/menus/${menuId.id}`, // Gunakan ID menu
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`,
+            "Content-Type": "multipart/form-data",
+          },
+          params: {
+            name,
+            price,
+            desc,
+            category,
+            nums_bought: menuId.numsBought,
+          },
+        }
+      );
+
+      console.log("Update response:", response.data);
+      setFetchStatus((prevStatus) => !prevStatus);
+
+      // Reset input form setelah update
+      setInput({
+        id: "",
+        name: "",
+        desc: "",
+        price: "",
+        image: null,
+        category: "",
+      });
+      alert("Menu updated successfully!");
+      window.location.reload();
+    } catch (error) {
+      console.error(
+        "Error updating menu:",
+        error.response?.data || error.message
+      );
+      alert("Failed to update menu. Please try again.");
     }
   };
 
@@ -46,6 +162,7 @@ const EditMenu = ({ show, onClose }) => {
             id="imageInput"
             type="file"
             accept="image/*"
+            name="image"
             onChange={handleImageChange}
             className="hidden"
           />
@@ -58,6 +175,9 @@ const EditMenu = ({ show, onClose }) => {
             <label className="block font-bold mb-2">Name</label>
             <input
               type="text"
+              name="name"
+              value={input.name}
+              onChange={handleInput}
               placeholder="Insert Menu Name"
               className="w-full border-2 border-gray-300 rounded-md p-2 focus:outline-none focus:border-secondary"
             />
@@ -67,6 +187,9 @@ const EditMenu = ({ show, onClose }) => {
             <label className="block font-bold mb-2">Price</label>
             <input
               type="number"
+              name="price"
+              value={input.price}
+              onChange={handleInput}
               placeholder="Insert Menu Price"
               className="w-full border-2 border-gray-300 rounded-md p-2 focus:outline-none focus:border-secondary"
             />
@@ -76,6 +199,9 @@ const EditMenu = ({ show, onClose }) => {
             <label className="block font-bold mb-2">Description</label>
             <input
               type="text"
+              name="desc"
+              value={input.desc}
+              onChange={handleInput}
               placeholder="Insert Menu Description"
               className="w-full border-2 border-gray-300 rounded-md p-2 focus:outline-none focus:border-secondary"
             />
@@ -84,6 +210,9 @@ const EditMenu = ({ show, onClose }) => {
             <label className="block font-bold mb-2">Category</label>
             <input
               type="text"
+              name="category"
+              value={input.category}
+              onChange={handleInput}
               placeholder="Insert Menu Category"
               className="w-full border-2 border-gray-300 rounded-md p-2 focus:outline-none focus:border-secondary"
             />
@@ -96,8 +225,12 @@ const EditMenu = ({ show, onClose }) => {
             >
               Cancel
             </button>
-            <button className="bg-secondary text-white font-bold py-2 px-6 rounded-md hover:bg-red-700">
-              Save Menu
+            <button
+              className="bg-secondary text-white font-bold py-2 px-6 rounded-md hover:bg-red-700"
+              onClick={handleUpdate}
+              disabled={isProcessingImage}
+            >
+              {isProcessingImage ? "Processing..." : "Save Menu"}
             </button>
           </div>
         </div>

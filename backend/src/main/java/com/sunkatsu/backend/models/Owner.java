@@ -1,5 +1,8 @@
 package com.sunkatsu.backend.models;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "owners")
 public class Owner extends User {
     private String contactInfo;
 
@@ -7,7 +10,7 @@ public class Owner extends User {
     public Owner() {
     }
 
-    public Owner(String id, String username, String password, String role, String contactInfo, Status status) {
+    public Owner(String id, String username, String password, Role role, String contactInfo, Status status) {
         super(id, username, password, role, status);
         this.contactInfo = contactInfo;
     }

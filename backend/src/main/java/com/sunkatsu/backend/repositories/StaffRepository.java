@@ -7,9 +7,10 @@ import com.sunkatsu.backend.models.Staff;
 import com.sunkatsu.backend.models.Status;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StaffRepository extends MongoRepository<Staff, String> {
-    Staff findByIdAndPassword(String id, String password);
+    Optional<Staff> findByUsername(String username);
     List<Staff> findAllByStatus(Status status);
 }

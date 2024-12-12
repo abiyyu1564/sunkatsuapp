@@ -8,31 +8,35 @@ import DetailMenu from "./detailMenu";
 import AddMenu from "./popupAddMenu";
 
 const NewMenuCard = () => {
-  const { menu } = useContext(GlobalContext);
+  const { menu, getUser } = useContext(GlobalContext);
 
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
   const [showDetailMenu, setShowDetailMenu] = useState(false);
 
+  const user = getUser();
+  console.log(user);
+
   const handleAddClick = () => {
     setShowAddPopup(!showAddPopup);
   };
 
-  const handleDetailClick = () => {
+  const handleDetailClick = (menu) => {
     setShowDetailMenu(!showDetailMenu);
+    setSelectedMenuItem(menu);
   };
 
   const baseURL = "http://localhost:8080";
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F0F3F7]">
-      <div className="flex flex-wrap gap-32 mt-32 items-center justify-center m-20">
+    <div className="flex flex-col min-h-screen">
+      <div className="flex flex-wrap gap-32 mt-12 items-center justify-center m-20">
         {menu.length > 0 &&
           menu.map((menuItem) => (
             <button
               className="relative w-64 h-64 bg-gradient-to-br from-red-500 to-65% shadow-xl rounded-2xl"
-              onClick={handleDetailClick}
+              onClick={() => handleDetailClick(menuItem)}
             >
               <img
                 src={`${baseURL}${menuItem.imageURL}`}
@@ -55,7 +59,13 @@ const NewMenuCard = () => {
               </div>
             </button>
           ))}
-        <DetailMenu show={showDetailMenu} onClose={handleDetailClick} />
+        {selectedMenuItem && (
+          <DetailMenu
+            menuId={selectedMenuItem}
+            show={showDetailMenu}
+            onClose={handleDetailClick}
+          />
+        )}
       </div>
       <div className="fixed bottom-10 right-10">
         <button

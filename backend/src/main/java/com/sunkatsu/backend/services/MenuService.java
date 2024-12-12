@@ -56,6 +56,10 @@ public class MenuService {
         }
     }
 
+    public List<Menu> getMenuByCategory(String category) {
+        return menuRepository.findByCategory(category);
+    }
+
     public Menu createMenu(Menu menu, MultipartFile file) throws IOException {
         String filename = saveFile(file);
         if (filename != null) {

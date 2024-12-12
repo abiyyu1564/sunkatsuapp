@@ -16,10 +16,10 @@ const IconLink = ({ href, target, rel, children, className}) => {
   );
 };
 
-const NewLandingFooter = () => {
+const NewFooter = () => {
   return (
-    <footer className="bg-white rounded-lg shadow pb-10 md:pb-0 px-5">
-      <div className="w-full mx-auto max-w-screen-xl p-1 flex sm:flex-row md:items-center md:justify-center gap-4">
+    <footer className="bg-white w-full rounded-b-lg shadow pb-10 md:pb-0 px-5">
+      <div className="w-full mx-auto p-1 flex sm:flex-row md:items-center md:justify-center gap-4">
         <IconLink href="https://www.whatsapp.com/?lang=id_ID" className="hover: text-blue-500">
           <WALogo className = "w-7 h-7 mt-[2px] mr-[-3px]"/>
         </IconLink>
@@ -38,4 +38,4 @@ const NewLandingFooter = () => {
   );
 };
 
-export default NewLandingFooter;
+export default NewFooter;

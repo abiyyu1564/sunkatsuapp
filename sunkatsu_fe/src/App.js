@@ -11,9 +11,16 @@ import Home from "./components/Pages/Home/home";
 import MenuCustomer from "./components/Pages/Menu/menuCustomer";
 import MenuStaff from "./components/Pages/Menu/menuStaff";
 import MenuOwner from "./components/Pages/Menu/menuOwner";
+import Payment from "./components/Pages/Dashboard/payment";
+import PaymentDone from "./components/Pages/Dashboard/paymentDone";
 
 import Chat from "./components/Pages/Dashboard/chat";
 import TestPage from "./components/Pages/Dashboard/testpage";
+import Menu from "./components/Pages/Menu/menu";
+import LandingPage from "./components/Pages/Home/home";
+import Cart from "./components/Pages/Dashboard/cart";
+import Order from "./components/Pages/Dashboard/myorder";
+
 
 function App() {
   return (
@@ -29,10 +36,16 @@ function App() {
             <Route path="/menuOwner" element={<MenuOwner />} />
             <Route path="/chat" element={<Chat />} />
 
-            <Route path="/test" element={<TestPage />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/menu" element={<Menu />} />
+            <Route path="/order" element={<Order />} />
+            <Route path="/payment" element={<Payment />}/>
+
+            <Route path="/" element={<TestPage />} />
           </Routes>
         </Router>
       </GlobalProvider>
+      {/* <AuthComponent /> */}
     </>
   );
 }

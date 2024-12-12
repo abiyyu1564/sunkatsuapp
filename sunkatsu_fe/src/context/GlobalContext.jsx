@@ -1,12 +1,15 @@
 import { createContext, useEffect, useState } from "react";
 import { getAllMenu } from "../services/crudMenu";
 import axios from "axios";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 export const GlobalContext = createContext();
 
 export const GlobalProvider = ({ children }) => {
   const [menu, setMenu] = useState([]);
   const [fetchStatus, setFetchStatus] = useState(true);
+  const [decode, setDecode] = useState({});
   const [input, setInput] = useState({
     name: "",
     desc: "",
@@ -14,6 +17,12 @@ export const GlobalProvider = ({ children }) => {
     image: "",
     category: "",
   });
+
+  const getUser = () => {
+    const decode = jwtDecode(Cookies.get("token"));
+
+    return decode;
+  };
 
   useEffect(() => {
     if (fetchStatus) {
@@ -41,7 +50,7 @@ export const GlobalProvider = ({ children }) => {
     return prefix == null ? rupiah : rupiah ? "Rp " + rupiah : "";
   };
 
-  const api_key = "thRZjco6HahxbEPxoWdQi5JU";
+  const api_key = "i2JX8g4VbxvisCReGm7gr4Eg";
   const handleInput = async (e) => {
     const { name, value, files } = e.target;
 
@@ -94,6 +103,41 @@ export const GlobalProvider = ({ children }) => {
     }
   };
 
+  const removeBackground = async (file) => {
+    const formData = new FormData();
+    formData.append("image_file", file);
+    formData.append("size", "auto");
+
+    try {
+      const response = await axios.post(
+        "https://api.remove.bg/v1.0/removebg",
+        formData,
+        {
+          headers: {
+            "X-Api-Key": api_key,
+          },
+          responseType: "blob", // Agar mendapatkan data gambar dalam format blob
+        }
+      );
+
+      // Konversi blob hasil API menjadi file baru
+      const removedBgBlob = response.data;
+      const timestamp = Date.now();
+      const removedBgFile = new File(
+        [removedBgBlob],
+        `image_no_bg_${timestamp}.png`,
+        {
+          type: removedBgBlob.type,
+        }
+      );
+
+      return removedBgFile; // File dengan background dihapus
+    } catch (error) {
+      console.error("Error removing background:", error);
+      throw new Error("Failed to remove background.");
+    }
+  };
+
   return (
     <GlobalContext.Provider
       value={{
@@ -104,6 +148,9 @@ export const GlobalProvider = ({ children }) => {
         fetchStatus,
         setFetchStatus,
         handleInput,
+        removeBackground,
+        getUser,
+        formatRupiah,
       }}
     >
       {children}

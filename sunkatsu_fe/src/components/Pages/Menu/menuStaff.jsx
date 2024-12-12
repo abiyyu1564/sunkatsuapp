@@ -3,7 +3,7 @@ import React from "react";
 import Navbar from "../../Fragment/Navbar";
 import FilterCategory from "../../Fragment/filterCategory";
 import NewMenuCard from "../../Fragment/newMenuCard";
-import NewLandingFooter from "../../Fragment/newLandingFooter";
+import NewLandingFooter from "../../Fragment/newFooter";
 
 
 const MenuStaff = () => {

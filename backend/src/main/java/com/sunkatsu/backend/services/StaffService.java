@@ -1,6 +1,7 @@
 package com.sunkatsu.backend.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,8 +48,8 @@ public class StaffService {
         staffRepository.save(staff);
     }
 
-    public Staff getStaffByIdAndPassword(String id, String password) {
-        return staffRepository.findByIdAndPassword(id, password);
+    public Optional<Staff> getStaffByUsername(String username) {
+        return staffRepository.findByUsername(username);
     }
 
     public Staff getStaffById(String id) {

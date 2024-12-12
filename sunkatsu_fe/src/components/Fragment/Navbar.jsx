@@ -3,7 +3,6 @@ import Logo from "../../assets/Logo_Sunkatsu.png";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import { ReactComponent as ChatIcon } from "../Icon/Chat.svg";
 import { ReactComponent as CartIcon } from "../Icon/Cart.svg";
-import { ReactComponent as NotificationIcon } from "../Icon/notification.svg";
 import { ReactComponent as ProfileIcon } from "../Icon/Profile.svg";
 import { ReactComponent as SearchIcon } from "../Icon/Search.svg";
 
@@ -47,9 +46,6 @@ const Navbar = () => {
           </a>
           <a href="/cart" className="flex items-center">
             <CartIcon className="w-6 h-6" />
-          </a>
-          <a href="/notification" className="flex items-center">
-            <NotificationIcon className="w-6 h-6" />
           </a>
           <a href="#/profile" className="flex items-center">
             <ProfileIcon className="w-10 h-10" />
@@ -103,13 +99,6 @@ const Navbar = () => {
             <div className="flex flex-row justify-center items-center gap-1">
               <CartIcon className="w-4 h-4" />
               <p>Cart</p>
-            </div>
-          </a>
-
-          <a href="/notification" className="flex items-center">
-            <div className="flex flex-row justify-center items-center gap-1">
-              <NotificationIcon className="w-4 h-4" />
-              <p>Notification</p>
             </div>
           </a>
 
