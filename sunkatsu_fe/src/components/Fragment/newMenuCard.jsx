@@ -7,7 +7,7 @@ import EditMenu from "./popupEditMenu";
 import DetailMenu from "./detailMenu";
 import AddMenu from "./popupAddMenu";
 
-const NewMenuCard = () => {
+const NewMenuCard = ({ selectedCategory }) => {
   const { menu, getUser } = useContext(GlobalContext);
 
   const [showAddPopup, setShowAddPopup] = useState(false);
@@ -27,13 +27,26 @@ const NewMenuCard = () => {
     setSelectedMenuItem(menu);
   };
 
+  if (selectedCategory === "Food") {
+    selectedCategory = "food";
+  } else if (selectedCategory === "Drink") {
+    selectedCategory = "drink";
+  } else if (selectedCategory === "Dessert") {
+    selectedCategory = "dessert";
+  }
+
+  const filteredMenu =
+    selectedCategory === "All"
+      ? menu
+      : menu.filter((item) => item.category === selectedCategory);
+
   const baseURL = "http://localhost:8080";
 
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex flex-wrap gap-32 mt-12 items-center justify-center m-20">
-        {menu.length > 0 &&
-          menu.map((menuItem) => (
+        {filteredMenu.length > 0 &&
+          filteredMenu.map((menuItem) => (
             <button
               className="relative w-64 h-64 bg-gradient-to-br from-red-500 to-65% shadow-xl rounded-2xl"
               onClick={() => handleDetailClick(menuItem)}

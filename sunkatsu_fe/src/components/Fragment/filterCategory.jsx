@@ -1,12 +1,17 @@
 import React, { useState, useRef, useEffect } from "react";
 
-const FilterCategory = ({ menuItems }) => {
+const FilterCategory = ({ menuItems, onFilterChange }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const buttonRefs = useRef([]); // Referensi ke tombol
   const [indicatorPosition, setIndicatorPosition] = useState({
     left: 0,
     width: 0,
   });
+
+  const handleButtonClick = (index) => {
+    setActiveIndex(index);
+    onFilterChange(menuItems[index]); // Kirim kategori yang dipilih ke parent
+  };
 
   useEffect(() => {
     if (buttonRefs.current[activeIndex]) {
@@ -39,7 +44,7 @@ const FilterCategory = ({ menuItems }) => {
             className={`relative z-0 flex items-center justify-center font-sans w-56 sm:w-96 text-md sm:text-xl font-semibold rounded-xl transition-all duration-300 ${
               activeIndex === index ? "text-white" : "text-[#8E0808]"
             }`}
-            onClick={() => setActiveIndex(index)}
+            onClick={() => handleButtonClick(index)}
           >
             {item}
           </button>
