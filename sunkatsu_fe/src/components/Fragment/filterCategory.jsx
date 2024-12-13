@@ -1,14 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 
-<<<<<<< HEAD
-const FilterCategory = ({ menuItems, defaultActive = 0 }) => {
-  const [activeIndex, setActiveIndex] = useState(defaultActive);
-  const buttonRefs = useRef([]);
-=======
 const FilterCategory = ({ menuItems, onFilterChange }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const buttonRefs = useRef([]); // Referensi ke tombol
->>>>>>> 4616504292e71aa8212c72ed4bc4f2b43c5d6c57
   const [indicatorPosition, setIndicatorPosition] = useState({
     left: 0,
     width: 0,
