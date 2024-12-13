@@ -3,7 +3,6 @@ import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { GlobalProvider } from "./context/GlobalContext";
 
-import Sign from "./components/Pages/Register/signup";
 import Login from "./components/Pages/Register/login";
 
 import Home from "./components/Pages/Home/home";
@@ -20,6 +19,8 @@ import Menu from "./components/Pages/Menu/menu";
 import LandingPage from "./components/Pages/Home/home";
 import Cart from "./components/Pages/Dashboard/cart";
 import Order from "./components/Pages/Dashboard/myorder";
+import Profile from "./components/Pages/Dashboard/userProfile";
+import Signup from "./components/Pages/Register/signup";
 
 
 function App() {
@@ -28,7 +29,7 @@ function App() {
       <GlobalProvider>
         <Router>
           <Routes>
-            <Route path="/signup" element={<Sign />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
             <Route path="/home" element={<Home />} />
             <Route path="/menuCustomer" element={<MenuCustomer />} />
@@ -40,8 +41,7 @@ function App() {
             <Route path="/menu" element={<Menu />} />
             <Route path="/order" element={<Order />} />
             <Route path="/payment" element={<Payment />}/>
-
-            <Route path="/" element={<TestPage />} />
+            <Route path="/profile" element={<Profile/>}/>
           </Routes>
         </Router>
       </GlobalProvider>
