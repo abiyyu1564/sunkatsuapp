@@ -4,7 +4,7 @@ import Vector from "../../../assets/Vector_4.png";
 import { Link } from "react-router-dom";
 import NewLandingFooter from "../../Fragment/newFooter";
 
-const Login = () => {
+const Signup = () => {
   return (
     <div className="flex flex-col min-h-screen bg-primary">
       <nav className="flex flex-col sm:flex-row top-0 w-full shadow-lg justify-between bg-white px-1/2 py-2 sm:py-0">
@@ -68,5 +68,5 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;
 

@@ -14,7 +14,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 w-full h-16 z-[99] shadow-lg bg-white transition ease-in-out duration-200">
+    <nav className="fixed top-0 w-full h-16 z-[99] shadow-lg bg-white">
       <div className="flex justify-between items-center px-3">
         <a href="/home">
           <img src={Logo} className="h-16 w-auto" alt="Logo" />
@@ -47,7 +47,7 @@ const Navbar = () => {
           <a href="/cart" className="flex items-center">
             <CartIcon className="w-6 h-6" />
           </a>
-          <a href="#/profile" className="flex items-center">
+          <a href="/profile" className="flex items-center">
             <ProfileIcon className="w-10 h-10" />
           </a>
         </div>

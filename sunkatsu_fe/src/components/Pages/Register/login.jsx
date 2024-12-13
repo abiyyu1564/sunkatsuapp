@@ -39,7 +39,7 @@ const Login = () => {
         let data = res.data;
         Cookies.set("token", data.token, { expires: 1 });
         alert("Login Success");
-        navigate("/menuCustomer");
+        navigate("/home");
       })
       .catch((err) => {
         alert("Wrong username or password");

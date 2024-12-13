@@ -1,80 +1,84 @@
 import React, { useContext, useState } from "react";
-import Katsu from "../../assets/curry.png";
 import Cart from "../../assets/AddCart.png";
 import { GlobalContext } from "../../context/GlobalContext";
-import { Link } from "react-router-dom";
-import EditMenu from "./popupEditMenu";
-import DetailMenu from "./detailMenu";
 import AddMenu from "./popupAddMenu";
+import DetailMenu from "./detailMenu";
 
 const NewMenuCard = () => {
   const { menu, getUser } = useContext(GlobalContext);
+  const [popupState, setPopupState] = useState({
+    showAdd: false,
+    showDetail: false,
+    selectedMenu: null,
+  });
 
-  const [showAddPopup, setShowAddPopup] = useState(false);
-  const [showEditPopup, setShowEditPopup] = useState(false);
-  const [selectedMenuItem, setSelectedMenuItem] = useState(null);
-  const [showDetailMenu, setShowDetailMenu] = useState(false);
+  const baseURL = process.env.REACT_APP_BASE_URL || "http://localhost:8080";
 
-  const user = getUser();
-  console.log(user);
-
-  const handleAddClick = () => {
-    setShowAddPopup(!showAddPopup);
+  const handlePopup = (type, menu = null) => {
+    setPopupState((prev) => ({
+      ...prev,
+      [type]: !prev[type],
+      selectedMenu: menu,
+    }));
   };
-
-  const handleDetailClick = (menu) => {
-    setShowDetailMenu(!showDetailMenu);
-    setSelectedMenuItem(menu);
-  };
-
-  const baseURL = "http://localhost:8080";
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="flex flex-wrap gap-32 mt-12 items-center justify-center m-20">
-        {menu.length > 0 &&
+      <div className="flex flex-wrap gap-12 mt-12 items-center justify-center m-20">
+        {menu.length > 0 ? (
           menu.map((menuItem) => (
             <button
-              className="relative w-64 h-64 bg-gradient-to-br from-red-500 to-65% shadow-xl rounded-2xl"
-              onClick={() => handleDetailClick(menuItem)}
+              key={menuItem.id}
+              className="relative w-64 h-64 bg-gradient-to-br from-red-500 to-65% shadow-xl rounded-2xl transition-transform transform hover:scale-105 focus:outline-none"
+              onClick={() => handlePopup("showDetail", menuItem)}
+              aria-label={`View details of ${menuItem.name}`}
             >
               <img
                 src={`${baseURL}${menuItem.imageURL}`}
-                alt="katsu"
+                alt={menuItem.name}
                 className="w-48 h-48 absolute -top-20 left-8"
               />
               <img
                 src={Cart}
-                alt="cart"
+                alt="Add to cart"
                 className="absolute w-14 h-14 -top-7 -right-7"
               />
               <div className="absolute text-end bottom-4 right-4 font-sans">
                 <h1 className="text-2xl mb-10 font-semibold text-black">
                   {menuItem.name}
                 </h1>
-
                 <h1 className="text-2xl font-semibold text-black">
                   {menuItem.price}
                 </h1>
               </div>
             </button>
-          ))}
-        {selectedMenuItem && (
+          ))
+        ) : (
+          <p className="text-gray-500 text-lg font-semibold">
+            No menu items available. Click "Tambah data Menu" to add some!
+          </p>
+        )}
+        {popupState.showDetail && (
           <DetailMenu
-            menuId={selectedMenuItem}
-            show={showDetailMenu}
-            onClose={handleDetailClick}
+            menuId={popupState.selectedMenu}
+            show={popupState.showDetail}
+            onClose={() => handlePopup("showDetail")}
           />
         )}
       </div>
       <div className="fixed bottom-10 right-10">
         <button
           className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-2xl"
-          onClick={handleAddClick}
+          onClick={() => handlePopup("showAdd")}
         >
           Tambah data Menu
         </button>
-        <AddMenu show={showAddPopup} onClose={handleAddClick} />
+        {popupState.showAdd && (
+          <AddMenu
+            show={popupState.showAdd}
+            onClose={() => handlePopup("showAdd")}
+          />
+        )}
       </div>
     </div>
   );
