@@ -56,6 +56,16 @@ public class SecurityConfig {
             "/webjars/**",
             "/swagger-ui.html",
             "/chatbot",
+            "/stream",
+            "/chat.html",
+            "/chat",
+            "/messages/**",
+            "/js/**",
+            "/img/**",
+            "/api/users/**",
+            "/api/users/status/**",
+            "/ws/**",
+            "/css/**",
             "/stream.html"};
 
     @Bean
