@@ -57,13 +57,8 @@ const FilterCategory = ({ menuItems, onFilterChange }) => {
             ref={(el) => (buttonRefs.current[index] = el)}
             className={`relative z-0 flex items-center justify-center font-sans w-56 sm:w-96 text-md sm:text-xl font-semibold rounded-xl transition-all duration-300 ${
               activeIndex === index ? "text-white" : "text-[#8E0808]"
-<<<<<<< HEAD
-            } hover:text-gray-700`}
-            onClick={() => setActiveIndex(index)}
-=======
             }`}
             onClick={() => handleButtonClick(index)}
->>>>>>> 4616504292e71aa8212c72ed4bc4f2b43c5d6c57
           >
             {item}
           </button>
