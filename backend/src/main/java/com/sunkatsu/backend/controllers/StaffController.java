@@ -63,9 +63,9 @@ public class StaffController {
     @PostMapping
     public ResponseEntity<Object> createStaff(@Payload Staff staff)  {
         Pattern pattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
-        Matcher matchUsrename = pattern.matcher(staff.getUsername());
+        Matcher matchUsername = pattern.matcher(staff.getUsername());
         Matcher matchRoleDetail = pattern.matcher(staff.getRoleDetail());
-        if (matchUsrename.find() || matchRoleDetail.find() || !staff.verify()) {
+        if (matchUsername.find() || matchRoleDetail.find() || !staff.verify()) {
             return ResponseEntity.badRequest().body(new Message("Error : Invalid username or role detail"));
         }
         return ResponseEntity.ok(staffService.createStaff(staff));
