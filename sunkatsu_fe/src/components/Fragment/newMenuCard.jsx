@@ -8,12 +8,15 @@ import DetailMenu from "./detailMenu";
 import AddMenu from "./popupAddMenu";
 
 const NewMenuCard = () => {
-  const { menu } = useContext(GlobalContext);
+  const { menu, getUser } = useContext(GlobalContext);
 
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
   const [showDetailMenu, setShowDetailMenu] = useState(false);
+
+  const user = getUser();
+  console.log(user);
 
   const handleAddClick = () => {
     setShowAddPopup(!showAddPopup);

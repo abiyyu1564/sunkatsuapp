@@ -3,7 +3,11 @@ import Cookies from "js-cookie";
 
 export const getAllMenu = (callback) => {
   axios
-    .get("http://localhost:8080/api/menus")
+    .get("http://localhost:8080/api/menus", {
+      headers: {
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+    })
     .then((res) => {
       callback(res.data);
     })

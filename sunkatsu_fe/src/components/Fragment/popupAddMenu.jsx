@@ -3,6 +3,7 @@ import { ReactComponent as AddImage } from "../Icon/addImage.svg";
 import axios from "axios";
 import { GlobalContext } from "../../context/GlobalContext";
 import CobaInputMenu from "./cobaInputMenu";
+import Cookies from "js-cookie";
 
 const AddMenu = ({ show, onClose }) => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -74,6 +75,7 @@ const AddMenu = ({ show, onClose }) => {
         formData,
         {
           headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`,
             "Content-Type": "multipart/form-data",
           },
           params: {

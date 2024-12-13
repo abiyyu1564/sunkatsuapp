@@ -13,9 +13,11 @@ public class WebConfig implements WebMvcConfigurer {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**") // Untuk semua endpoint
-                        .allowedOrigins("*") // Izinkan semua origin
-                        .allowedMethods("*"); // Izinkan semua method (GET, POST, PUT, DELETE, dll.)
+                registry.addMapping("/**") // Semua endpoint
+                        .allowedOrigins("http://localhost:3000") // Batasi hanya ke frontend
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Tambahkan OPTIONS untuk preflight
+                        .allowedHeaders("*") // Izinkan semua header
+                        .allowCredentials(true); // Izinkan cookies/credentials jika diperlukan
             }
         };
     }

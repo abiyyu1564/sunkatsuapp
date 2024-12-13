@@ -22,6 +22,10 @@ const Cart = () => {
     if (newQuantities[index] > 1) {
       newQuantities[index] -= 1; // Decrement the quantity for the given index
       setQuantities(newQuantities);
+    } else {
+        alert('Remove menu from cart');
+        newQuantities[index] = 0;
+        setQuantities(newQuantities);
     }
   };
 
@@ -76,9 +80,12 @@ const Cart = () => {
           </div>
           <div className="flex">
             <div className="flex w-32 sm:w-40 h-8 justify-center items-center rounded-md p-2 bg-secondary">
-              <button type="submit" className="text-lg font-bold text-white">
-                Pay Now!
-              </button>
+                <a
+                type="submit"
+                href="/payment"
+                className="text-lg font-bold text-white">
+                  Pay Now!
+              </a>
             </div>
           </div>
         </div>
