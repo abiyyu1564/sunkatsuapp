@@ -4,7 +4,7 @@ import { GlobalContext } from "../../context/GlobalContext";
 import AddMenu from "./popupAddMenu";
 import DetailMenu from "./detailMenu";
 
-const NewMenuCard = () => {
+const NewMenuCard = ({ selectedCategory }) => {
   const { menu, getUser } = useContext(GlobalContext);
   const [popupState, setPopupState] = useState({
     showAdd: false,
@@ -22,11 +22,39 @@ const NewMenuCard = () => {
     }));
   };
 
+<<<<<<< HEAD
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex flex-wrap gap-12 mt-12 items-center justify-center m-20">
         {menu.length > 0 ? (
           menu.map((menuItem) => (
+=======
+  const handleDetailClick = (menu) => {
+    setShowDetailMenu(!showDetailMenu);
+    setSelectedMenuItem(menu);
+  };
+
+  if (selectedCategory === "Food") {
+    selectedCategory = "food";
+  } else if (selectedCategory === "Drink") {
+    selectedCategory = "drink";
+  } else if (selectedCategory === "Dessert") {
+    selectedCategory = "dessert";
+  }
+
+  const filteredMenu =
+    selectedCategory === "All"
+      ? menu
+      : menu.filter((item) => item.category === selectedCategory);
+
+  const baseURL = "http://localhost:8080";
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <div className="flex flex-wrap gap-32 mt-12 items-center justify-center m-20">
+        {filteredMenu.length > 0 &&
+          filteredMenu.map((menuItem) => (
+>>>>>>> 4616504292e71aa8212c72ed4bc4f2b43c5d6c57
             <button
               key={menuItem.id}
               className="relative w-64 h-64 bg-gradient-to-br from-red-500 to-65% shadow-xl rounded-2xl transition-transform transform hover:scale-105 focus:outline-none"

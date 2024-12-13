@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -26,11 +27,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import static org.springframework.http.HttpMethod.DELETE;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.OPTIONS;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpMethod.PUT;
+
+import static com.sunkatsu.backend.models.Role.OWNER;
+import static com.sunkatsu.backend.models.Role.STAFF;
+import static org.springframework.http.HttpMethod.*;
 
 import java.util.Optional;
 
@@ -54,7 +54,9 @@ public class SecurityConfig {
             "/configuration/security",
             "/swagger-ui/**",
             "/webjars/**",
-            "/swagger-ui.html"};
+            "/swagger-ui.html",
+            "/chatbot",
+            "/stream.html"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -63,9 +65,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
-                        .requestMatchers(OPTIONS, "/**").permitAll()
-                                .requestMatchers("/api/menus/images/**").permitAll()
                                 .requestMatchers(POST, "/api/menus/some-secure-action/**").hasAnyAuthority(Permission.OWNER_CREATE.name())
+                                .requestMatchers("/api/staff/** ").hasAnyAuthority("STAFF", "OWNER")
+                                .requestMatchers("/api/owner/**").hasAuthority("OWNER")
+
+                                .requestMatchers(GET, "/api/menus/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                .requestMatchers(POST, "/api/menus/**").hasAuthority("OWNER")
+                                .requestMatchers(PATCH, "/api/menus/**").hasAuthority("OWNER")
+                                .requestMatchers(DELETE, "/api/menus/**").hasAuthority("OWNER")
+
                                 .anyRequest()
                                 .authenticated()
                 )

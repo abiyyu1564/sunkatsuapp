@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.List;
 import com.sunkatsu.backend.models.Status;
 
-
 @Repository
 public interface CustomerRepository extends MongoRepository<Customer, String>{
     List<Customer> findAllByStatus(Status status);

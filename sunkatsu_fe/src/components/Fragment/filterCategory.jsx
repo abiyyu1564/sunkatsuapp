@@ -1,12 +1,23 @@
 import React, { useState, useRef, useEffect } from "react";
 
+<<<<<<< HEAD
 const FilterCategory = ({ menuItems, defaultActive = 0 }) => {
   const [activeIndex, setActiveIndex] = useState(defaultActive);
   const buttonRefs = useRef([]);
+=======
+const FilterCategory = ({ menuItems, onFilterChange }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const buttonRefs = useRef([]); // Referensi ke tombol
+>>>>>>> 4616504292e71aa8212c72ed4bc4f2b43c5d6c57
   const [indicatorPosition, setIndicatorPosition] = useState({
     left: 0,
     width: 0,
   });
+
+  const handleButtonClick = (index) => {
+    setActiveIndex(index);
+    onFilterChange(menuItems[index]); // Kirim kategori yang dipilih ke parent
+  };
 
   useEffect(() => {
     if (buttonRefs.current[activeIndex]) {
@@ -52,8 +63,13 @@ const FilterCategory = ({ menuItems, defaultActive = 0 }) => {
             ref={(el) => (buttonRefs.current[index] = el)}
             className={`relative z-0 flex items-center justify-center font-sans w-56 sm:w-96 text-md sm:text-xl font-semibold rounded-xl transition-all duration-300 ${
               activeIndex === index ? "text-white" : "text-[#8E0808]"
+<<<<<<< HEAD
             } hover:text-gray-700`}
             onClick={() => setActiveIndex(index)}
+=======
+            }`}
+            onClick={() => handleButtonClick(index)}
+>>>>>>> 4616504292e71aa8212c72ed4bc4f2b43c5d6c57
           >
             {item}
           </button>
