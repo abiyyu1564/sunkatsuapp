@@ -57,12 +57,13 @@ public class CustomerService {
 
     public ShoppingCart getCartByCustomerId(String id) {
         Optional<Customer> c = customerRepository.findById(id);
+        ShoppingCart cart = null;
 
         if (c.isPresent()) {
-            ShoppingCart cart = cartRepository.findByUserID(id);
+            cart = cartRepository.findByUserID(Integer.parseInt(id));
             return cart;
         }
-        return null;
+        return cart;
     }
 
     public void disconnect(Customer customer) {
