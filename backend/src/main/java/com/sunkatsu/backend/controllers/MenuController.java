@@ -184,6 +184,10 @@ public class MenuController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteMenu(@PathVariable int id) {
+        var menu = menuService.getMenuById(id);
+        if (menu.isEmpty()) {
+            return ResponseEntity.badRequest().body(new Message("Error : Menu with ID " + id + " not found."));
+        }
         boolean isDeleted = menuService.deleteMenu(id);
         if (isDeleted) {
             return ResponseEntity.ok(new Message("Success : Menu with ID " + id + " has been successfully deleted."));
