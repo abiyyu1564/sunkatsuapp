@@ -56,7 +56,7 @@ public class ShoppingCartController {
     }
     
     @Operation(
-        summary = "Poast a new cart",
+        summary = "Post a new cart",
         description = "Create new cart"
     )
     @PostMapping

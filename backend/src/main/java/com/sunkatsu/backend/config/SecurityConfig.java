@@ -48,6 +48,9 @@ public class SecurityConfig {
             "/chat",
             "/messages/**",
             "/js/**",
+            "/user",
+            "/queue",
+            "/app",
             "/img/**",
             "/api/users/**",
             "/api/users/status/**",
@@ -64,10 +67,21 @@ public class SecurityConfig {
                                 .permitAll()
                                 .requestMatchers(POST, "/api/menus/some-secure-action/**").hasAnyAuthority(Permission.OWNER_CREATE.name())
                                 .requestMatchers("/api/staff/** ").hasAnyAuthority("STAFF", "OWNER")
-                        .requestMatchers("/api/owner/**").hasAuthority("OWNER")
-                        .requestMatchers(GET, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
-                        .requestMatchers(POST, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
-                        .requestMatchers(DELETE, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                .requestMatchers("/api/owner/**").hasAuthority("OWNER")
+
+                                .requestMatchers(GET, "/api/customers").hasAuthority("OWNER")
+                                .requestMatchers(POST, "/api/customers").hasAuthority("OWNER")
+
+                                .requestMatchers(DELETE, "/api/favorites/**").hasAuthority("OWNER")
+                                .requestMatchers(PATCH, "/api/favorites/**").hasAuthority("OWNER")
+
+                                .requestMatchers(GET, "/api/orders/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                .requestMatchers(PATCH, "/api/orders/**").hasAnyAuthority( "STAFF", "OWNER")
+                                .requestMatchers(DELETE, "/api/orders/**").hasAnyAuthority( "STAFF", "OWNER")
+
+                                .requestMatchers(GET, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                .requestMatchers(POST, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                .requestMatchers(DELETE, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
                                 .requestMatchers(PATCH,"/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
 
                                 .requestMatchers(GET, "/api/menus/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
