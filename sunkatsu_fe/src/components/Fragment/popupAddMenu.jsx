@@ -89,6 +89,7 @@ const AddMenu = ({ show, onClose }) => {
       );
 
       console.log("response:", response.data);
+      alert("Menu created successfully!");
       setFetchStatus((prevStatus) => !prevStatus);
 
       // Reset input form setelah submit

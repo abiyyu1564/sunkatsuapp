@@ -6,33 +6,20 @@ import com.sunkatsu.backend.repositories.OwnerRepository;
 import com.sunkatsu.backend.repositories.StaffRepository;
 import com.sunkatsu.backend.services.MyUserDetailService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import static org.springframework.http.HttpMethod.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import static com.sunkatsu.backend.models.Role.OWNER;
-import static com.sunkatsu.backend.models.Role.STAFF;
-import static org.springframework.http.HttpMethod.*;
-
-import java.util.Optional;
 
 @Configuration
 @EnableWebSecurity
@@ -77,7 +64,11 @@ public class SecurityConfig {
                                 .permitAll()
                                 .requestMatchers(POST, "/api/menus/some-secure-action/**").hasAnyAuthority(Permission.OWNER_CREATE.name())
                                 .requestMatchers("/api/staff/** ").hasAnyAuthority("STAFF", "OWNER")
-                                .requestMatchers("/api/owner/**").hasAuthority("OWNER")
+                        .requestMatchers("/api/owner/**").hasAuthority("OWNER")
+                        .requestMatchers(GET, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                        .requestMatchers(POST, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                        .requestMatchers(DELETE, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                .requestMatchers(PATCH,"/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
 
                                 .requestMatchers(GET, "/api/menus/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
                                 .requestMatchers(POST, "/api/menus/**").hasAuthority("OWNER")
