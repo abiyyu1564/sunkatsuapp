@@ -51,6 +51,10 @@ public class ShoppingCartController {
     )
     @GetMapping("/empty")
     public ResponseEntity<Object> getEmptyCart(@RequestParam int UserId) {
+        var cart = customerService.getCustomerById(String.valueOf(UserId));
+        if (cart != null) {
+            return ResponseEntity.badRequest().body(new Message("Cart already exist for this user"));
+        }
         var customer = customerService.getCustomerById(String.valueOf(UserId));
         return customer != null ? ResponseEntity.ok(cartService.createCart(new ShoppingCart(UserId))) : ResponseEntity.badRequest().body("UserId is not valid");
     }
