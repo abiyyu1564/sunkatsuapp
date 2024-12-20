@@ -51,7 +51,7 @@ public class ShoppingCartController {
     )
     @GetMapping("/empty")
     public ResponseEntity<Object> getEmptyCart(@RequestParam int UserId) {
-        var cart = customerService.getCustomerById(String.valueOf(UserId));
+        var cart = customerService.getCartByCustomerId(String.valueOf(UserId));
         if (cart != null) {
             return ResponseEntity.badRequest().body(new Message("Cart already exist for this user"));
         }
