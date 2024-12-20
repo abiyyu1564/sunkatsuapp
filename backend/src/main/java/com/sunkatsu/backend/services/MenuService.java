@@ -109,4 +109,8 @@ public class MenuService {
         return false;
     }
 
+    public List<Menu> searchMenuByName(String name) {
+        return menuRepository.findByNameRegex(name);
+    }
+
 }
