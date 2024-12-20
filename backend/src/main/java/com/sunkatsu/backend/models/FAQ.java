@@ -1,7 +1,9 @@
 package com.sunkatsu.backend.models;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document(collection = "FAQ")
 public class FAQ {
     
     @Id

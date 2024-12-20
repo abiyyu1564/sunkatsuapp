@@ -118,6 +118,15 @@ public class MenuController {
     }
 
     @Operation(
+        summary = "Get a menu by name",
+        description = "Get a menu by name case insensitive"
+    )
+    @GetMapping("/menus/search")
+    public ResponseEntity<List<Menu>> searchMenu(@RequestParam String name) {
+        return ResponseEntity.ok(menuService.searchMenuByName(name));
+    }
+
+    @Operation(
         summary = "Update a menu",
         description = "Update an already existing menu. Valid category: food, drink, dessert."
     )
