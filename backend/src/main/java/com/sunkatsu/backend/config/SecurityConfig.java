@@ -79,10 +79,10 @@ public class SecurityConfig {
                                 .requestMatchers(PATCH, "/api/orders/**").hasAnyAuthority( "STAFF", "OWNER")
                                 .requestMatchers(DELETE, "/api/orders/**").hasAnyAuthority( "STAFF", "OWNER")
 
-                                .requestMatchers(GET, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
-                                .requestMatchers(POST, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
-                                .requestMatchers(DELETE, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
-                                .requestMatchers(PATCH,"/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                // .requestMatchers(GET, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                // .requestMatchers(POST, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                // .requestMatchers(DELETE, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                // .requestMatchers(PATCH,"/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
 
                                 .requestMatchers(GET, "/api/menus/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
                                 .requestMatchers(POST, "/api/menus/**").hasAuthority("OWNER")
