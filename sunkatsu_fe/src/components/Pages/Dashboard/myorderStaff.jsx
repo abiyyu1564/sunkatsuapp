@@ -2,26 +2,26 @@ import React, { useEffect, useState } from "react";
 import Navbar from "../../Fragment/Navbar";
 import NewFooter from "../../Fragment/newFooter";
 import FilterCategory from "../../Fragment/filterCategory";
+import Dropdown from "../../Fragment/dropdownButton";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 
-const Order = () => {
+const OrderStaff = () => {
   const [orders, setOrders] = useState([]); // State untuk menyimpan data API
   const [selectedCategory, setSelectedCategory] = useState("All Order");
 
-  const menuItems = ["All Order", "Not Paid", "Accepted", "Finished"];
-
-  const user = jwtDecode(Cookies.get("token"));
+  const menuItems = ["All Order", "Not Paid", "In Progress", "Finished"];
+  const dropdownItems = [
+    { label: "Accept Order", value: "acceptorder" },
+    { label: "In Progress", value: "inprogress" },
+    { label: "Done", value: "done" },
+  ];
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const url =
-          user.role === "CUSTOMER"
-            ? `http://localhost:8080/api/customers/${user.id}/orders`
-            : "http://localhost:8080/api/orders";
-        const response = await axios.get(url, {
+        const response = await axios.get("http://localhost:8080/api/orders", {
           headers: {
             Authorization: `Bearer ${Cookies.get("token")}`,
           },
@@ -32,7 +32,7 @@ const Order = () => {
       }
     };
     fetchOrders();
-  }, [user.role, user.id]);
+  }, []);
 
   const handleSelect = (orderId, action) => {
     console.log(`Order ID: ${orderId}, Action: ${action}`);
@@ -46,77 +46,6 @@ const Order = () => {
   const handleFilterChange = (category) => {
     setSelectedCategory(category);
     console.log("Selected category:", category);
-  };
-
-  const handleFinishCart = (id) => {
-    alert("Finish Order?");
-    axios
-      .put(
-        `http://localhost:8080/api/orders/${id}/finish`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
-          },
-        }
-      )
-      .then((res) => {
-        alert("Order Finished!");
-        window.location.reload();
-      })
-      .catch((err) => console.error("Error finishing order:", err));
-  };
-
-  const handleAcceptCart = async (id) => {
-    try {
-      if (window.confirm("Accept Order?")) {
-        await axios.put(
-          `http://localhost:8080/api/orders/${id}/accept`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${Cookies.get("token")}`,
-            },
-          }
-        );
-        alert("Order Accepted!");
-        setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order.id === id ? { ...order, status: "Accepted" } : order
-          )
-        );
-      }
-    } catch (err) {
-      console.error("Error accepting order:", err);
-    }
-  };
-
-  const buttonChange = (status, id) => {
-    if (status === "Accepted") {
-      return (
-        <button
-          onClick={() => handleFinishCart(id)}
-          className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
-        >
-          Finish
-        </button>
-      );
-    } else if (status === "Not Paid") {
-      return (
-        <button
-          onClick={() => handleAcceptCart(id)}
-          className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
-        >
-          Accept
-        </button>
-      );
-    } else if (status === "Finished") {
-      return (
-        <div className="focus:outline-none text-white bg-gray-700 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">
-          Done
-        </div>
-      );
-    }
   };
 
   return (
@@ -160,7 +89,10 @@ const Order = () => {
               {/* Bagian total dan payment status */}
               <div className="flex flex-col sm:w-1/3 w-full justify-center items-center mb-5 sm:mb-0">
                 <p className="text-2xl font-semibold">
-                  Total: {order.total.toLocaleString("id-ID")} IDR
+                  Total: {order.total} IDR
+                </p>
+                <p className="text-lg text-gray-600">
+                  Status: <span className="font-medium">{order.status}</span>
                 </p>
                 <p className="text-sm text-gray-500">
                   Payment Deadline:{" "}
@@ -189,4 +121,4 @@ const Order = () => {
   );
 };
 
-export default Order;
+export default OrderStaff;
