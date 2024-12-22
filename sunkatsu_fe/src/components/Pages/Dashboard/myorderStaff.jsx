@@ -7,11 +7,16 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 
-const Order = () => {
+const OrderStaff = () => {
   const [orders, setOrders] = useState([]); // State untuk menyimpan data API
   const [selectedCategory, setSelectedCategory] = useState("All Order");
 
   const menuItems = ["All Order", "Not Paid", "In Progress", "Finished"];
+  const dropdownItems = [
+    { label: "Accept Order", value: "acceptorder" },
+    { label: "In Progress", value: "inprogress" },
+    { label: "Done", value: "done" },
+  ];
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -84,7 +89,10 @@ const Order = () => {
               {/* Bagian total dan payment status */}
               <div className="flex flex-col sm:w-1/3 w-full justify-center items-center mb-5 sm:mb-0">
                 <p className="text-2xl font-semibold">
-                  Total: {order.total.toLocaleString("id-ID")} IDR
+                  Total: {order.total} IDR
+                </p>
+                <p className="text-lg text-gray-600">
+                  Status: <span className="font-medium">{order.status}</span>
                 </p>
                 <p className="text-sm text-gray-500">
                   Payment Deadline:{" "}
@@ -94,9 +102,11 @@ const Order = () => {
 
               {/* Bagian aksi dropdown */}
               <div className="flex flex-col sm:w-1/3 w-full justify-center items-center gap-2">
-                <div className="flex w-2/6 h-16 justify-center items-center bg-tertiary rounded-lg">
-                  <span className="text-xl text-white">{order.status}</span>
-                </div>
+                <Dropdown
+                  buttonLabel="Select Action"
+                  items={dropdownItems}
+                  onSelect={(action) => handleSelect(order.id, action)}
+                />
               </div>
             </section>
           ))
@@ -111,4 +121,4 @@ const Order = () => {
   );
 };
 
-export default Order;
+export default OrderStaff;
