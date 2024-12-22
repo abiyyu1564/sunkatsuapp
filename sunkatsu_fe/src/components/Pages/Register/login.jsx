@@ -39,10 +39,37 @@ const Login = () => {
         let data = res.data;
         Cookies.set("token", data.token, { expires: 1 });
         alert("Login Success");
-        navigate("/home");
+        navigate("/menu");
       })
       .catch((err) => {
         alert("Wrong username or password");
+      });
+  };
+
+  const handleRegister = (event) => {
+    event.preventDefault();
+    let { Username, Email, Password, Role, Pfp } = input;
+    console.log(input);
+
+    const formData = new FormData();
+    formData.append("Username", Username);
+    formData.append("Email", Email);
+    formData.append("Password", Password);
+    formData.append("Role", Role);
+    formData.append("Pfp", Pfp);
+    axios
+      .post("http://localhost:8080/register", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((res) => {
+        let { token } = res.data;
+        Cookies.set("token", token);
+        navigate("/");
+      })
+      .catch((err) => {
+        console.log(err);
       });
   };
 
@@ -65,7 +92,7 @@ const Login = () => {
           </h1>
           <div className="flex flex-col sm:flex-row">
             {/* Form Fields */}
-            <form className="space-y-4 flex-1">
+            <form type="submit" className="space-y-4 flex-1">
               <input
                 type="text"
                 name="username"
@@ -83,9 +110,7 @@ const Login = () => {
                 className="w-full px-4 py-2 border border-black rounded focus:outline-none text-sm sm:text-base"
               />
               <button className="hover:text-tertiary">
-                <a href="/signup">
-                Create new account
-                </a>
+                <a href="/signup">Create new account</a>
               </button>
             </form>
 

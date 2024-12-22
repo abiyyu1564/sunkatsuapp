@@ -3,6 +3,7 @@ import Navbar from "../../Fragment/Navbar";
 import NewFooter from "../../Fragment/newFooter";
 import Cookies from "js-cookie";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { ReactComponent as Plus } from "../../Icon/Plus.svg";
 import { ReactComponent as Minus } from "../../Icon/Minus.svg";
@@ -10,10 +11,40 @@ import { ReactComponent as Minus } from "../../Icon/Minus.svg";
 const Cart = () => {
   const [cart, setCart] = useState({});
   const [cartItems, setCartItems] = useState([]);
+  const [imageURLs, setImageURLs] = useState({}); // Store image URLs here
   const id = jwtDecode(Cookies.get("token")).id;
   const token = Cookies.get("token");
+  let navigate = useNavigate();
 
   console.log(jwtDecode(Cookies.get("token")));
+
+  // Fungsi untuk mendapatkan URL gambar dengan cara yang lebih mirip dengan newMenuCard
+  const getImage = (menuId) => {
+    // Jika URL gambar sudah ada di state imageURLs, langsung gunakan
+    if (imageURLs[menuId]) {
+      return imageURLs[menuId];
+    }
+
+    // Jika belum, buat request untuk mendapatkan gambar
+    axios
+      .get(`http://localhost:8080/api/menus/${menuId}/image`, {
+        // Endpoint ini hanya contoh, sesuaikan dengan API yang benar
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setImageURLs((prev) => ({
+          ...prev,
+          [menuId]: response.data.imageURL, // Update state dengan URL gambar yang diterima
+        }));
+      })
+      .catch((error) => {
+        console.error("Error fetching image:", error);
+      });
+
+    return "default_image_url_here"; // URL default gambar jika gagal fetch
+  };
 
   // Fetch cart items dari API
   useEffect(() => {
@@ -31,6 +62,7 @@ const Cart = () => {
   }, [id]);
 
   console.log(cart.id);
+
   // Fungsi Increment
   const increment = (index) => {
     const updatedCart = cartItems.map((item, i) => {
@@ -39,18 +71,45 @@ const Cart = () => {
       }
       return item;
     });
-    setCartItems(updatedCart);
+
+    const itemToUpdate = updatedCart[index];
+
+    // Kirim update ke backend
+    axios
+      .put(
+        `http://localhost:8080/api/cart-items/${itemToUpdate.id}`,
+        { quantity: itemToUpdate.quantity },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then(() => {
+        setCartItems(updatedCart); // Perbarui state hanya jika berhasil
+      })
+      .catch((err) => console.error("Error updating quantity:", err));
   };
 
   // Fungsi Decrement
   const decrement = (index) => {
-    const updatedCart = cartItems.map((item, i) => {
-      if (i === index && item.quantity > 1) {
-        return { ...item, quantity: item.quantity - 1 }; // Kurangi kuantitas jika > 1
+    const item = cartItems[index]; // Ambil item berdasarkan index
+    if (item.quantity === 1) {
+      // Tampilkan alert jika kuantitas 1
+      const confirmDelete = window.confirm("Remove item?");
+      if (confirmDelete) {
+        deleteItemFromCart(item.id); // Panggil API untuk menghapus item
       }
-      return item;
-    });
-    setCartItems(updatedCart);
+    } else {
+      // Kurangi kuantitas jika > 1
+      const updatedCart = cartItems.map((item, i) => {
+        if (i === index) {
+          return { ...item, quantity: item.quantity - 1 };
+        }
+        return item;
+      });
+      setCartItems(updatedCart);
+    }
   };
 
   const handleFinishCart = () => {
@@ -65,10 +124,29 @@ const Cart = () => {
           },
         }
       )
+      .then((res) => {
+        console.log("Cart finished:", res.data);
+        alert("Cart finished!");
+        navigate("/payment");
+      })
       .catch((err) => console.error("Error finishing cart:", err));
   };
 
-  console.log(token);
+  const deleteItemFromCart = (id) => {
+    axios
+      .delete(`http://localhost:8080/api/carts/${cart.id}/cart-items/${id}`, {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("token")}`,
+        },
+      })
+      .then((res) => {
+        console.log("Item deleted from cart:", res.data);
+        alert("Item deleted from cart!");
+        setCartItems(cartItems.filter((item) => item.id !== id)); // Update state
+      })
+      .catch((err) => console.error("Error deleting item from cart:", err));
+  };
+
   return (
     <div className="flex flex-col min-h-screen pt-20 bg-primary">
       <Navbar />
@@ -92,7 +170,7 @@ const Cart = () => {
                     className="w-10 h-10 rounded-md border-1 text-secondary border-black"
                   />
                   <img
-                    src={item.menu.imageURL || "default_image_url_here"}
+                    src={getImage(item.menu.id)} // Menggunakan getImage untuk fetch gambar berdasarkan menu ID
                     alt={item.menu.name}
                     className="w-32 h-32"
                   />

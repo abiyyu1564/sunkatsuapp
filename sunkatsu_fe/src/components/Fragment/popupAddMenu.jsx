@@ -25,6 +25,7 @@ const AddMenu = ({ show, onClose }) => {
           ...prevState,
           image: fileWithoutBg, // Simpan file tanpa background
         }));
+        alert("Background removed successfully.");
       } catch (error) {
         console.error("Failed to process image:", error);
         alert("Error processing image. Please try again.");

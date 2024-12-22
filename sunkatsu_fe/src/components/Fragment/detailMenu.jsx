@@ -1,19 +1,118 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { GlobalContext } from "../../context/GlobalContext";
 import EditMenu from "./popupEditMenu";
 import { deleteMenu } from "../../services/crudMenu";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 const DetailMenu = ({ show, onClose, menuId }) => {
   const { getUser } = useContext(GlobalContext);
 
   const [showEditPopup, setShowEditPopup] = useState(false);
+  const [isCart, setIsCart] = useState(null); // State untuk menyimpan status cart
+  const [menuImageURL, setMenuImageURL] = useState(null); // State untuk menyimpan URL gambar
 
-  // Fungsi untuk membuka/tutup Edit Popup
+  const [input, setInput] = useState({
+    menuId: menuId.id,
+    quantity: 1,
+    deliver: "in store",
+    note: "",
+  });
+
+  const decode = jwtDecode(Cookies.get("token"));
+
+  // Fungsi untuk membuat cart kosong jika tidak ada
+  const getEmptyCart = async () => {
+    const id = decode.id;
+    if (!id) {
+      console.error("User ID is missing!");
+      return;
+    }
+
+    try {
+      const res = await axios.get("http://localhost:8080/api/carts/empty", {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("token")}`,
+        },
+        params: {
+          UserId: id,
+        },
+      });
+      console.log("Empty cart created successfully:", res.data);
+      setIsCart(res.data);
+    } catch (err) {
+      console.error("Error creating empty cart:", err);
+    }
+  };
+
+  // useEffect untuk memeriksa cart dan mengambil data jika ada
+  useEffect(() => {
+    const fetchCartData = async () => {
+      const token = Cookies.get("token");
+      if (!token) {
+        console.error("Token is missing!");
+        return;
+      }
+
+      try {
+        const res = await axios.get(
+          `http://localhost:8080/api/customers/${decode.id}/cart`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (res.data && res.data.id) {
+          console.log("Cart exists:", res.data);
+          setIsCart(res.data);
+        } else {
+          console.log("Cart not found, creating an empty cart.");
+          await getEmptyCart();
+        }
+      } catch (err) {
+        console.error("Error fetching cart data:", err);
+        await getEmptyCart();
+      }
+    };
+
+    if (menuId && menuId.id) {
+      fetchCartData();
+    }
+  }, [menuId]);
+
+  // Fetch image for the menu item
+  const fetchImage = async () => {
+    const baseURL = "http://localhost:8080";
+    try {
+      const response = await axios.get(
+        `${baseURL}/api/menus/images/${menuId.image}`,
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`,
+          },
+          responseType: "blob", // To fetch the image as a Blob
+        }
+      );
+      const imageURL = URL.createObjectURL(response.data);
+      setMenuImageURL(imageURL); // Store the image URL in the state
+    } catch (error) {
+      console.error("Error fetching image for menu:", error);
+    }
+  };
+
+  // Fetch image when menuId changes
+  useEffect(() => {
+    if (menuId && menuId.image) {
+      fetchImage();
+    }
+  }, [menuId]);
+
   const handleEditClick = () => {
     setShowEditPopup(true);
   };
 
-  // Fungsi untuk menutup Edit Popup
   const closeEditPopup = () => {
     setShowEditPopup(false);
   };
@@ -26,8 +125,42 @@ const DetailMenu = ({ show, onClose, menuId }) => {
   };
 
   const user = getUser();
-
   const baseURL = "http://localhost:8080";
+
+  const handleInput = (event) => {
+    const { name, value } = event.target;
+
+    setInput((prevState) => ({
+      ...prevState,
+      [name]: value, // Update state based on field name
+    }));
+  };
+
+  const addMenuToCart = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/api/carts/${isCart.id}/add-menu`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`,
+          },
+          params: {
+            menuId: menuId.id,
+            quantity: input.quantity,
+            deliver: input.deliver,
+            note: input.note,
+          },
+        }
+      );
+      console.log("Menu added to cart successfully:", response.data);
+      alert("Menu added to cart successfully!");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error adding menu to cart:", error);
+      alert("Error adding menu to cart. Please try again.");
+    }
+  };
 
   if (!show) return null;
   return (
@@ -44,11 +177,13 @@ const DetailMenu = ({ show, onClose, menuId }) => {
         {/* Left Section */}
         <div className="w-1/2 flex flex-col items-center">
           <h1 className="font-bold text-2xl mb-6 text-black">{menuId.name}</h1>
-          <img
-            src={`${baseURL}${menuId.imageURL}`}
-            alt="katsu"
-            className="w-48 h-48 rounded-full"
-          />
+          {menuImageURL && (
+            <img
+              src={menuImageURL} // Use the fetched image URL here
+              alt={menuId.name}
+              className="w-48 h-48 rounded-full"
+            />
+          )}
         </div>
 
         <div className="w-1/2 flex flex-col justify-evenly">
@@ -62,6 +197,8 @@ const DetailMenu = ({ show, onClose, menuId }) => {
             type="text"
             placeholder="Note..."
             name="note"
+            value={input.note}
+            onChange={handleInput}
             className="border-2 border-gray-300 rounded-md p-2"
           />
           {user.role === "OWNER" ? (
@@ -81,13 +218,16 @@ const DetailMenu = ({ show, onClose, menuId }) => {
               {/* Popup Edit Menu */}
               <EditMenu
                 show={showEditPopup}
-                onClose={closeEditPopup} // Pastikan popup ditutup dengan fungsi ini
+                onClose={closeEditPopup}
                 menuId={menuId}
               />
             </div>
           ) : (
             <div className="flex justify-end gap-4 mt-4">
-              <button className="bg-secondary hover:bg-red-700 transition w-40 mt-6 h-10 text-white font-bold text-sm rounded-md self-end">
+              <button
+                onClick={addMenuToCart}
+                className="bg-secondary hover:bg-red-700 transition w-40 mt-6 h-10 text-white font-bold text-sm rounded-md self-end"
+              >
                 Add to Cart
               </button>
             </div>
