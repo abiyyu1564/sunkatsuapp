@@ -10,6 +10,7 @@ export const GlobalProvider = ({ children }) => {
   const [menu, setMenu] = useState([]);
   const [fetchStatus, setFetchStatus] = useState(true);
   const [decode, setDecode] = useState({});
+  const [search, setSearch] = useState("");
   const [input, setInput] = useState({
     name: "",
     desc: "",
@@ -151,6 +152,8 @@ export const GlobalProvider = ({ children }) => {
         removeBackground,
         getUser,
         formatRupiah,
+        search,
+        setSearch,
       }}
     >
       {children}

@@ -7,7 +7,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const NewMenuCard = ({ selectedCategory }) => {
-  const { menu, getUser } = useContext(GlobalContext);
+  const { menu, getUser, search } = useContext(GlobalContext);
+  const [filteredMenu, setFilteredMenu] = useState([]);
   const [popupState, setPopupState] = useState({
     showAdd: false,
     showDetail: false,
@@ -35,10 +36,23 @@ const NewMenuCard = ({ selectedCategory }) => {
     selectedCategory = "dessert";
   }
 
-  const filteredMenu =
-    selectedCategory === "All"
-      ? menu
-      : menu.filter((item) => item.category === selectedCategory);
+  useEffect(() => {
+    // Filter menu berdasarkan kategori dan keyword pencarian
+    let filtered =
+      selectedCategory === "All"
+        ? menu
+        : menu.filter((item) => item.category === selectedCategory);
+
+    if (search) {
+      filtered = filtered.filter((item) =>
+        item.name.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    setFilteredMenu(filtered);
+  }, [menu, selectedCategory, search]);
+
+  console.log(search);
 
   const baseURL = "http://localhost:8080";
 

@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { ReactComponent as Plus } from "../../Icon/Plus.svg";
 import { ReactComponent as Minus } from "../../Icon/Minus.svg";
+import { TiDeleteOutline } from "react-icons/ti";
+import Swal from "sweetalert2";
 
 const Cart = () => {
   const [cart, setCart] = useState({});
@@ -27,17 +29,20 @@ const Cart = () => {
 
     // Jika belum, buat request untuk mendapatkan gambar
     axios
-      .get(`http://localhost:8080/api/menus/${menuId}/image`, {
+      .get(`http://localhost:8080/api/menus/images/${menuId}`, {
         // Endpoint ini hanya contoh, sesuaikan dengan API yang benar
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        responseType: "blob",
       })
       .then((response) => {
+        const imageURL = URL.createObjectURL(response.data);
         setImageURLs((prev) => ({
           ...prev,
-          [menuId]: response.data.imageURL, // Update state dengan URL gambar yang diterima
+          [menuId]: imageURL, // Update state dengan URL gambar yang diterima
         }));
+        console.log(imageURL);
       })
       .catch((error) => {
         console.error("Error fetching image:", error);
@@ -127,24 +132,45 @@ const Cart = () => {
       .then((res) => {
         console.log("Cart finished:", res.data);
         alert("Cart finished!");
-        navigate("/payment");
+        window.location.reload();
       })
       .catch((err) => console.error("Error finishing cart:", err));
   };
 
   const deleteItemFromCart = (id) => {
-    axios
-      .delete(`http://localhost:8080/api/carts/${cart.id}/cart-items/${id}`, {
-        headers: {
-          Authorization: `Bearer ${Cookies.get("token")}`,
-        },
-      })
-      .then((res) => {
-        console.log("Item deleted from cart:", res.data);
-        alert("Item deleted from cart!");
-        setCartItems(cartItems.filter((item) => item.id !== id)); // Update state
-      })
-      .catch((err) => console.error("Error deleting item from cart:", err));
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .delete(
+            `http://localhost:8080/api/carts/${cart.id}/cart-items/${id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${Cookies.get("token")}`,
+              },
+            }
+          )
+          .then((res) => {
+            Swal.fire({
+              title: "Deleted!",
+              timer: 1500,
+              text: "Your file has been deleted.",
+              icon: "success",
+            }).then(() => {
+              setCartItems(cartItems.filter((item) => item.id !== id));
+            });
+            // Update state
+          })
+          .catch((err) => console.error("Error deleting item from cart:", err));
+      }
+    });
   };
 
   return (
@@ -164,41 +190,39 @@ const Cart = () => {
                 className="flex w-full h-auto justify-center items-center bg-white"
               >
                 <div className="flex flex-col sm:flex-row w-full gap-5 sm:w-5/6 h-fit justify-between items-center p-5">
-                  <input
-                    type="checkbox"
-                    value=""
-                    className="w-10 h-10 rounded-md border-1 text-secondary border-black"
-                  />
+                  <button onClick={() => deleteItemFromCart(item.id)}>
+                    <TiDeleteOutline size={40} color="red" />
+                  </button>
                   <img
-                    src={getImage(item.menu.id)} // Menggunakan getImage untuk fetch gambar berdasarkan menu ID
+                    src={getImage(item.menu.image)} // Menggunakan getImage untuk fetch gambar berdasarkan menu ID
                     alt={item.menu.name}
                     className="w-32 h-32"
                   />
-                  <h1 className="text-3xl sm:text-4xl font-semibold">
+                  <h1 className="text-3xl sm:text-4xl font-semibold flex-1 min-w-[200px] text-left">
                     {item.menu.name}
                   </h1>
                   <div className="flex flex-col w-48 sm:w-60 h-fit justify-center items-center gap-3">
                     <h1 className="text-3xl font-medium text-black">
-                      {item.menu.price} IDR
+                      {item.menu.price * item.quantity} IDR
                     </h1>
-                    <div className="flex flex-row w-3/4 h-fit items-center justify-between p-2 rounded-full border-4 border-black">
-                      <button
+                    <div className="flex flex-row w-3/4 h-fit items-center justify-evenly p-2 rounded-full ">
+                      <p
                         type="button"
                         onClick={() => decrement(index)} // Decrement sesuai index
-                        className="flex w-8 h-8 rounded-full justify-center items-center bg-secondary"
+                        className="flex w-8 h-8 rounded-full justify-center items-center bg-white"
                       >
-                        <Minus className="w-4 h-8" />
-                      </button>
+                        Quantity:
+                      </p>
                       <h4 className="text-2xl font-medium text-black">
                         {item.quantity}
                       </h4>
-                      <button
+                      {/* <button
                         type="button"
                         onClick={() => increment(index)} // Increment sesuai index
                         className="flex w-8 h-8 rounded-full justify-center items-center bg-secondary"
                       >
                         <Plus className="w-8 h-8" />
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 </div>
@@ -229,7 +253,7 @@ const Cart = () => {
               <button
                 type="submit"
                 onClick={handleFinishCart}
-                href="/payment"
+                href="/"
                 className="text-lg font-bold text-white"
               >
                 Pay Now!

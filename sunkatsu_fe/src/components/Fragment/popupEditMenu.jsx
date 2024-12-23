@@ -3,14 +3,47 @@ import { ReactComponent as AddImage } from "../Icon/addImage.svg";
 import { GlobalContext } from "../../context/GlobalContext";
 import axios from "axios";
 import Cookies from "js-cookie";
+import Swal from "sweetalert2";
 
 const EditMenu = ({ show, onClose, menuId }) => {
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImage, setSelectedImage] = useState({});
   const { input, setInput, setFetchStatus, fetchStatus, removeBackground } =
     useContext(GlobalContext);
   const [isProcessingImage, setIsProcessingImage] = useState(false);
+  const [imageURLs, setImageURLs] = useState({});
+
   console.log(menuId);
   const baseURL = "http://localhost:8080";
+
+  const getImage = (menuId) => {
+    // Jika URL gambar sudah ada di state imageURLs, langsung gunakan
+    if (selectedImage[menuId]) {
+      return selectedImage[menuId];
+    }
+
+    // Jika belum, buat request untuk mendapatkan gambar
+    axios
+      .get(`http://localhost:8080/api/menus/images/${menuId}`, {
+        // Endpoint ini hanya contoh, sesuaikan dengan API yang benar
+        headers: {
+          Authorization: `Bearer ${Cookies.get("token")}`,
+        },
+        responseType: "blob",
+      })
+      .then((response) => {
+        const imageURL = URL.createObjectURL(response.data);
+        setSelectedImage((prev) => ({
+          ...prev,
+          [menuId]: imageURL, // Update state dengan URL gambar yang diterima
+        }));
+        console.log(imageURL);
+      })
+      .catch((error) => {
+        console.error("Error fetching image:", error);
+      });
+
+    return "default_image_url_here"; // URL default gambar jika gagal fetch
+  };
 
   useEffect(() => {
     if (menuId) {
@@ -117,8 +150,13 @@ const EditMenu = ({ show, onClose, menuId }) => {
         image: null,
         category: "",
       });
-      alert("Menu updated successfully!");
-      window.location.reload();
+      Swal.fire({
+        title: "Success!",
+        text: "Menu updated successfully.",
+        icon: "success",
+      }).then(() => {
+        window.location.reload();
+      });
     } catch (error) {
       console.error(
         "Error updating menu:",
@@ -138,7 +176,7 @@ const EditMenu = ({ show, onClose, menuId }) => {
           {selectedImage ? (
             <div className="flex flex-col items-center">
               <img
-                src={selectedImage}
+                src={getImage(menuId.image)}
                 alt="Selected"
                 className="w-48 h-48 object-cover rounded-md mb-2"
               />

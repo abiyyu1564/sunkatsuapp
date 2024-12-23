@@ -1,3 +1,4 @@
+// DetailMenu.js
 import React, { useState, useEffect, useContext } from "react";
 import { GlobalContext } from "../../context/GlobalContext";
 import EditMenu from "./popupEditMenu";
@@ -5,22 +6,42 @@ import { deleteMenu } from "../../services/crudMenu";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import Swal from "sweetalert2";
 
 const DetailMenu = ({ show, onClose, menuId }) => {
   const { getUser } = useContext(GlobalContext);
 
   const [showEditPopup, setShowEditPopup] = useState(false);
-  const [isCart, setIsCart] = useState(null); // State untuk menyimpan status cart
-  const [menuImageURL, setMenuImageURL] = useState(null); // State untuk menyimpan URL gambar
+  const [isCart, setIsCart] = useState(null);
+  const [menuImageURL, setMenuImageURL] = useState(null);
 
   const [input, setInput] = useState({
     menuId: menuId.id,
-    quantity: 1,
+    quantity: 1, // Default quantity
     deliver: "in store",
     note: "",
   });
 
   const decode = jwtDecode(Cookies.get("token"));
+
+  const successPopup = () => {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      },
+    });
+    Toast.fire({
+      icon: "success",
+      title: "added to cart",
+    });
+    setTimeout(() => window.location.reload(), 2000); // Tutup popup setelah 1 detik
+  };
 
   // Fungsi untuk membuat cart kosong jika tidak ada
   const getEmptyCart = async () => {
@@ -92,11 +113,12 @@ const DetailMenu = ({ show, onClose, menuId }) => {
           headers: {
             Authorization: `Bearer ${Cookies.get("token")}`,
           },
-          responseType: "blob", // To fetch the image as a Blob
+          responseType: "blob",
         }
       );
       const imageURL = URL.createObjectURL(response.data);
-      setMenuImageURL(imageURL); // Store the image URL in the state
+      console.log(imageURL);
+      setMenuImageURL(imageURL);
     } catch (error) {
       console.error("Error fetching image for menu:", error);
     }
@@ -118,9 +140,27 @@ const DetailMenu = ({ show, onClose, menuId }) => {
   };
 
   const deleteHandler = (id) => {
-    deleteMenu(id, () => {
-      alert("Menu deleted successfully!");
-      window.location.reload();
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteMenu(id, () => {
+          Swal.fire({
+            title: "Deleted!",
+            timer: 1500,
+            text: "Your file has been deleted.",
+            icon: "success",
+          }).then(() => {
+            window.location.reload();
+          });
+        });
+      }
     });
   };
 
@@ -129,10 +169,9 @@ const DetailMenu = ({ show, onClose, menuId }) => {
 
   const handleInput = (event) => {
     const { name, value } = event.target;
-
     setInput((prevState) => ({
       ...prevState,
-      [name]: value, // Update state based on field name
+      [name]: value,
     }));
   };
 
@@ -153,13 +192,26 @@ const DetailMenu = ({ show, onClose, menuId }) => {
           },
         }
       );
-      console.log("Menu added to cart successfully:", response.data);
-      alert("Menu added to cart successfully!");
-      window.location.reload();
+      successPopup();
     } catch (error) {
       console.error("Error adding menu to cart:", error);
       alert("Error adding menu to cart. Please try again.");
     }
+  };
+
+  // Handle increment and decrement for quantity
+  const incrementQuantity = () => {
+    setInput((prevState) => ({
+      ...prevState,
+      quantity: prevState.quantity + 1,
+    }));
+  };
+
+  const decrementQuantity = () => {
+    setInput((prevState) => ({
+      ...prevState,
+      quantity: prevState.quantity > 1 ? prevState.quantity - 1 : 1, // Minimum quantity is 1
+    }));
   };
 
   if (!show) return null;
@@ -179,7 +231,7 @@ const DetailMenu = ({ show, onClose, menuId }) => {
           <h1 className="font-bold text-2xl mb-6 text-black">{menuId.name}</h1>
           {menuImageURL && (
             <img
-              src={menuImageURL} // Use the fetched image URL here
+              src={menuImageURL}
               alt={menuId.name}
               className="w-48 h-48 rounded-full"
             />
@@ -193,14 +245,40 @@ const DetailMenu = ({ show, onClose, menuId }) => {
               {menuId.price}
             </h2>
           </div>
+
+          {/* Quantity Selector */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={decrementQuantity}
+              className="bg-gray-300 px-4 py-2 rounded-md font-bold"
+            >
+              -
+            </button>
+            <input
+              type="number"
+              name="quantity"
+              value={input.quantity}
+              onChange={handleInput}
+              className="w-16 text-center border-2 border-gray-300 rounded-md"
+              min="1"
+            />
+            <button
+              onClick={incrementQuantity}
+              className="bg-gray-300 px-4 py-2 rounded-md font-bold"
+            >
+              +
+            </button>
+          </div>
+
           <input
             type="text"
             placeholder="Note..."
             name="note"
             value={input.note}
             onChange={handleInput}
-            className="border-2 border-gray-300 rounded-md p-2"
+            className="border-2 border-gray-300 rounded-md p-2 mt-4"
           />
+
           {user.role === "OWNER" ? (
             <div className="flex justify-end gap-4 mt-4">
               <button
@@ -215,7 +293,6 @@ const DetailMenu = ({ show, onClose, menuId }) => {
               >
                 Edit Menu
               </button>
-              {/* Popup Edit Menu */}
               <EditMenu
                 show={showEditPopup}
                 onClose={closeEditPopup}

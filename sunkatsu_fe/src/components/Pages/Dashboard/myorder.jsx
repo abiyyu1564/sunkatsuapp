@@ -5,10 +5,12 @@ import FilterCategory from "../../Fragment/filterCategory";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import Swal from "sweetalert2";
 
 const Order = () => {
   const [orders, setOrders] = useState([]); // State untuk menyimpan data API
   const [selectedCategory, setSelectedCategory] = useState("All Order");
+  const [imageURLs, setImageURLs] = useState({});
 
   const menuItems = ["All Order", "Not Paid", "Accepted", "Finished"];
 
@@ -34,6 +36,36 @@ const Order = () => {
     fetchOrders();
   }, [user.role, user.id]);
 
+  const getImage = (menuId) => {
+    // Jika URL gambar sudah ada di state imageURLs, langsung gunakan
+    if (imageURLs[menuId]) {
+      return imageURLs[menuId];
+    }
+
+    // Jika belum, buat request untuk mendapatkan gambar
+    axios
+      .get(`http://localhost:8080/api/menus/images/${menuId}`, {
+        // Endpoint ini hanya contoh, sesuaikan dengan API yang benar
+        headers: {
+          Authorization: `Bearer ${Cookies.get("token")}`,
+        },
+        responseType: "blob",
+      })
+      .then((response) => {
+        const imageURL = URL.createObjectURL(response.data);
+        setImageURLs((prev) => ({
+          ...prev,
+          [menuId]: imageURL, // Update state dengan URL gambar yang diterima
+        }));
+        console.log(imageURL);
+      })
+      .catch((error) => {
+        console.error("Error fetching image:", error);
+      });
+
+    return "default_image_url_here"; // URL default gambar jika gagal fetch
+  };
+
   const handleSelect = (orderId, action) => {
     console.log(`Order ID: ${orderId}, Action: ${action}`);
   };
@@ -49,46 +81,75 @@ const Order = () => {
   };
 
   const handleFinishCart = (id) => {
-    alert("Finish Order?");
-    axios
-      .put(
-        `http://localhost:8080/api/orders/${id}/finish`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
-          },
-        }
-      )
-      .then((res) => {
-        alert("Order Finished!");
-        window.location.reload();
-      })
-      .catch((err) => console.error("Error finishing order:", err));
+    Swal.fire({
+      title: "Finish order?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, Finish it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .put(
+            `http://localhost:8080/api/orders/${id}/finish`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${Cookies.get("token")}`,
+              },
+            }
+          )
+          .then((res) => {
+            Swal.fire({
+              title: "Finished!",
+              timer: 1500,
+              text: "Order has been Finished.",
+              icon: "success",
+            }).then(() => {
+              window.location.reload();
+            });
+          })
+          .catch((err) => console.error("Error finishing order:", err));
+      }
+    });
   };
 
   const handleAcceptCart = async (id) => {
-    try {
-      if (window.confirm("Accept Order?")) {
-        await axios.put(
-          `http://localhost:8080/api/orders/${id}/accept`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${Cookies.get("token")}`,
-            },
-          }
-        );
-        alert("Order Accepted!");
-        setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order.id === id ? { ...order, status: "Accepted" } : order
+    Swal.fire({
+      title: "Accept order?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, accept it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .put(
+            `http://localhost:8080/api/orders/${id}/accept`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${Cookies.get("token")}`,
+              },
+            }
           )
-        );
+          .then((res) => {
+            Swal.fire({
+              title: "Accepted!",
+              timer: 1500,
+              text: "Order has been accepted.",
+              icon: "success",
+            }).then(() => {
+              window.location.reload();
+            });
+          })
+          .catch((err) => console.error("Error finishing order:", err));
       }
-    } catch (err) {
-      console.error("Error accepting order:", err);
-    }
+    });
   };
 
   const buttonChange = (status, id) => {
@@ -140,9 +201,9 @@ const Order = () => {
                 {order.cartItems.map((item) => (
                   <article key={item.id} className="flex items-center gap-4">
                     <img
-                      src={`http://localhost:8080${item.menu.imageURL}`}
+                      src={getImage(item.menu.image)}
                       alt={item.menu.name}
-                      className="w-16 h-16 rounded-lg object-cover"
+                      className="w-16 h-16 rounded-lg object-fit"
                     />
                     <div>
                       <p className="text-xl font-semibold">{item.menu.name}</p>
@@ -170,11 +231,13 @@ const Order = () => {
 
               {/* Bagian aksi dropdown */}
               <div className="flex flex-col sm:w-1/3 w-full justify-center items-center gap-2">
-                <Dropdown
-                  buttonLabel="Select Action"
-                  items={dropdownItems}
-                  onSelect={(action) => handleSelect(order.id, action)}
-                />
+                {user.role === "CUSTOMER" ? (
+                  <p className="text-2xl font-semibold">
+                    Status: {order.status}
+                  </p>
+                ) : (
+                  <div>{buttonChange(order.status, order.id)}</div>
+                )}
               </div>
             </section>
           ))

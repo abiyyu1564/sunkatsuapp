@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Logo from "../../assets/Logo_Sunkatsu.png";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import { ReactComponent as ChatIcon } from "../Icon/Chat.svg";
@@ -8,10 +8,12 @@ import { ReactComponent as SearchIcon } from "../Icon/Search.svg";
 import { FaQuestionCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom"; // Import useNavigate untuk routing
 import Cookies from "js-cookie";
+import { GlobalContext } from "../../context/GlobalContext";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const { search, setSearch } = useContext(GlobalContext);
   const navigate = useNavigate(); // Hook untuk navigasi ke halaman lain
 
   const toggleMenu = () => {
@@ -34,6 +36,9 @@ const Navbar = () => {
     navigate("/login"); // Ganti dengan route login yang sesuai
   };
 
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+  };
   return (
     <nav className="fixed top-0 w-full h-16 z-[99] shadow-lg bg-white">
       <div className="flex justify-between items-center px-3">
@@ -58,6 +63,8 @@ const Navbar = () => {
         <div className="hidden md:flex gap-8 items-center">
           <div className="flex items-center">
             <input
+              onChange={handleSearch}
+              value={search}
               className="h-9 border md p-2 rounded-lg bg-gray-50"
               placeholder="Search.."
             />
@@ -87,13 +94,13 @@ const Navbar = () => {
               <div className="absolute right-0 mt-2 w-48 bg-white shadow-md rounded-md">
                 <a
                   href="/profile"
-                  className="block px-4 py-2 text-black hover:bg-gray-100"
+                  className="block w-full px-4 py-2 text-black hover:bg-gray-100"
                 >
                   Profile
                 </a>
                 <button
                   onClick={handleLogout}
-                  className="block px-4 py-2 text-black hover:bg-gray-100"
+                  className="block w-full px-4 py-2 text-left text-black hover:bg-gray-100"
                 >
                   Logout
                 </button>
@@ -123,6 +130,8 @@ const Navbar = () => {
         <div className="md:hidden flex flex-col items-center gap-2 bg-white shadow-md py-4">
           <div className="flex items-center">
             <input
+              onChange={handleSearch}
+              value={search}
               className="h-9 border md p-2 rounded-lg bg-gray-50"
               placeholder="Search..."
             />

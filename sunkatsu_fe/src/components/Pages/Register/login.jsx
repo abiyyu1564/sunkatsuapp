@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import NewLandingFooter from "../../Fragment/newFooter";
 import Cookies from "js-cookie";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const Login = () => {
   const [input, setInput] = useState({
@@ -23,6 +24,24 @@ const Login = () => {
     setInput({ ...input, [name]: value });
   };
 
+  const loginPopup = () => {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      },
+    });
+    Toast.fire({
+      icon: "success",
+      title: "Signed in successfully",
+    });
+  };
+
   const handleLogin = (event) => {
     event.preventDefault();
     let { id, username, password, role, status } = input;
@@ -38,7 +57,7 @@ const Login = () => {
       .then((res) => {
         let data = res.data;
         Cookies.set("token", data.token, { expires: 1 });
-        alert("Login Success");
+        loginPopup();
         navigate("/menu");
       })
       .catch((err) => {
