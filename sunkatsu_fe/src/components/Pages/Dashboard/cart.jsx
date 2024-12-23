@@ -70,51 +70,62 @@ const Cart = () => {
 
   // Fungsi Increment
   const increment = (index) => {
-    const updatedCart = cartItems.map((item, i) => {
-      if (i === index) {
-        return { ...item, quantity: item.quantity + 1 }; // Tambahkan kuantitas hanya untuk item ini
-      }
-      return item;
-    });
-
-    const itemToUpdate = updatedCart[index];
-
-    // Kirim update ke backend
+    const itemToUpdate = cartItems[index];
+    console.log(itemToUpdate);
+    // Perbarui kuantitas di backend
     axios
-      .put(
-        `http://localhost:8080/api/cart-items/${itemToUpdate.id}`,
-        { quantity: itemToUpdate.quantity },
+      .post(
+        "http://localhost:8080/api/carts/increment",
+        {},
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${Cookies.get("token")}`,
+          },
+          params: {
+            id: cart.id,
+            cartItemId: itemToUpdate.id,
           },
         }
       )
       .then(() => {
-        setCartItems(updatedCart); // Perbarui state hanya jika berhasil
+        // Perbarui state jika berhasil
+        setCartItems((prev) =>
+          prev.map((item, i) =>
+            i === index ? { ...item, quantity: item.quantity + 1 } : item
+          )
+        );
       })
       .catch((err) => console.error("Error updating quantity:", err));
   };
 
   // Fungsi Decrement
   const decrement = (index) => {
-    const item = cartItems[index]; // Ambil item berdasarkan index
-    if (item.quantity === 1) {
-      // Tampilkan alert jika kuantitas 1
-      const confirmDelete = window.confirm("Remove item?");
-      if (confirmDelete) {
-        deleteItemFromCart(item.id); // Panggil API untuk menghapus item
-      }
-    } else {
-      // Kurangi kuantitas jika > 1
-      const updatedCart = cartItems.map((item, i) => {
-        if (i === index) {
-          return { ...item, quantity: item.quantity - 1 };
+    const itemToUpdate = cartItems[index];
+    console.log(itemToUpdate);
+    // Perbarui kuantitas di backend
+    axios
+      .post(
+        "http://localhost:8080/api/carts/decrement",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`,
+          },
+          params: {
+            id: cart.id,
+            cartItemId: itemToUpdate.id,
+          },
         }
-        return item;
-      });
-      setCartItems(updatedCart);
-    }
+      )
+      .then(() => {
+        // Perbarui state jika berhasil
+        setCartItems((prev) =>
+          prev.map((item, i) =>
+            i === index ? { ...item, quantity: item.quantity - 1 } : item
+          )
+        );
+      })
+      .catch((err) => console.error("Error updating quantity:", err));
   };
 
   const handleFinishCart = () => {
@@ -205,24 +216,24 @@ const Cart = () => {
                     <h1 className="text-3xl font-medium text-black">
                       {item.menu.price * item.quantity} IDR
                     </h1>
-                    <div className="flex flex-row w-3/4 h-fit items-center justify-evenly p-2 rounded-full ">
-                      <p
+                    <div className="flex flex-row w-3/4 h-fit items-center justify-evenly p-2 rounded-full border-2 border-black">
+                      <button
                         type="button"
                         onClick={() => decrement(index)} // Decrement sesuai index
-                        className="flex w-8 h-8 rounded-full justify-center items-center bg-white"
+                        className="flex w-8 h-8 rounded-full justify-center items-center bg-secondary"
                       >
-                        Quantity:
-                      </p>
+                        <Minus className="w-6 h-8" />
+                      </button>
                       <h4 className="text-2xl font-medium text-black">
                         {item.quantity}
                       </h4>
-                      {/* <button
+                      <button
                         type="button"
                         onClick={() => increment(index)} // Increment sesuai index
                         className="flex w-8 h-8 rounded-full justify-center items-center bg-secondary"
                       >
                         <Plus className="w-8 h-8" />
-                      </button> */}
+                      </button>
                     </div>
                   </div>
                 </div>
