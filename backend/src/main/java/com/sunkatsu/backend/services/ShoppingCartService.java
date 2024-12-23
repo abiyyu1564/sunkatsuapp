@@ -111,38 +111,45 @@ public class ShoppingCartService {
 
     public ShoppingCart incrementQuantity(int id, int cartItemId) {
         Optional<ShoppingCart> cartOpt = cartRepository.findById(id);
-        var cart = cartOpt.get();
-        
-        if (cart != null) {
+    
+        if (cartOpt.isPresent()) {
+            ShoppingCart cart = cartOpt.get();
+            
             for (CartItem cartItem : cart.getCartItems()) {
                 if (cartItem.getId() == cartItemId) {
                     cartItem.setQuantity(cartItem.getQuantity() + 1);
-                    cartRepository.save(cart);
+                    break; 
                 }
             }
+            cartRepository.save(cart);
+            return cart;
         }
-
-        return cart;
+        return null;
     }
-
+    
     public ShoppingCart decrementQuantity(int id, int cartItemId) {
-        var cart = cartRepository.findById(id).get();
-
-        if (cart != null) {
-            for (CartItem cartItem : cart.getCartItems()) {
+        Optional<ShoppingCart> cartOpt = cartRepository.findById(id);
+    
+        if (cartOpt.isPresent()) {
+            ShoppingCart cart = cartOpt.get();
+    
+            for (int i = 0; i < cart.getCartItems().size(); i++) {
+                CartItem cartItem = cart.getCartItems().get(i);
                 if (cartItem.getId() == cartItemId) {
                     if (cartItem.getQuantity() > 1) {
                         cartItem.setQuantity(cartItem.getQuantity() - 1);
-                        cartRepository.save(cart);
                     } else {
-                        cart.getCartItems().remove(cartItem);
-                        cartRepository.save(cart);
+                        cart.getCartItems().remove(i); 
                     }
+                    break; 
                 }
             }
+            cartRepository.save(cart); 
+            return cart;
         }
-        return cart;
+        return null;
     }
+    
 
     /*public ShoppingCart updateMenuInCart(int cartId, int cartItemId, int quantity, String note) {
         Optional<ShoppingCart> cartOpt = cartRepository.findById(cartId);
