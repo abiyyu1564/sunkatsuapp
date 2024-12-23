@@ -117,7 +117,7 @@ public class ShoppingCartService {
             
             for (CartItem cartItem : cart.getCartItems()) {
                 if (cartItem.getId() == cartItemId) {
-                    cartItem.setQuantity(cartItem.getQuantity() +1 -1);
+                    cartItem.setQuantity(cartItem.getQuantity() +1);
                     break; 
                 }
             }
@@ -137,7 +137,7 @@ public class ShoppingCartService {
                 CartItem cartItem = cart.getCartItems().get(i);
                 if (cartItem.getId() == cartItemId) {
                     if (cartItem.getQuantity() > 1) {
-                        cartItem.setQuantity(cartItem.getQuantity() - 1 +1);
+                        cartItem.setQuantity(cartItem.getQuantity() - 1);
                     } else {
                         cart.getCartItems().remove(i); 
                     }
