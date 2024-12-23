@@ -109,6 +109,38 @@ public class ShoppingCartService {
         return null; // Jika cart tidak ditemukan atau item tidak ada
     }
 
+    public ShoppingCart incrementQuantity(int id, int cartItemId) {
+        Optional<ShoppingCart> cartOpt = cartRepository.findById(id);
+        var cart = cartOpt.get();
+        
+        if (cart != null) {
+            for (CartItem cartItem : cart.getCartItems()) {
+                if (cartItem.getId() == cartItemId) {
+                    cartItem.setQuantity(cartItem.getQuantity() + 1);
+                }
+            }
+        }
+
+        return cart;
+    }
+
+    public ShoppingCart decrementQuantity(int id, int cartItemId) {
+        var cart = cartRepository.findById(id).get();
+
+        if (cart != null) {
+            for (CartItem cartItem : cart.getCartItems()) {
+                if (cartItem.getId() == cartItemId) {
+                    if (cartItem.getQuantity() > 1) {
+                        cartItem.setQuantity(cartItem.getQuantity() - 1);
+                    } else {
+                        cart.getCartItems().remove(cartItem);
+                    }
+                }
+            }
+        }
+        return cart;
+    }
+
     /*public ShoppingCart updateMenuInCart(int cartId, int cartItemId, int quantity, String note) {
         Optional<ShoppingCart> cartOpt = cartRepository.findById(cartId);
         Optional<CartItem> cartItemOpt = cartItemRepository.findById(cartItemId);

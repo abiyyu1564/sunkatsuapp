@@ -99,6 +99,24 @@ public class ShoppingCartController {
     }
 
     @Operation(
+        summary = "Increment the quantity of a cart item",
+        description = "Increment the quantity of a cart item by its cart id and cart item id"
+    )
+    @PostMapping("/increment")
+    public ResponseEntity<Object> incrementQuantity(@RequestParam int id, @RequestParam int cartItemId) {
+        return cartService.incrementQuantity(id, cartItemId) != null ? ResponseEntity.ok(cartService.incrementQuantity(id, cartItemId)) : ResponseEntity.badRequest().body(new Message("id is not found"));
+    }
+
+    @Operation(
+        summary = "Decrement the quantity of a cart item",
+        description = "Decrement the quantity of a cart item by its cart id and cart item id"
+    )
+    @PostMapping("/decrement")
+    public ResponseEntity<Object> decrementQuantity(@RequestParam int id, @RequestParam int cartItemId) {
+        return cartService.decrementQuantity(id, cartItemId) != null ? ResponseEntity.ok(cartService.decrementQuantity(id, cartItemId)) : ResponseEntity.badRequest().body(new Message("id is not found"));
+    }
+
+    @Operation(
         summary="Finish a cart",
         description="Finish a cart by id and returns a new Order"
     )
