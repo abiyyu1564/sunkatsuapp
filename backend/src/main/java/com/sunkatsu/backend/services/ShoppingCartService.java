@@ -117,6 +117,7 @@ public class ShoppingCartService {
             for (CartItem cartItem : cart.getCartItems()) {
                 if (cartItem.getId() == cartItemId) {
                     cartItem.setQuantity(cartItem.getQuantity() + 1);
+                    cartRepository.save(cart);
                 }
             }
         }
@@ -132,8 +133,10 @@ public class ShoppingCartService {
                 if (cartItem.getId() == cartItemId) {
                     if (cartItem.getQuantity() > 1) {
                         cartItem.setQuantity(cartItem.getQuantity() - 1);
+                        cartRepository.save(cart);
                     } else {
                         cart.getCartItems().remove(cartItem);
+                        cartRepository.save(cart);
                     }
                 }
             }
