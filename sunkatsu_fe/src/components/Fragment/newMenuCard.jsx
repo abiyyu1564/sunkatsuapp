@@ -92,26 +92,26 @@ const NewMenuCard = ({ selectedCategory }) => {
           filteredMenu.map((menuItem) => (
             <button
               key={menuItem.id}
-              className="relative w-64 h-64 bg-gradient-to-br from-red-500 to-65% shadow-xl rounded-2xl transition-transform transform hover:scale-105 focus:outline-none"
+              className="relative w-80 h-48 bg-primary shadow-xl rounded-2xl border-gray-200 border-2 transition-transform transform hover:scale-105 focus:outline-none"
               onClick={() => handlePopup("showDetail", menuItem)}
               aria-label={`View details of ${menuItem.name}`}
             >
               <img
                 src={imageURLs[menuItem.image]} // Gunakan URL dari state
                 alt={menuItem.name}
-                className="w-48 h-48 absolute -top-20 left-8"
+                className="w-32 h-32 absolute top-14 right-1"
               />
               <img
                 src={Cart}
                 alt="Add to cart"
                 className="absolute w-14 h-14 -top-7 -right-7"
               />
-              <div className="absolute text-end bottom-4 right-4 font-sans">
+              <div className="absolute text-start top-4 left-4 mx-0.5 font-sans">
                 <h1 className="text-2xl mb-10 font-semibold text-black">
                   {menuItem.name}
                 </h1>
-                <h1 className="text-2xl font-semibold text-black">
-                  {menuItem.price}
+                <h1 className="text-2xl font-semibold text-start text-black">
+                  Rp {menuItem.price.toLocaleString("id-ID")}
                 </h1>
               </div>
             </button>

@@ -1,77 +1,57 @@
-import React, { useEffect, useState, useContext } from "react";
-import Cart from "../../assets/AddCart.png";
-import { GlobalContext } from "../../context/GlobalContext";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 const FavoriteMenu = () => {
-  const [menu, setMenu] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const baseURL = "http://localhost:8080";
+  const [favorites, setFavorites] = useState([]); // State untuk menyimpan data menu favorit
+  const [isLoading, setIsLoading] = useState(true); // State untuk loading
+  const [error, setError] = useState(null); // State untuk error
 
-  const { getUser } = useContext(GlobalContext);
-  const [popupState, setPopupState] = useState({
-    showDetail: false,
-    selectedMenu: null,
-  });
+  const baseURL = "http://localhost:8080/api/favorites"; // Base URL API favorit
 
-  const dummyMenu = [
-    {
-      id: 1,
-      name: "Nasi Goreng",
-      price: 15000,
-      imageURL: "/images/nasi-goreng.jpg",
-      timesBought: 120,
-    },
-    {
-      id: 2,
-      name: "Jello Pudding",
-      price: 10000,
-      imageURL: "/images/jello-pudding.jpg",
-      timesBought: 90,
-    },
-    {
-      id: 3,
-      name: "Ice Lychee Tea",
-      price: 12000,
-      imageURL: "/images/ice-lychee-tea.jpg",
-      timesBought: 150,
-    },
-  ];
-
+  // Fetch data menu favorit dari API
   useEffect(() => {
-    const fetchMenu = async () => {
+    const fetchFavorites = async () => {
+      setIsLoading(true);
       try {
-        // Simulasi data dummy
-        setMenu(dummyMenu);
+        console.log("Fetching favorites...");
+        const response = await axios.get(baseURL, {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`, // Token untuk autentikasi
+          },
+        });
+        console.log("Favorites response:", response.data);
+
+        const favoriteMenus = response.data.map((item) => ({
+          id: item.menu.id,
+          name: item.menu.name,
+          price: item.menu.price,
+          imageURL: item.menu.imageURL,
+        }));
+
+        setFavorites(favoriteMenus); // Simpan data favorit ke state
         setError(null);
       } catch (err) {
-        console.error("Error fetching menu:", err);
-        setError("Belum ada menu favorite.");
-        setMenu(dummyMenu);
+        console.error("Error fetching favorites:", err.response?.status, err.response?.data);
+        setError("Gagal memuat data.");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchMenu();
+    fetchFavorites();
   }, []);
 
-  const handlePopup = (type, menu = null) => {
-    setPopupState((prev) => ({
-      ...prev,
-      showDetail: type === "showDetail" ? !prev.showDetail : prev.showDetail,
-      selectedMenu: menu,
-    }));
-  };
-
+  // Tampilkan loader jika data sedang dimuat
   if (isLoading) {
     return (
       <div className="flex justify-center items-center">
-        <p className="text-lg text-gray-500">Memuat menu...</p>
+        <p className="text-lg text-gray-500">Memuat data...</p>
       </div>
     );
   }
 
+  // Tampilkan error jika ada masalah
   if (error) {
     return (
       <div className="flex justify-center items-center">
@@ -81,64 +61,33 @@ const FavoriteMenu = () => {
   }
 
   return (
-    <div className="flex flex-wrap justify-center gap-6">
-      {menu.length > 0 ? (
-        menu.map((menuItem) => (
-          <button
+    <div className="flex flex-wrap w-fit justify-center gap-6">
+      {favorites.length > 0 ? (
+        favorites.map((menuItem) => (
+          <div
             key={menuItem.id}
-            className="relative w-64 h-64 bg-gradient-to-br from-red-500 to-65% shadow-xl rounded-2xl transition-transform transform hover:scale-105 focus:outline-none"
-            onClick={() => handlePopup("showDetail", menuItem)}
-            aria-label={`View details of ${menuItem.name}`}
+            className="relative w-80 h-48 bg-primary shadow-xl rounded-2xl border-gray-200 border-2 transition-transform transform hover:scale-105 focus:outline-none"
           >
             <img
-              src={`${baseURL}${menuItem.imageURL}`}
+              src={menuItem.imageURL}
               alt={menuItem.name}
-              className="w-48 h-48 absolute -top-20 left-8"
+              className="w-32 h-32 absolute top-14 right-1"
             />
-            <img
-              src={Cart}
-              alt="Add to cart"
-              className="absolute w-14 h-14 -top-7 -right-7"
-            />
-            <div className="absolute text-end bottom-4 right-4 font-sans">
+            <div className="absolute text-end top-4 left-4 font-sans">
               <h1 className="text-2xl mb-10 font-semibold text-black">
                 {menuItem.name}
               </h1>
-              <h1 className="text-2xl font-semibold text-black">
+              <h1 className="text-2xl font-semibold text-start text-black">
                 Rp {menuItem.price.toLocaleString("id-ID")}
               </h1>
             </div>
-          </button>
+          </div>
         ))
       ) : (
-        <p className="text-gray-500 text-lg font-semibold">
-          Tidak ada menu favorite.
-        </p>
-      )}
-
-
-      {popupState.showDetail && popupState.selectedMenu && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl font-bold mb-4 text-gray-800">
-              {popupState.selectedMenu.name}
-            </h2>
-            <img
-              src={`${baseURL}${popupState.selectedMenu.imageURL}`}
-              alt={popupState.selectedMenu.name}
-              className="w-full h-48 object-cover rounded-lg mb-4"
-            />
-            <p className="text-lg font-semibold text-gray-700">
-              Harga: Rp {popupState.selectedMenu.price.toLocaleString("id-ID")}
-            </p>
-            <button
-              onClick={() => handlePopup("showDetail")}
-              className="mt-4 px-4 py-2 bg-red-500 text-white font-semibold rounded-lg shadow hover:bg-red-600"
-            >
-              Tutup
-            </button>
-            
-          </div>
+        <div className="text-center">
+          <p className="text-gray-500 text-lg font-semibold mb-4">
+            Tidak ada menu favorit yang tersedia.
+          </p>
         </div>
       )}
     </div>
