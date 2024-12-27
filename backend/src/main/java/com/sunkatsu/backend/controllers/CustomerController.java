@@ -142,8 +142,8 @@ public class   CustomerController {
         description = "Get all favorites by the inputted user id"
     )
     @GetMapping("/{id}/favorites")
-    public ResponseEntity<Object> getFavoriteByUserId(@PathVariable int userId){
-        List<Favorite> f = favoriteService.getFavoriteByUserId(userId);
+    public ResponseEntity<Object> getFavoriteByUserId(@PathVariable int id){
+        List<Favorite> f = favoriteService.getFavoriteByUserId(id);
         return f != null ? ResponseEntity.ok(f) : ResponseEntity.badRequest().body(new Message("Error : Id not found"));
     }
 

@@ -10,12 +10,16 @@ import org.springframework.stereotype.Service;
 import com.sunkatsu.backend.models.Favorite;
 import com.sunkatsu.backend.models.Menu;
 import com.sunkatsu.backend.repositories.FavoriteRepository;
+import com.sunkatsu.backend.repositories.MenuRepository;
 
 @Service
 public class FavoriteService {
 
     @Autowired
     private FavoriteRepository favoriteRepository;
+
+    @Autowired
+    private MenuRepository menuRepository;
 
     @Autowired
     private SequenceGeneratorService sequenceGeneratorService;
@@ -25,7 +29,17 @@ public class FavoriteService {
     }
 
     public List<Favorite> getAllFavorites() {
-        return favoriteRepository.findAll();
+        List<Favorite> listFav = favoriteRepository.findAll();
+        for (Favorite fav : listFav) {
+            var menuId = fav.getMenu().getId();
+            var foundMenu = menuRepository.findById(menuId);
+
+            if (!foundMenu.isPresent()) {
+                listFav.remove(fav);
+                favoriteRepository.delete(fav);
+            }
+        }
+        return listFav;
     }
 
     public Optional<Favorite> getFavoriteById(int id) {
@@ -42,7 +56,17 @@ public class FavoriteService {
     }
 
     public List<Favorite> getFavoriteByUserId(int userId) {
-        return favoriteRepository.findAllByUserID(userId);
+        List<Favorite> listFav = favoriteRepository.findAllByUserID(userId);
+        for (Favorite fav : listFav) {
+            var menuId = fav.getMenu().getId();
+            var foundMenu = menuRepository.findById(menuId);
+
+            if (!foundMenu.isPresent()) {
+                listFav.remove(fav);
+                favoriteRepository.delete(fav);
+            }
+        }
+        return listFav;
     }
     
     public void timesBoughtIncrement(int Id) {
