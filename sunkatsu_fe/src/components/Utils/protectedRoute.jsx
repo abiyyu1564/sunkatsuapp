@@ -10,7 +10,7 @@ export const ProtectedRoute = ({ children, requiresAuth }) => {
   }
 
   if (!requiresAuth && token) {
-    return <Navigate to="/" />;
+    return <Navigate to="/menu" />;
   }
 
   return children;

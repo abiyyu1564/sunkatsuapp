@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 const FavoriteMenu = () => {
   const [favorites, setFavorites] = useState([]); // State untuk menyimpan data menu favorit
   const [isLoading, setIsLoading] = useState(true); // State untuk loading
   const [error, setError] = useState(null); // State untuk error
 
-  const baseURL = "http://localhost:8080/api/favorites"; // Base URL API favorit
+  const user = jwtDecode(Cookies.get("token"));
+
+  const baseURL = `http://localhost:8080/api/customers/${user.id}/favorites`; // Base URL API favorit
 
   // Fetch data menu favorit dari API
   useEffect(() => {
@@ -32,7 +35,11 @@ const FavoriteMenu = () => {
         setFavorites(favoriteMenus); // Simpan data favorit ke state
         setError(null);
       } catch (err) {
-        console.error("Error fetching favorites:", err.response?.status, err.response?.data);
+        console.error(
+          "Error fetching favorites:",
+          err.response?.status,
+          err.response?.data
+        );
         setError("Gagal memuat data.");
       } finally {
         setIsLoading(false);
