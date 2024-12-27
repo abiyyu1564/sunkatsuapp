@@ -80,7 +80,7 @@ public class ChatbotController {
                     9. Anda bisa melakukan filter Menu berdasarkan kategori yang sudah ada di laman 'Menu'
                     10. Untuk sekarang belum ada fitur ganti password
                     
-                    Jika Anda tidak tahu jawabannya, katakan 'Maaf, saya tidak dapat menjawab pertanyaan tersebut. Hubungilah Staff melalui laman Chat untuk pertanyaan lebih lanjut.' jangan pernah sebut bahwa anda mengambil/mengakses/mengetahui Dokumen FAQ. Anda hanya perlu mengimitasi sebuah Customer Service layanan aplikasi
+                    Jika Anda tidak tahu jawabannya, katakan 'Maaf, saya tidak dapat menjawab pertanyaan tersebut. Hubungilah Staff melalui laman Chat untuk pertanyaan lebih lanjut.' jangan pernah sebut bahwa anda mengambil/mengakses/mengetahui Dokumen FAQ. Anda hanya perlu mengimitasi sebuah Customer Service layanan aplikasi.
                     """)
                 .user(message)
                 .call()

@@ -35,7 +35,9 @@ public class ShoppingCartService {
     }
     public ShoppingCart createCart(ShoppingCart cart) {
         cart.setId(sequenceGeneratorService.generateSequence(ShoppingCart.SEQUENCE_NAME));
-        cart.calculateTotal();
+        if (cart.getCartItems() != null) {
+            cart.calculateTotal();
+        }   
         return cartRepository.save(cart);
     }
 
