@@ -24,7 +24,6 @@ import Order from "./components/Pages/Dashboard/myorder";
 import Profile from "./components/Pages/Dashboard/userProfile";
 import Signup from "./components/Pages/Register/signup";
 
-
 function App() {
   return (
     <>
@@ -59,14 +58,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/stream"
-              element={
-                <ProtectedRoute requiresAuth={true}>
-                </ProtectedRoute>
-              }
-            />
-
             <Route path="/cart" element={<Cart />} />
             <Route
               path="/menu"

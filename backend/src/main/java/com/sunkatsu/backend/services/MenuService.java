@@ -93,6 +93,7 @@ public class MenuService {
             }
             menu.setName(menuDetails.getName());
             menu.setPrice(menuDetails.getPrice());
+            menu.setCategory(menuDetails.getCategory());
             menu.setDesc(menuDetails.getDesc());
             menu.setNumsBought(menuDetails.getNumsBought());
             return menuRepository.save(menu);
