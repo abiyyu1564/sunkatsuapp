@@ -118,6 +118,15 @@ public class MenuController {
     }
 
     @Operation(
+        summary = "Get a menu by name",
+        description = "Get a menu by name case insensitive"
+    )
+    @GetMapping("/menus/search")
+    public ResponseEntity<List<Menu>> searchMenu(@RequestParam String name) {
+        return ResponseEntity.ok(menuService.searchMenuByName(name));
+    }
+
+    @Operation(
         summary = "Update a menu",
         description = "Update an already existing menu. Valid category: food, drink, dessert."
     )
@@ -184,6 +193,10 @@ public class MenuController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteMenu(@PathVariable int id) {
+        var menu = menuService.getMenuById(id);
+        if (menu.isEmpty()) {
+            return ResponseEntity.badRequest().body(new Message("Error : Menu with ID " + id + " not found."));
+        }
         boolean isDeleted = menuService.deleteMenu(id);
         if (isDeleted) {
             return ResponseEntity.ok(new Message("Success : Menu with ID " + id + " has been successfully deleted."));

@@ -2,9 +2,16 @@ package com.sunkatsu.backend.models;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
 import org.springframework.data.annotation.Transient;
 
 @Document(collection = "menus")
+@Builder
+@AllArgsConstructor
 public class Menu {
 
     @Transient

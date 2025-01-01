@@ -25,6 +25,7 @@ const AddMenu = ({ show, onClose }) => {
           ...prevState,
           image: fileWithoutBg, // Simpan file tanpa background
         }));
+        alert("Background removed successfully.");
       } catch (error) {
         console.error("Failed to process image:", error);
         alert("Error processing image. Please try again.");
@@ -89,6 +90,7 @@ const AddMenu = ({ show, onClose }) => {
       );
 
       console.log("response:", response.data);
+      alert("Menu created successfully!");
       setFetchStatus((prevStatus) => !prevStatus);
 
       // Reset input form setelah submit
@@ -185,13 +187,19 @@ const AddMenu = ({ show, onClose }) => {
           </div>
           <div>
             <label className="block font-bold mb-2">Category</label>
-            <input
-              type="text"
+            <select
               name="category"
-              placeholder="Insert Menu Category"
+              value={input.category}
               onChange={handleInput}
               className="w-full border-2 border-gray-300 rounded-md p-2 focus:outline-none focus:border-secondary"
-            />
+            >
+              <option value="" disabled>
+                Select Category
+              </option>
+              <option value="food">Food</option>
+              <option value="drink">Drink</option>
+              <option value="dessert">Dessert</option>
+            </select>
           </div>
           {/* Buttons */}
           <div className="flex justify-end gap-4 mt-4">

@@ -93,6 +93,7 @@ public class MenuService {
             }
             menu.setName(menuDetails.getName());
             menu.setPrice(menuDetails.getPrice());
+            menu.setCategory(menuDetails.getCategory());
             menu.setDesc(menuDetails.getDesc());
             menu.setNumsBought(menuDetails.getNumsBought());
             return menuRepository.save(menu);
@@ -107,6 +108,10 @@ public class MenuService {
             return true;
         }
         return false;
+    }
+
+    public List<Menu> searchMenuByName(String name) {
+        return menuRepository.findByNameRegex(name);
     }
 
 }

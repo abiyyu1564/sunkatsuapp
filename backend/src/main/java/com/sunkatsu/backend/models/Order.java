@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+
 @Document(collection = "orders")
 public class Order extends ShoppingCart {
     @Indexed(name = "paymentDeadline_ttl", expireAfterSeconds = 7200)

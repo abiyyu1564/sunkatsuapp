@@ -3,9 +3,13 @@ package com.sunkatsu.backend.models;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import lombok.Builder;
+
 import java.util.List;
 import java.util.ArrayList;
 
+@Builder
 @Document(collection = "carts")
 public class ShoppingCart {
     @Id

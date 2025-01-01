@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.sunkatsu.backend.dto.UserDTO;
 import com.sunkatsu.backend.repositories.CustomerRepository;
+import com.sunkatsu.backend.repositories.OwnerRepository;
 import com.sunkatsu.backend.repositories.StaffRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,9 @@ public class UserService {
     @Autowired
     private final StaffRepository staffRepository;
 
+    @Autowired
+    private final OwnerRepository ownerRepository;
+
     public User findUserById(String userId) {
         // Cari di customer
         var customer = customerRepository.findById(userId);
@@ -31,7 +35,15 @@ public class UserService {
         }
         // Jika tidak ditemukan di customer, cari di staff
         var staff = staffRepository.findById(userId);
-        return staff.orElse(null);
+        if (staff.isPresent()) {
+            return staff.get();
+        }
+
+        var owner = ownerRepository.findById(userId);
+        if (owner.isPresent()) {
+            return owner.get();
+        }
+        return null;
     }
 
     public void saveUser(User user) {
@@ -60,6 +72,7 @@ public class UserService {
     public List<User> findConnectedUsersExcept(String userId) {
         List<Customer> onlineCustomers = customerRepository.findAllByStatus(Status.ONLINE);
         List<Staff> onlineStaffs = staffRepository.findAllByStatus(Status.ONLINE);
+        List<Owner> onlineOwners = ownerRepository.findAllByStatus(Status.ONLINE);
         List<User> onlineUsers = new ArrayList<>();
         // if (onlineUsers.addAll(onlineCustomers) && onlineUsers.addAll(onlineStaffs)) {
         //     onlineUsers.removeIf(user -> user.getId().equals(userId));
@@ -71,6 +84,9 @@ public class UserService {
         for (Staff s : onlineStaffs) {
             onlineUsers.add(s);
         }
+        for (Owner o : onlineOwners)
+            onlineUsers.add(o);
+        
         onlineUsers.removeIf(user -> user.getId().equals(userId));
         return onlineUsers;
     }

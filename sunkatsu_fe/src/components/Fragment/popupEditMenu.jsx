@@ -3,14 +3,46 @@ import { ReactComponent as AddImage } from "../Icon/addImage.svg";
 import { GlobalContext } from "../../context/GlobalContext";
 import axios from "axios";
 import Cookies from "js-cookie";
+import Swal from "sweetalert2";
 
 const EditMenu = ({ show, onClose, menuId }) => {
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImage, setSelectedImage] = useState({});
   const { input, setInput, setFetchStatus, fetchStatus, removeBackground } =
     useContext(GlobalContext);
   const [isProcessingImage, setIsProcessingImage] = useState(false);
-  console.log(menuId);
+  const [imageURLs, setImageURLs] = useState({});
+
   const baseURL = "http://localhost:8080";
+
+  const getImage = (menuId) => {
+    // Jika URL gambar sudah ada di state imageURLs, langsung gunakan
+    if (selectedImage[menuId]) {
+      return selectedImage[menuId];
+    }
+
+    // Jika belum, buat request untuk mendapatkan gambar
+    axios
+      .get(`http://localhost:8080/api/menus/images/${menuId}`, {
+        // Endpoint ini hanya contoh, sesuaikan dengan API yang benar
+        headers: {
+          Authorization: `Bearer ${Cookies.get("token")}`,
+        },
+        responseType: "blob",
+      })
+      .then((response) => {
+        const imageURL = URL.createObjectURL(response.data);
+        setSelectedImage((prev) => ({
+          ...prev,
+          [menuId]: imageURL, // Update state dengan URL gambar yang diterima
+        }));
+        console.log(imageURL);
+      })
+      .catch((error) => {
+        console.error("Error fetching image:", error);
+      });
+
+    return "default_image_url_here"; // URL default gambar jika gagal fetch
+  };
 
   useEffect(() => {
     if (menuId) {
@@ -30,7 +62,6 @@ const EditMenu = ({ show, onClose, menuId }) => {
             image: res.data.image,
           });
           setSelectedImage(`${baseURL}` + res.data.imageURL);
-          console.log("selectedImage:", selectedImage);
         })
         .catch((err) => {
           console.error("Error fetching menu data:", err);
@@ -63,10 +94,26 @@ const EditMenu = ({ show, onClose, menuId }) => {
   const handleInput = (event) => {
     const { name, value } = event.target;
 
+    if (name === "name") {
+      if (!/^[a-zA-Z\s]*$/.test(value)) {
+        alert("Name can only contain letters and spaces");
+        return;
+      }
+    }
+
+    if (name === "price") {
+      if (Number(value) < 0) {
+        alert("Price cannot be negative");
+        return;
+      }
+    }
+
     setInput((prevState) => ({
       ...prevState,
       [name]: value, // Perbarui state berdasarkan `name` field
     }));
+
+    console.log(input);
   };
 
   const handleUpdate = async (event) => {
@@ -117,8 +164,13 @@ const EditMenu = ({ show, onClose, menuId }) => {
         image: null,
         category: "",
       });
-      alert("Menu updated successfully!");
-      window.location.reload();
+      Swal.fire({
+        title: "Success!",
+        text: "Menu updated successfully.",
+        icon: "success",
+      }).then(() => {
+        window.location.reload();
+      });
     } catch (error) {
       console.error(
         "Error updating menu:",
@@ -138,7 +190,7 @@ const EditMenu = ({ show, onClose, menuId }) => {
           {selectedImage ? (
             <div className="flex flex-col items-center">
               <img
-                src={selectedImage}
+                src={getImage(menuId.image)}
                 alt="Selected"
                 className="w-48 h-48 object-cover rounded-md mb-2"
               />
@@ -146,7 +198,7 @@ const EditMenu = ({ show, onClose, menuId }) => {
                 htmlFor="imageInput"
                 className="text-secondary font-bold cursor-pointer hover:underline"
               >
-                Change Image
+                Change Imag
               </label>
             </div>
           ) : (
@@ -188,6 +240,7 @@ const EditMenu = ({ show, onClose, menuId }) => {
             <input
               type="number"
               name="price"
+              min="0"
               value={input.price}
               onChange={handleInput}
               placeholder="Insert Menu Price"
@@ -208,14 +261,19 @@ const EditMenu = ({ show, onClose, menuId }) => {
           </div>
           <div>
             <label className="block font-bold mb-2">Category</label>
-            <input
-              type="text"
+            <select
               name="category"
               value={input.category}
               onChange={handleInput}
-              placeholder="Insert Menu Category"
               className="w-full border-2 border-gray-300 rounded-md p-2 focus:outline-none focus:border-secondary"
-            />
+            >
+              <option value="" disabled>
+                Select Category
+              </option>
+              <option value="food">Food</option>
+              <option value="drink">Drink</option>
+              <option value="dessert">Dessert</option>
+            </select>
           </div>
           {/* Buttons */}
           <div className="flex justify-end gap-4 mt-4">

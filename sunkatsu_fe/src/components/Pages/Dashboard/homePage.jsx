@@ -8,7 +8,6 @@ const Homepage = () => {
         <>
             <div>
                 <Navbar />
-
                 <section className="bg-primary py-16 px-6">
                     <div className="flex justify-between items-center">
 

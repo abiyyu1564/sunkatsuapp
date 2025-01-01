@@ -51,12 +51,16 @@ public class ShoppingCartController {
     )
     @GetMapping("/empty")
     public ResponseEntity<Object> getEmptyCart(@RequestParam int UserId) {
+        var cart = customerService.getCartByCustomerId(String.valueOf(UserId));
+        if (cart != null) {
+            return ResponseEntity.badRequest().body(new Message("Cart already exist for this user"));
+        }
         var customer = customerService.getCustomerById(String.valueOf(UserId));
         return customer != null ? ResponseEntity.ok(cartService.createCart(new ShoppingCart(UserId))) : ResponseEntity.badRequest().body("UserId is not valid");
     }
     
     @Operation(
-        summary = "Poast a new cart",
+        summary = "Post a new cart",
         description = "Create new cart"
     )
     @PostMapping
@@ -92,6 +96,30 @@ public class ShoppingCartController {
     public ResponseEntity<Object> updateCart(@PathVariable int id, @RequestBody ShoppingCart cartDetails) {
         ShoppingCart updatedCart = cartService.updateCart(id, cartDetails);
         return updatedCart != null ? ResponseEntity.ok(updatedCart) : ResponseEntity.badRequest().body(new Message("Id is not valid"));
+    }
+
+    @Operation(
+        summary = "Increment the quantity of a cart item",
+        description = "Increment the quantity of a cart item by its cart id and cart item id"
+    )
+    @PostMapping("/increment")
+    public ResponseEntity<Object> incrementQuantity(@RequestParam int id, @RequestParam int cartItemId) {
+        ShoppingCart updatedCart = cartService.incrementQuantity(id, cartItemId);
+        return updatedCart != null 
+            ? ResponseEntity.ok(updatedCart) 
+            : ResponseEntity.badRequest().body(new Message("id is not found"));
+    }
+
+    @Operation(
+        summary = "Decrement the quantity of a cart item",
+        description = "Decrement the quantity of a cart item by its cart id and cart item id"
+    )
+    @PostMapping("/decrement")
+    public ResponseEntity<Object> decrementQuantity(@RequestParam int id, @RequestParam int cartItemId) {
+        ShoppingCart updatedCart = cartService.decrementQuantity(id, cartItemId);
+        return updatedCart != null 
+            ? ResponseEntity.ok(updatedCart) 
+            : ResponseEntity.badRequest().body(new Message("id is not found"));
     }
 
     @Operation(

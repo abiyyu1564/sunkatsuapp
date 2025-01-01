@@ -1,33 +1,257 @@
-import React, { useState, useContext } from "react";
+// DetailMenu.js
+import React, { useState, useEffect, useContext } from "react";
 import { GlobalContext } from "../../context/GlobalContext";
 import EditMenu from "./popupEditMenu";
 import { deleteMenu } from "../../services/crudMenu";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+import Swal from "sweetalert2";
 
 const DetailMenu = ({ show, onClose, menuId }) => {
   const { getUser } = useContext(GlobalContext);
 
   const [showEditPopup, setShowEditPopup] = useState(false);
+  const [isCart, setIsCart] = useState(null);
+  const [menuImageURL, setMenuImageURL] = useState(null);
 
-  // Fungsi untuk membuka/tutup Edit Popup
+  const [input, setInput] = useState({
+    menuId: menuId.id,
+    quantity: 1, // Default quantity
+    deliver: "in store",
+    note: "",
+  });
+
+  const decode = jwtDecode(Cookies.get("token"));
+
+  const successPopup = () => {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      },
+    });
+    Toast.fire({
+      icon: "success",
+      title: "added to cart",
+    });
+    setTimeout(() => window.location.reload(), 2000); // Tutup popup setelah 1 detik
+  };
+
+  // Fungsi untuk membuat cart kosong jika tidak ada
+  const getEmptyCart = async () => {
+    const id = decode.id;
+    if (!id) {
+      console.error("User ID is missing!");
+      return;
+    }
+
+    try {
+      const res = await axios.get("http://localhost:8080/api/carts/empty", {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("token")}`,
+        },
+        params: {
+          UserId: id,
+        },
+      });
+      console.log("Empty cart created successfully:", res.data);
+      setIsCart(res.data);
+    } catch (err) {
+      console.error("Error creating empty cart:", err);
+    }
+  };
+
+  // useEffect untuk memeriksa cart dan mengambil data jika ada
+  useEffect(() => {
+    const fetchCartData = async () => {
+      const token = Cookies.get("token");
+      if (!token) {
+        console.error("Token is missing!");
+        return;
+      }
+
+      try {
+        const res = await axios.get(
+          `http://localhost:8080/api/customers/${decode.id}/cart`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (res.data && res.data.id) {
+          console.log("Cart exists:", res.data);
+          setIsCart(res.data);
+        } else {
+          console.log("Cart not found, creating an empty cart.");
+          await getEmptyCart();
+        }
+      } catch (err) {
+        console.error("Error fetching cart data:", err);
+        await getEmptyCart();
+      }
+    };
+
+    if (menuId && menuId.id) {
+      fetchCartData();
+    }
+  }, [menuId]);
+
+  // Fetch image for the menu item
+  const fetchImage = async () => {
+    const baseURL = "http://localhost:8080";
+    try {
+      const response = await axios.get(
+        `${baseURL}/api/menus/images/${menuId.image}`,
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`,
+          },
+          responseType: "blob",
+        }
+      );
+      const imageURL = URL.createObjectURL(response.data);
+      console.log(imageURL);
+      setMenuImageURL(imageURL);
+    } catch (error) {
+      console.error("Error fetching image for menu:", error);
+    }
+  };
+
+  // Fetch image when menuId changes
+  useEffect(() => {
+    if (menuId && menuId.image) {
+      fetchImage();
+    }
+  }, [menuId]);
+
   const handleEditClick = () => {
     setShowEditPopup(true);
   };
 
-  // Fungsi untuk menutup Edit Popup
   const closeEditPopup = () => {
     setShowEditPopup(false);
   };
 
   const deleteHandler = (id) => {
-    deleteMenu(id, () => {
-      alert("Menu deleted successfully!");
-      window.location.reload();
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteMenu(id, () => {
+          Swal.fire({
+            title: "Deleted!",
+            timer: 1500,
+            text: "Your file has been deleted.",
+            icon: "success",
+          }).then(() => {
+            window.location.reload();
+          });
+        });
+      }
     });
   };
 
   const user = getUser();
-
   const baseURL = "http://localhost:8080";
+
+  const handleInput = (event) => {
+    const { name, value } = event.target;
+    setInput((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const addMenuToCart = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/api/carts/${isCart.id}/add-menu`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`,
+          },
+          params: {
+            menuId: menuId.id,
+            quantity: input.quantity,
+            deliver: input.deliver,
+            note: input.note,
+          },
+        }
+      );
+      successPopup();
+    } catch (error) {
+      console.error("Error adding menu to cart:", error);
+      alert("Error adding menu to cart. Please try again.");
+    }
+  };
+
+  // Handle increment and decrement for quantity
+  const incrementQuantity = () => {
+    setInput((prevState) => ({
+      ...prevState,
+      quantity: prevState.quantity + 1,
+    }));
+  };
+
+  const decrementQuantity = () => {
+    setInput((prevState) => ({
+      ...prevState,
+      quantity: prevState.quantity > 1 ? prevState.quantity - 1 : 1, // Minimum quantity is 1
+    }));
+  };
+
+  const buttonChange = () => {
+    if (user.role === "OWNER") {
+      return (
+        <div className="flex justify-end gap-4 mt-4">
+          <button
+            className="bg-black h-10 w-40 mt-6 text-white font-bold py-2 px-6 rounded-md hover:opacity-90"
+            onClick={() => deleteHandler(menuId.id)}
+          >
+            Delete Menu
+          </button>
+          <button
+            className="bg-secondary hover:bg-red-700 transition w-40 mt-6 h-10 text-white font-bold text-sm rounded-md self-end"
+            onClick={handleEditClick}
+          >
+            Edit Menu
+          </button>
+          <EditMenu
+            show={showEditPopup}
+            onClose={closeEditPopup}
+            menuId={menuId}
+          />
+        </div>
+      );
+    } else if (user.role === "CUSTOMER") {
+      return (
+        <div className="flex justify-end gap-4 mt-4">
+          <button
+            className="bg-secondary h-10 w-40 mt-6 text-white font-bold py-2 px-6 rounded-md hover:opacity-90"
+            onClick={addMenuToCart}
+          >
+            Add to Cart
+          </button>
+        </div>
+      );
+    } else {
+      return <></>;
+    }
+  };
 
   if (!show) return null;
   return (
@@ -44,11 +268,13 @@ const DetailMenu = ({ show, onClose, menuId }) => {
         {/* Left Section */}
         <div className="w-1/2 flex flex-col items-center">
           <h1 className="font-bold text-2xl mb-6 text-black">{menuId.name}</h1>
-          <img
-            src={`${baseURL}${menuId.imageURL}`}
-            alt="katsu"
-            className="w-48 h-48 rounded-full"
-          />
+          {menuImageURL && (
+            <img
+              src={menuImageURL}
+              alt={menuId.name}
+              className="w-48 h-48 rounded-full"
+            />
+          )}
         </div>
 
         <div className="w-1/2 flex flex-col justify-evenly">
@@ -58,40 +284,41 @@ const DetailMenu = ({ show, onClose, menuId }) => {
               {menuId.price}
             </h2>
           </div>
+
+          {/* Quantity Selector */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={decrementQuantity}
+              className="bg-gray-300 px-4 py-2 rounded-md font-bold"
+            >
+              -
+            </button>
+            <input
+              type="number"
+              name="quantity"
+              value={input.quantity}
+              onChange={handleInput}
+              className="w-16 text-center border-2 border-gray-300 rounded-md"
+              min="1"
+            />
+            <button
+              onClick={incrementQuantity}
+              className="bg-gray-300 px-4 py-2 rounded-md font-bold"
+            >
+              +
+            </button>
+          </div>
+
           <input
             type="text"
             placeholder="Note..."
             name="note"
-            className="border-2 border-gray-300 rounded-md p-2"
+            value={input.note}
+            onChange={handleInput}
+            className="border-2 border-gray-300 rounded-md p-2 mt-4"
           />
-          {user.role === "OWNER" ? (
-            <div className="flex justify-end gap-4 mt-4">
-              <button
-                className="bg-black h-10 w-40 mt-6 text-white font-bold py-2 px-6 rounded-md hover:opacity-90"
-                onClick={() => deleteHandler(menuId.id)}
-              >
-                Delete Menu
-              </button>
-              <button
-                className="bg-secondary hover:bg-red-700 transition w-40 mt-6 h-10 text-white font-bold text-sm rounded-md self-end"
-                onClick={handleEditClick}
-              >
-                Edit Menu
-              </button>
-              {/* Popup Edit Menu */}
-              <EditMenu
-                show={showEditPopup}
-                onClose={closeEditPopup} // Pastikan popup ditutup dengan fungsi ini
-                menuId={menuId}
-              />
-            </div>
-          ) : (
-            <div className="flex justify-end gap-4 mt-4">
-              <button className="bg-secondary hover:bg-red-700 transition w-40 mt-6 h-10 text-white font-bold text-sm rounded-md self-end">
-                Add to Cart
-              </button>
-            </div>
-          )}
+
+          <div>{buttonChange()}</div>
         </div>
       </div>
     </div>

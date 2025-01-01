@@ -7,35 +7,27 @@
     <title>Chat Application</title>
   </head>
   <body>
-    <h2>One to One Chat | Spring Boot & WebSocket | By Alibou</h2>
+    <h2>Sunkatsu Chat</h2>
 
-    <div class="user-form" id="customerId-page">
-      <h2>Enter Chatroom</h2>
-      <form id="customerIdForm">
-        <!-- Ubah form agar hanya menggunakan customerId -->
-        <label for="customerId">Customer ID:</label>
-        <input type="text" id="customerId" name="customerId" required />
-
-        <button type="submit">Enter Chatroom</button>
-      </form>
-    </div>
-
-    <div class="chat-container hidden" id="chat-page">
+    <!-- Halaman chat langsung tanpa form login -->
+    <div class="chat-container" id="chat-page">
       <div class="users-list">
         <div class="users-list-container">
           <h2>Online Users</h2>
           <ul id="connectedUsers"></ul>
         </div>
         <div>
-          <p id="logged-user">Logged in as <span id="connected-user-fullname"></span></p>
+          <p id="logged-user">
+            Logged in as <span id="connected-user-fullname"></span>
+          </p>
           <a class="logout" href="javascript:void(0)" id="logout">Logout</a>
-        </div>        
+        </div>
       </div>
 
       <div class="chat-area">
         <div class="chat-area" id="chat-messages"></div>
 
-        <form id="messageForm" name="messageForm" class="hidden">
+        <form id="messageForm" name="messageForm">
           <div class="message-input">
             <input
               autocomplete="off"

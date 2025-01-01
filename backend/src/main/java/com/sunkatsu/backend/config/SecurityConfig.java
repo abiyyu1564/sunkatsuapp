@@ -6,33 +6,20 @@ import com.sunkatsu.backend.repositories.OwnerRepository;
 import com.sunkatsu.backend.repositories.StaffRepository;
 import com.sunkatsu.backend.services.MyUserDetailService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import static org.springframework.http.HttpMethod.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import static org.springframework.http.HttpMethod.DELETE;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.OPTIONS;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpMethod.PUT;
-
-import java.util.Optional;
 
 @Configuration
 @EnableWebSecurity
@@ -54,7 +41,22 @@ public class SecurityConfig {
             "/configuration/security",
             "/swagger-ui/**",
             "/webjars/**",
-            "/swagger-ui.html"};
+            "/swagger-ui.html",
+            "/chatbot",
+            "/stream",
+            "/chat.html",
+            "/chat",
+            "/messages/**",
+            "/js/**",
+            "/user",
+            "/queue",
+            "/app",
+            "/img/**",
+            "/api/users/**",
+            "/api/users/status/**",
+            "/ws/**",
+            "/css/**",
+            "/stream.html"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -63,9 +65,30 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
-                        .requestMatchers(OPTIONS, "/**").permitAll()
-                                .requestMatchers("/api/menus/images/**").permitAll()
-                                .requestMatchers(POST, "/api/menus/some-secure-action/**").hasAnyAuthority(Permission.OWNER_CREATE.name())
+                                .requestMatchers("/api/staff/** ").hasAnyAuthority("STAFF", "OWNER")
+                                .requestMatchers("/api/owner/**").hasAuthority("OWNER")
+
+                                .requestMatchers(GET, "/api/customers").hasAuthority("OWNER")
+                                .requestMatchers(POST, "/api/customers").hasAuthority("OWNER")
+
+                                .requestMatchers(DELETE, "/api/favorites/**").hasAuthority("OWNER")
+                                .requestMatchers(PATCH, "/api/favorites/**").hasAuthority("OWNER")
+
+                                .requestMatchers(GET, "/api/orders/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                .requestMatchers(PATCH, "/api/orders/**").hasAnyAuthority( "STAFF", "OWNER")
+                                .requestMatchers(DELETE, "/api/orders/**").hasAnyAuthority( "STAFF", "OWNER")
+
+                                .requestMatchers(GET, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                .requestMatchers(GET, "/api/carts/empty").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                .requestMatchers(POST, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                .requestMatchers(DELETE, "/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                .requestMatchers(PATCH,"/api/carts/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+
+                                .requestMatchers(GET, "/api/menus/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                .requestMatchers(POST, "/api/menus/**").hasAuthority("OWNER")
+                                .requestMatchers(PATCH, "/api/menus/**").hasAuthority("OWNER")
+                                .requestMatchers(DELETE, "/api/menus/**").hasAuthority("OWNER")
+
                                 .anyRequest()
                                 .authenticated()
                 )
