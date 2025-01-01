@@ -15,6 +15,7 @@ const Navbar = () => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const { search, setSearch } = useContext(GlobalContext);
   const navigate = useNavigate(); // Hook untuk navigasi ke halaman lain
+  const [input, setInput] = useState({ search: "" });
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -37,7 +38,17 @@ const Navbar = () => {
   };
 
   const handleSearch = (e) => {
-    setSearch(e.target.value);
+    e.preventDefault(); // Mencegah reload halaman saat submit form
+    setSearch(input.search); // Set nilai pencarian ke context
+    navigate("/menu"); // Redirect ke halaman menu
+  };
+
+  const handleInput = (e) => {
+    const { name, value } = e.target;
+    setInput((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
   return (
     <nav className="fixed top-0 w-full h-16 z-[99] shadow-lg bg-white">
@@ -62,12 +73,15 @@ const Navbar = () => {
         {/* Navbar Icons (Desktop) */}
         <div className="hidden md:flex gap-8 items-center">
           <div className="flex items-center">
-            <input
-              onChange={handleSearch}
-              value={search}
-              className="h-9 border md p-2 rounded-lg bg-gray-50"
-              placeholder="Search.."
-            />
+            <form onSubmit={handleSearch}>
+              <input
+                onChange={handleInput}
+                value={input.search}
+                name="search"
+                className="h-9 border md p-2 rounded-lg bg-gray-50"
+                placeholder="Search.."
+              />
+            </form>
           </div>
           <a
             href="http://localhost:8080/chat.html"
