@@ -12,7 +12,6 @@ const EditMenu = ({ show, onClose, menuId }) => {
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [imageURLs, setImageURLs] = useState({});
 
-  console.log(menuId);
   const baseURL = "http://localhost:8080";
 
   const getImage = (menuId) => {
@@ -63,7 +62,6 @@ const EditMenu = ({ show, onClose, menuId }) => {
             image: res.data.image,
           });
           setSelectedImage(`${baseURL}` + res.data.imageURL);
-          console.log("selectedImage:", selectedImage);
         })
         .catch((err) => {
           console.error("Error fetching menu data:", err);
@@ -96,10 +94,26 @@ const EditMenu = ({ show, onClose, menuId }) => {
   const handleInput = (event) => {
     const { name, value } = event.target;
 
+    if (name === "name") {
+      if (!/^[a-zA-Z\s]*$/.test(value)) {
+        alert("Name can only contain letters and spaces");
+        return;
+      }
+    }
+
+    if (name === "price") {
+      if (Number(value) < 0) {
+        alert("Price cannot be negative");
+        return;
+      }
+    }
+
     setInput((prevState) => ({
       ...prevState,
       [name]: value, // Perbarui state berdasarkan `name` field
     }));
+
+    console.log(input);
   };
 
   const handleUpdate = async (event) => {
@@ -184,7 +198,7 @@ const EditMenu = ({ show, onClose, menuId }) => {
                 htmlFor="imageInput"
                 className="text-secondary font-bold cursor-pointer hover:underline"
               >
-                Change Image
+                Change Imag
               </label>
             </div>
           ) : (
@@ -226,6 +240,7 @@ const EditMenu = ({ show, onClose, menuId }) => {
             <input
               type="number"
               name="price"
+              min="0"
               value={input.price}
               onChange={handleInput}
               placeholder="Insert Menu Price"
@@ -246,14 +261,19 @@ const EditMenu = ({ show, onClose, menuId }) => {
           </div>
           <div>
             <label className="block font-bold mb-2">Category</label>
-            <input
-              type="text"
+            <select
               name="category"
               value={input.category}
               onChange={handleInput}
-              placeholder="Insert Menu Category"
               className="w-full border-2 border-gray-300 rounded-md p-2 focus:outline-none focus:border-secondary"
-            />
+            >
+              <option value="" disabled>
+                Select Category
+              </option>
+              <option value="food">Food</option>
+              <option value="drink">Drink</option>
+              <option value="dessert">Dessert</option>
+            </select>
           </div>
           {/* Buttons */}
           <div className="flex justify-end gap-4 mt-4">

@@ -22,8 +22,6 @@ const DetailMenu = ({ show, onClose, menuId }) => {
     note: "",
   });
 
-  console.log(menuId);
-
   const decode = jwtDecode(Cookies.get("token"));
 
   const successPopup = () => {
