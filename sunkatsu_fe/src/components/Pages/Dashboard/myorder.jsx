@@ -272,7 +272,7 @@ const Order = () => {
             </section>
           ))
         ) : (
-          <p className="text-2xl font-semibold text-white mt-10">
+          <p className="text-2xl font-semibold text-tertiary mt-10">
             No orders found.
           </p>
         )}
