@@ -35,7 +35,15 @@ public class UserService {
         }
         // Jika tidak ditemukan di customer, cari di staff
         var staff = staffRepository.findById(userId);
-        return staff.orElse(null);
+        if (staff.isPresent()) {
+            return staff.get();
+        }
+
+        var owner = ownerRepository.findById(userId);
+        if (owner.isPresent()) {
+            return owner.get();
+        }
+        return null;
     }
 
     public void saveUser(User user) {
