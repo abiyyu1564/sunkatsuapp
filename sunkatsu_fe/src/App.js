@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { GlobalProvider } from "./context/GlobalContext";
 import { ProtectedRoute } from "./components/Utils/protectedRoute";
 
+
 import Login from "./components/Pages/Register/login";
 
 import Home from "./components/Pages/Home/home";
@@ -22,7 +23,7 @@ import Cart from "./components/Pages/Dashboard/cart";
 import Order from "./components/Pages/Dashboard/myorder";
 import Profile from "./components/Pages/Dashboard/userProfile";
 import Signup from "./components/Pages/Register/signup";
-import Chatbot from "./components/Pages/Dashboard/stream";
+
 
 function App() {
   return (
@@ -62,7 +63,6 @@ function App() {
               path="/stream"
               element={
                 <ProtectedRoute requiresAuth={true}>
-                  <Chatbot />
                 </ProtectedRoute>
               }
             />

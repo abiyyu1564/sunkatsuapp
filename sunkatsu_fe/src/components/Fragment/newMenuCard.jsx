@@ -127,7 +127,7 @@ const NewMenuCard = ({ selectedCategory }) => {
       {user.role === "OWNER" ? (
         <div className="fixed bottom-10 right-10">
           <button
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-2xl"
+            className="bg-tertiary hover:bg-red-700 text-white font-bold py-2 px-4 rounded-2xl"
             onClick={() => handlePopup("showAdd")}
           >
             Tambah data Menu
