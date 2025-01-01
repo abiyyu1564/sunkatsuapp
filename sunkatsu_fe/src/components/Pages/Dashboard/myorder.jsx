@@ -11,6 +11,7 @@ const Order = () => {
   const [orders, setOrders] = useState([]); // State untuk menyimpan data API
   const [selectedCategory, setSelectedCategory] = useState("All Order");
   const [imageURLs, setImageURLs] = useState({});
+  const [customer, setCustomer] = useState({});
 
   const menuItems = ["All Order", "Not Paid", "Accepted", "Finished"];
 
@@ -35,6 +36,24 @@ const Order = () => {
     };
     fetchOrders();
   }, [user.role, user.id]);
+
+  const getCustomerbyId = async (id) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/api/customers/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`,
+          },
+        }
+      );
+      console.log(response.data);
+      setCustomer(response.data);
+    } catch (error) {
+      console.error("Error fetching customer:", error);
+      return null;
+    }
+  };
 
   const getImage = (menuId) => {
     // Jika URL gambar sudah ada di state imageURLs, langsung gunakan
@@ -213,6 +232,13 @@ const Order = () => {
                       <span className="text-sm text-red-500">
                         Quantity: {item.quantity}
                       </span>
+                      {user.role === "CUSTOMER" ? (
+                        <></>
+                      ) : (
+                        <p className="text-sm text-red-500">
+                          Customer: {getCustomerbyId(order.userID).id}
+                        </p>
+                      )}
                     </div>
                   </article>
                 ))}
@@ -223,10 +249,14 @@ const Order = () => {
                 <p className="text-2xl font-semibold">
                   Total: {order.total.toLocaleString("id-ID")} IDR
                 </p>
-                <p className="text-sm text-gray-500">
-                  Payment Deadline:{" "}
-                  {new Date(order.paymentDeadline).toLocaleString()}
-                </p>
+                {order.paymentDeadline ? (
+                  <p className="text-sm text-gray-500">
+                    Payment Deadline:{" "}
+                    {new Date(order.paymentDeadline).toLocaleString()}
+                  </p>
+                ) : (
+                  <p className="text-sm text-gray-500"></p>
+                )}
               </div>
 
               {/* Bagian aksi dropdown */}

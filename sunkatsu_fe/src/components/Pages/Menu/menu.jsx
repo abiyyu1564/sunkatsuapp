@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 import Navbar from "../../Fragment/Navbar";
 import NewFooter from "../../Fragment/newFooter";
@@ -15,14 +17,26 @@ const Menu = () => {
     console.log("Selected category:", category);
   };
 
+  const user = jwtDecode(Cookies.get("token"));
+
   return (
     <>
       <Navbar />
       <div className="flex flex-col w-full justify-center items-center mt-16 bg-primary">
         <div className="flex flex-col justify-center items-center mt-10 gap-5">
           <Carousel />
-          <h1 className="text-3xl font-bold text-tertiary">YOUR LATEST PURCHASE</h1>
-          <FavoriteMenu />
+
+          {user.role === "CUSTOMER" ? (
+            <>
+              <h1 className="text-3xl font-bold text-tertiary">
+                YOUR LATEST PURCHASE
+              </h1>
+              <FavoriteMenu />
+            </>
+          ) : (
+            <></>
+          )}
+
           <FilterCategory
             menuItems={menuItems}
             onFilterChange={handleCategoryChange}

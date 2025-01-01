@@ -40,20 +40,139 @@ document.addEventListener("DOMContentLoaded", () => {
   }, 1000); // 1000 ms = 1 detik
 });
 
-function connect(event) {
-  customerId = document.querySelector("#customerId").value.trim();
+document.addEventListener("DOMContentLoaded", async function () {
+  function getCookieValue(cookieName) {
+    const cookies = document.cookie.split("; ");
+    for (let i = 0; i < cookies.length; i++) {
+      const [name, value] = cookies[i].split("=");
+      if (name === cookieName) {
+        return value;
+      }
+    }
+    return null;
+  }
 
-  if (customerId) {
-    customerIdPage.classList.add("hidden");
+  function parseJwt(token) {
+    if (!token) {
+      return null;
+    }
+    const payload = token.split(".")[1];
+    const decodedPayload = atob(payload);
+    return JSON.parse(decodedPayload);
+  }
+
+  // Auto connect function
+  async function autoConnect() {
+    const token = getCookieValue("token");
+    const decodedToken = parseJwt(token);
+
+    if (decodedToken && decodedToken.id) {
+      customerId = decodedToken.id; // Set customerId dari token
+
+      // Sembunyikan halaman login dan tampilkan chat
+      customerIdPage.classList.add("hidden");
+      chatPage.classList.remove("hidden");
+
+      // Buat koneksi WebSocket
+      const socket = new SockJS("/ws");
+      stompClient = Stomp.over(socket);
+
+      stompClient.connect({}, onConnected, onError);
+    } else {
+      console.error("Token tidak valid atau tidak ditemukan");
+      // Optional: redirect ke halaman login
+      // window.location.href = '/login';
+    }
+  }
+
+  // Jalankan auto connect
+  await autoConnect();
+
+  // Set interval untuk update daftar user dan chat
+  findAndDisplayConnectedUsers();
+  setInterval(findAndDisplayConnectedUsers, 5000);
+
+  setInterval(() => {
+    if (selectedUserId) {
+      fetchAndDisplayUserChat();
+    }
+  }, 1000);
+});
+
+function connect(userId = null) {
+  try {
+    // Jika userId tidak diberikan, ambil dari token
+    if (!userId) {
+      const token = getCookieValue("token");
+      const decodedToken = parseJwt(token);
+      if (!decodedToken || !decodedToken.id) {
+        throw new Error("Invalid token or user ID not found");
+      }
+      userId = decodedToken.id;
+    }
+
+    // Set customerId
+    customerId = userId;
+
+    // Tampilkan chat page
+    if (customerIdPage) {
+      customerIdPage.classList.add("hidden");
+    }
     chatPage.classList.remove("hidden");
 
+    // Buat koneksi WebSocket
     const socket = new SockJS("/ws");
     stompClient = Stomp.over(socket);
 
+    // Connect ke WebSocket server
     stompClient.connect({}, onConnected, onError);
+
+    return true;
+  } catch (error) {
+    console.error("Connection error:", error);
+    onError(error);
+    return false;
   }
-  event.preventDefault();
 }
+
+function getCookieValue(cookieName) {
+  const cookies = document.cookie.split("; ");
+  for (let i = 0; i < cookies.length; i++) {
+    const [name, value] = cookies[i].split("=");
+    if (name === cookieName) {
+      return value;
+    }
+  }
+  return null;
+}
+
+// Fungsi helper untuk parse JWT token
+function parseJwt(token) {
+  if (!token) {
+    return null;
+  }
+  const payload = token.split(".")[1];
+  const decodedPayload = atob(payload);
+  return JSON.parse(decodedPayload);
+}
+
+// Event listener untuk auto-connect saat halaman dimuat
+document.addEventListener("DOMContentLoaded", async function () {
+  // Coba connect otomatis
+  const connected = connect();
+
+  if (connected) {
+    // Set interval untuk update data
+    findAndDisplayConnectedUsers();
+    setInterval(findAndDisplayConnectedUsers, 5000);
+
+    setInterval(() => {
+      if (selectedUserId) {
+        fetchAndDisplayUserChat();
+      }
+    }, 1000);
+  }
+});
 
 function onConnected() {
   // Subscribe ke topik publik dan private untuk user tertentu
@@ -304,10 +423,10 @@ function onLogout() {
     {},
     JSON.stringify({ customerId: customerId })
   );
-  window.location.reload();
+  window.location.href = "http://localhost:3000/menu";
 }
 
-customerIdForm.addEventListener("submit", connect, true);
+// customerIdForm.addEventListener("submit", connect, true);
 messageForm.addEventListener("submit", sendMessage, true);
 logout.addEventListener("click", onLogout, true);
 window.onbeforeunload = () => onLogout();

@@ -22,6 +22,8 @@ const DetailMenu = ({ show, onClose, menuId }) => {
     note: "",
   });
 
+  console.log(menuId);
+
   const decode = jwtDecode(Cookies.get("token"));
 
   const successPopup = () => {
@@ -214,6 +216,45 @@ const DetailMenu = ({ show, onClose, menuId }) => {
     }));
   };
 
+  const buttonChange = () => {
+    if (user.role === "OWNER") {
+      return (
+        <div className="flex justify-end gap-4 mt-4">
+          <button
+            className="bg-black h-10 w-40 mt-6 text-white font-bold py-2 px-6 rounded-md hover:opacity-90"
+            onClick={() => deleteHandler(menuId.id)}
+          >
+            Delete Menu
+          </button>
+          <button
+            className="bg-secondary hover:bg-red-700 transition w-40 mt-6 h-10 text-white font-bold text-sm rounded-md self-end"
+            onClick={handleEditClick}
+          >
+            Edit Menu
+          </button>
+          <EditMenu
+            show={showEditPopup}
+            onClose={closeEditPopup}
+            menuId={menuId}
+          />
+        </div>
+      );
+    } else if (user.role === "CUSTOMER") {
+      return (
+        <div className="flex justify-end gap-4 mt-4">
+          <button
+            className="bg-secondary h-10 w-40 mt-6 text-white font-bold py-2 px-6 rounded-md hover:opacity-90"
+            onClick={addMenuToCart}
+          >
+            Add to Cart
+          </button>
+        </div>
+      );
+    } else {
+      return <></>;
+    }
+  };
+
   if (!show) return null;
   return (
     <div className="flex justify-center items-center h-screen fixed inset-0 bg-gray-800 bg-opacity-50 z-50">
@@ -279,36 +320,7 @@ const DetailMenu = ({ show, onClose, menuId }) => {
             className="border-2 border-gray-300 rounded-md p-2 mt-4"
           />
 
-          {user.role === "OWNER" ? (
-            <div className="flex justify-end gap-4 mt-4">
-              <button
-                className="bg-black h-10 w-40 mt-6 text-white font-bold py-2 px-6 rounded-md hover:opacity-90"
-                onClick={() => deleteHandler(menuId.id)}
-              >
-                Delete Menu
-              </button>
-              <button
-                className="bg-secondary hover:bg-red-700 transition w-40 mt-6 h-10 text-white font-bold text-sm rounded-md self-end"
-                onClick={handleEditClick}
-              >
-                Edit Menu
-              </button>
-              <EditMenu
-                show={showEditPopup}
-                onClose={closeEditPopup}
-                menuId={menuId}
-              />
-            </div>
-          ) : (
-            <div className="flex justify-end gap-4 mt-4">
-              <button
-                onClick={addMenuToCart}
-                className="bg-secondary hover:bg-red-700 transition w-40 mt-6 h-10 text-white font-bold text-sm rounded-md self-end"
-              >
-                Add to Cart
-              </button>
-            </div>
-          )}
+          <div>{buttonChange()}</div>
         </div>
       </div>
     </div>

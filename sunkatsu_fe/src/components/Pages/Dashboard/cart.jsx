@@ -100,32 +100,36 @@ const Cart = () => {
 
   // Fungsi Decrement
   const decrement = (index) => {
-    const itemToUpdate = cartItems[index];
-    console.log(itemToUpdate);
-    // Perbarui kuantitas di backend
-    axios
-      .post(
-        "http://localhost:8080/api/carts/decrement",
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
-          },
-          params: {
-            id: cart.id,
-            cartItemId: itemToUpdate.id,
-          },
-        }
-      )
-      .then(() => {
-        // Perbarui state jika berhasil
-        setCartItems((prev) =>
-          prev.map((item, i) =>
-            i === index ? { ...item, quantity: item.quantity - 1 } : item
-          )
-        );
-      })
-      .catch((err) => console.error("Error updating quantity:", err));
+    if (cartItems[index].quantity === 1) {
+      deleteItemFromCart(cartItems[index].id);
+    } else {
+      const itemToUpdate = cartItems[index];
+      console.log(itemToUpdate);
+      // Perbarui kuantitas di backend
+      axios
+        .post(
+          "http://localhost:8080/api/carts/decrement",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${Cookies.get("token")}`,
+            },
+            params: {
+              id: cart.id,
+              cartItemId: itemToUpdate.id,
+            },
+          }
+        )
+        .then(() => {
+          // Perbarui state jika berhasil
+          setCartItems((prev) =>
+            prev.map((item, i) =>
+              i === index ? { ...item, quantity: item.quantity - 1 } : item
+            )
+          );
+        })
+        .catch((err) => console.error("Error updating quantity:", err));
+    }
   };
 
   const handleFinishCart = () => {
