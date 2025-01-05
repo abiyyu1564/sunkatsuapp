@@ -1,7 +1,6 @@
 package com.sunkatsu.backend.repositories;
 
 import com.sunkatsu.backend.models.Owner;
-import com.sunkatsu.backend.models.Staff;
 import com.sunkatsu.backend.models.Status;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
