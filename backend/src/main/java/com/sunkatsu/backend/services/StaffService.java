@@ -7,11 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sunkatsu.backend.dto.StaffDTO;
-import com.sunkatsu.backend.dto.UserDTO;
 import com.sunkatsu.backend.models.Customer;
 import com.sunkatsu.backend.models.Staff;
 import com.sunkatsu.backend.models.Status;
-import com.sunkatsu.backend.models.User;
 import com.sunkatsu.backend.repositories.StaffRepository;
 
 import lombok.RequiredArgsConstructor;
