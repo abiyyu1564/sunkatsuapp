@@ -68,7 +68,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/staff/** ").hasAnyAuthority("STAFF", "OWNER")
                                 .requestMatchers("/api/owner/**").hasAuthority("OWNER")
 
-                                .requestMatchers(GET, "/api/customers").hasAuthority("OWNER")
+                                .requestMatchers(GET, "/api/customers/**").hasAnyAuthority("OWNER", "STAFF")
                                 .requestMatchers(POST, "/api/customers").hasAuthority("OWNER")
 
                                 .requestMatchers(DELETE, "/api/favorites/**").hasAuthority("OWNER")

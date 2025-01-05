@@ -114,8 +114,10 @@ public class ShoppingCartServiceTest {
     public void ShoppingCartService_incrementQty_IncrementsTheQtyOfACartItem() {
         ShoppingCart cart = new ShoppingCart();
         CartItem item = new CartItem();
+        Menu menu = new Menu(1, "menu", "image.jpg", "image.jpg", 100, "tasty", "food", 1);
         item.setId(1);
         item.setQuantity(1);
+        item.setMenu(menu);
         cart.setCartItems(new ArrayList<>(Arrays.asList(item)));
   
         when(cartRepository.findById(1)).thenReturn(Optional.of(cart));

@@ -54,6 +54,7 @@ public class OrdersController {
         if (status != "Not Paid" || status != "Accepted" || status != "Finished" || status != "Canceled") {
             return ResponseEntity.badRequest().body(new Message("Error : Invalid status!"));
         }
+        orderService.checkOrderToCancel();
         return ResponseEntity.ok().body(orderService.getOrderByStatus(status));
     } 
 
