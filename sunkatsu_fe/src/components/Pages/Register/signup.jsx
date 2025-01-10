@@ -9,7 +9,7 @@ const Signup = () => {
     id: "string",
     username: "",
     password: "",
-    role: "STAFF",
+    role: "CUSTOMER",
     status: "ONLINE",
   });
 

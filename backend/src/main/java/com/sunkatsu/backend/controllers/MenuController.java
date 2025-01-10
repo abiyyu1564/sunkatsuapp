@@ -224,6 +224,4 @@ public class MenuController {
                             .header("Content-Type", contentType != null ? contentType : "application/octet-stream")
                             .body(image);
     }
-
-
 }

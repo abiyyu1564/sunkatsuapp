@@ -27,7 +27,7 @@ public class AuthService {
             return "Username already exists";
         }
         customer.setPassword(encoder.encode(customer.getPassword()));
-        customer.setRole(customer.getRole());
+        customer.setRole(Role.CUSTOMER);
         customer.setId(String.valueOf(sequenceGeneratorService.generateSequence(Customer.SEQUENCE_NAME)));
         customerRepository.save(customer);
         return "Customer registered successfully";
