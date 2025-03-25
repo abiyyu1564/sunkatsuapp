@@ -1,45 +1,48 @@
 import 'package:flutter/material.dart';
 import '../utils/constants.dart';
-import '../views/sign_up_page.dart';
+import 'login_page.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final _usernameController = TextEditingController();
+class _SignUpPageState extends State<SignUpPage> {
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _usernameController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
+    _usernameController.dispose();
     super.dispose();
   }
 
-  void _handleLogin() {
-    // TODO: Implement login functionality
-    final username = _usernameController.text;
+  void _handleSignUp() {
+    // TODO: Implement sign up functionality
+    final email = _emailController.text;
     final password = _passwordController.text;
+    final username = _usernameController.text;
 
-    if (username.isEmpty || password.isEmpty) {
+    if (email.isEmpty || password.isEmpty || username.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter both username and password')),
+        const SnackBar(content: Text('Please fill in all fields')),
       );
       return;
     }
 
-    // Add your authentication logic here
-    print('Login attempt with: $username / $password');
+    // Add your registration logic here
+    print('Sign up attempt with: $email / $password / $username');
   }
 
-  void _navigateToSignUp() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const SignUpPage()),
+  void _navigateToLogin() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const LoginPage()),
     );
   }
 
@@ -77,9 +80,9 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 40),
 
-                // Login text
+                // Create account text
                 const Text(
-                  'Login',
+                  'Create your account',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20,
@@ -89,12 +92,12 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 24),
 
-                // Username field
+                // Email field
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Username',
+                      'Email',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.redAccent,
@@ -102,9 +105,10 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 8),
                     TextField(
-                      controller: _usernameController,
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
-                        hintText: 'Enter your username',
+                        hintText: 'Enter your email',
                         hintStyle: TextStyle(color: Colors.grey[400]),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(4),
@@ -167,11 +171,44 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
+
+                // Username field
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Username',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.redAccent,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _usernameController,
+                      decoration: InputDecoration(
+                        hintText: 'Enter your username',
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(4),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 24),
 
-                // Login button
+                // Sign In button
                 ElevatedButton(
-                  onPressed: _handleLogin,
+                  onPressed: _handleSignUp,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.red,
                     foregroundColor: Colors.white,
@@ -182,38 +219,12 @@ class _LoginPageState extends State<LoginPage> {
                     elevation: 0,
                   ),
                   child: const Text(
-                    'Login',
+                    'Sign In',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-
-                // Sign up text
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Don't have an account? ",
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: _navigateToSignUp,
-                      child: const Text(
-                        'Sign Up',
-                        style: TextStyle(
-                          color: AppColors.red,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
@@ -223,4 +234,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
