@@ -1,23 +1,46 @@
 import 'package:flutter/material.dart';
+import '../models/chatbot_message.dart';
+import '../utils/constants.dart';
 
 class ChatBubble extends StatelessWidget {
-  final String message;
-  final bool isSender;
+  final ChatMessage message;
 
-  const ChatBubble({required this.message, required this.isSender, super.key});
+  const ChatBubble({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
+    final isUser = message.sender == MessageSender.user;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        constraints: const BoxConstraints(maxWidth: 280),
         decoration: BoxDecoration(
-          color: isSender ? Colors.red.shade100 : Colors.grey.shade300,
-          borderRadius: BorderRadius.circular(10),
+          color: isUser ? AppColors.red : AppColors.black,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(18),
+            topRight: const Radius.circular(18),
+            bottomLeft: Radius.circular(isUser ? 18 : 4),
+            bottomRight: Radius.circular(isUser ? 4 : 18),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              offset: const Offset(0, 2),
+              blurRadius: 4,
+            ),
+          ],
         ),
-        child: Text(message),
+        child: Text(
+          message.text,
+          style: const TextStyle(
+            color: AppColors.white,
+            fontSize: 15,
+            height: 1.4,
+          ),
+        ),
       ),
     );
   }
