@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import '../utils/constants.dart';
 import 'login_page.dart';
 
@@ -23,11 +25,11 @@ class _SignUpPageState extends State<SignUpPage> {
     super.dispose();
   }
 
-  void _handleSignUp() {
-    // TODO: Implement sign up functionality
-    final email = _emailController.text;
-    final password = _passwordController.text;
-    final username = _usernameController.text;
+  void _handleSignUp() async {
+    print('Sign Up button pressed');
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final username = _usernameController.text.trim();
 
     if (email.isEmpty || password.isEmpty || username.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -36,8 +38,32 @@ class _SignUpPageState extends State<SignUpPage> {
       return;
     }
 
-    // Add your registration logic here
-    print('Sign up attempt with: $email / $password / $username');
+    final url = Uri.parse('http://localhost:8080/api/auth/register');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'id': 'string',
+        'username': username,
+        'password': password,
+        'role': 'CUSTOMER',
+        'status': 'ONLINE',
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Signup Success')),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to register')),
+      );
+    }
   }
 
   void _navigateToLogin() {
@@ -58,7 +84,6 @@ class _SignUpPageState extends State<SignUpPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Logo and title
                 const Text(
                   'Sunkatsu',
                   textAlign: TextAlign.center,
@@ -79,8 +104,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
                 const SizedBox(height: 40),
-
-                // Create account text
                 const Text(
                   'Create your account',
                   textAlign: TextAlign.center,
@@ -91,8 +114,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
                 const SizedBox(height: 24),
-
-                // Email field
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -125,8 +146,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   ],
                 ),
                 const SizedBox(height: 16),
-
-                // Password field
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -172,8 +191,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   ],
                 ),
                 const SizedBox(height: 16),
-
-                // Username field
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -205,8 +222,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   ],
                 ),
                 const SizedBox(height: 24),
-
-                // Sign In button
                 ElevatedButton(
                   onPressed: _handleSignUp,
                   style: ElevatedButton.styleFrom(
@@ -219,12 +234,36 @@ class _SignUpPageState extends State<SignUpPage> {
                     elevation: 0,
                   ),
                   child: const Text(
-                    'Sign In',
+                    'Sign Up',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Already have an account? ",
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: _navigateToLogin,
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(
+                          color: AppColors.red,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

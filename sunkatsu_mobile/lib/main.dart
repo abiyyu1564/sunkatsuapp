@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       title: 'Sunkatsu App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true),
-      home: const SplashScreen(),
+      home: SplashScreen(),
     );
   }
 }
