@@ -1,6 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import '../utils/constants.dart';
 import '../views/sign_up_page.dart';
+import '../views/chat_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,6 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  final _storage = const FlutterSecureStorage();
 
   @override
   void dispose() {
@@ -21,10 +27,9 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _handleLogin() {
-    // TODO: Implement login functionality
-    final username = _usernameController.text;
-    final password = _passwordController.text;
+  void _handleLogin() async {
+    final username = _usernameController.text.trim();
+    final password = _passwordController.text.trim();
 
     if (username.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -33,8 +38,45 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    // Add your authentication logic here
-    print('Login attempt with: $username / $password');
+    print("Sending request...");
+    final url = Uri.parse('http://localhost:8080/api/auth/login');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        "id": "string",
+        "username": username,
+        "password": password,
+        "role": "CUSTOMER",
+        "status": "ONLINE"
+      }),
+    );
+    print("Request sent");
+    if (response.statusCode == 200) {
+      print('Login successful');
+      final responseBody = jsonDecode(response.body);
+      final token = responseBody['token'];
+      await _storage.write(key: 'token', value: token);
+
+      // Decode the token to get the user ID
+      final jwt = JWT.decode(token);
+      final userId = jwt.payload['id'];
+
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Signed in successfully')),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => ChatPage(userId: userId)),
+      );
+    } else {
+      print("Something went wrong");
+      final responseBody = jsonDecode(response.body);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(responseBody['message'])),
+      );
+    }
   }
 
   void _navigateToSignUp() {
@@ -55,7 +97,6 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Logo and title
                 const Text(
                   'Sunkatsu',
                   textAlign: TextAlign.center,
@@ -76,8 +117,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 40),
-
-                // Login text
                 const Text(
                   'Login',
                   textAlign: TextAlign.center,
@@ -88,8 +127,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 24),
-
-                // Username field
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -121,8 +158,6 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
                 const SizedBox(height: 16),
-
-                // Password field
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -168,8 +203,6 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
                 const SizedBox(height: 24),
-
-                // Login button
                 ElevatedButton(
                   onPressed: _handleLogin,
                   style: ElevatedButton.styleFrom(
@@ -190,8 +223,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // Sign up text
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -223,4 +254,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
