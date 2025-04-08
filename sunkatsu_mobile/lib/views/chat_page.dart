@@ -38,7 +38,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _loadUserDetails() async {
-    final url = Uri.parse('http://localhost:8080/api/users/${widget.userId}');
+    final url = Uri.parse('http://10.0.2.2:8080/api/users/${widget.userId}');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -84,7 +84,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _fetchOnlineUsers() async {
-    final url = Uri.parse('http://localhost:8080/api/users/status/${widget.userId}');
+    final url = Uri.parse('http://10.0.2.2:8080/api/users/status/${widget.userId}');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -101,7 +101,7 @@ class _ChatPageState extends State<ChatPage> {
   Future<void> _loadChatHistory() async {
     if (selectedUserId == null) return;
 
-    final url = Uri.parse('http://localhost:8080/messages/${widget.userId}/$selectedUserId');
+    final url = Uri.parse('http://10.0.2.2:8080/messages/${widget.userId}/$selectedUserId');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -163,7 +163,7 @@ class _ChatPageState extends State<ChatPage> {
       messages = [];
     });
 
-    final url = Uri.parse('http://localhost:8080/api/users/$userId');
+    final url = Uri.parse('http://10.0.2.2:8080/api/users/$userId');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
