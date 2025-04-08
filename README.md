@@ -18,6 +18,12 @@ How to run backend locally:
    Yang di pake yang ada "/api" nya saja. Hiraukan yang tidak ada "/api"!
    Gw gtw cara ngilangin yg entity controllernya - Raygama
 
+How to run front end: 
+1. Go to the `sunkatsu_fe` directory and run this in the terminal: `npm run start`
+
+How to run the mobile app:
+1. Go to Android Studio and run the main.dart file
+
 Note:
 - Ganti application properties dengan yang gw kirim di wa (nvm some dude leaked our uri to the world 💀)
 - run this in cmd before running the mobile app on a real phone: `adb reverse tcp:8080 tcp:8080` 
