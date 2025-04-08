@@ -21,7 +21,8 @@ How to run backend locally:
    Gw gtw cara ngilangin yg entity controllernya - Raygama
 
 Note:
-- Ganti application properties dengan yang gw kirim di wa (pake mongo uri yg gw kasi)
+- Ganti application properties dengan yang gw kirim di wa (nvm some dude leaked our uri to the world 💀)
+- run this in cmd before running the mobile app on a real phone: `adb reverse tcp:8080 tcp:8080` 
 
 
 
