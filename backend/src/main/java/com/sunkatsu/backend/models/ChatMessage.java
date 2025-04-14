@@ -21,6 +21,7 @@ public class ChatMessage {
     private String chatId;
     private String senderId;
     private String recipientId;
+    private String imageUrl;
     private String content;
     private Date timestamp;
     private String senderType; // user or staff

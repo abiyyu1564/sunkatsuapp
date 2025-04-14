@@ -91,6 +91,12 @@ public class SecurityConfig {
                                 .requestMatchers(PATCH, "/api/menus/**").hasAuthority("OWNER")
                                 .requestMatchers(DELETE, "/api/menus/**").hasAuthority("OWNER")
 
+                                .requestMatchers(GET, "/api/files/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                .requestMatchers(POST, "/api/files/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                .requestMatchers(DELETE, "/api/files/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                .requestMatchers(PATCH, "/api/files/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                .requestMatchers("/api/files/images/**").permitAll()
+
                                 .anyRequest()
                                 .authenticated()
                 )
