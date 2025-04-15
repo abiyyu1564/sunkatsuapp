@@ -11,7 +11,7 @@ const Order = () => {
   const [orders, setOrders] = useState([]); // State untuk menyimpan data API
   const [selectedCategory, setSelectedCategory] = useState("All Order");
   const [imageURLs, setImageURLs] = useState({});
-  const [customer, setCustomer] = useState({});
+  const [customerNames, setCustomerNames] = useState({});
 
   const menuItems = ["All Order", "Not Paid", "Accepted", "Finished"];
 
@@ -30,6 +30,24 @@ const Order = () => {
           },
         });
         setOrders(response.data); // Menyimpan data order ke state
+        if (user.role !== "CUSTOMER") {
+          const customerData = {};
+          for (const orders of response.data) {
+            if (!customerData[orders.userID]) {
+              const customerResponse = await axios.get(
+                `http://localhost:8080/api/customers/${orders.userID}`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${Cookies.get("token")}`,
+                  },
+                }
+              );
+
+              customerData[orders.userID] = customerResponse.data.username;
+            }
+          }
+          setCustomerNames(customerData);
+        }
       } catch (error) {
         console.error("Error fetching orders:", error);
       }
@@ -37,6 +55,7 @@ const Order = () => {
     fetchOrders();
   }, [user.role, user.id]);
 
+  console.log(customerNames);
   const getCustomerbyId = async (id) => {
     try {
       const response = await axios.get(
@@ -48,7 +67,7 @@ const Order = () => {
         }
       );
       console.log(response.data);
-      setCustomer(response.data);
+      return response.data;
     } catch (error) {
       console.error("Error fetching customer:", error);
       return null;
@@ -232,11 +251,10 @@ const Order = () => {
                       <span className="text-sm text-red-500">
                         Quantity: {item.quantity}
                       </span>
-                      {user.role === "CUSTOMER" ? (
-                        <></>
-                      ) : (
+                      {user.role === "CUSTOMER" ? null : (
                         <p className="text-sm text-red-500">
-                          Customer: {getCustomerbyId(order.userID).id}
+                          Customer:{" "}
+                          {customerNames[order.userID] || "Loading..."}
                         </p>
                       )}
                     </div>

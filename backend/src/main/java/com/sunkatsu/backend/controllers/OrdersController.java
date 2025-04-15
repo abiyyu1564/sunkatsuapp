@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,6 +55,7 @@ public class OrdersController {
         if (status != "Not Paid" || status != "Accepted" || status != "Finished" || status != "Canceled") {
             return ResponseEntity.badRequest().body(new Message("Error : Invalid status!"));
         }
+        orderService.checkOrderToCancel();
         return ResponseEntity.ok().body(orderService.getOrderByStatus(status));
     } 
 

@@ -123,6 +123,7 @@ public class ShoppingCartService {
                     break; 
                 }
             }
+            cart.calculateTotal();
             cartRepository.save(cart);
             return cart;
         }
@@ -146,6 +147,7 @@ public class ShoppingCartService {
                     break; 
                 }
             }
+            cart.calculateTotal();
             cartRepository.save(cart); 
             return cart;
         }
