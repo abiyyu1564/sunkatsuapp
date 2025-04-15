@@ -25,24 +25,24 @@ public class ChatController {
     private final ChatMessageService chatMessageService;
 
     @MessageMapping("/chat")
-public void processMessage(@Payload ChatMessage chatMessage) {
-    ChatMessage savedMsg = chatMessageService.save(chatMessage);
+    public void processMessage(@Payload ChatMessage chatMessage) {
+        ChatMessage savedMsg = chatMessageService.save(chatMessage);
 
-    String previewText = savedMsg.getContent();
-    if ((previewText == null || previewText.isBlank()) && savedMsg.getImageUrl() != null) {
-        previewText = "📷 Image";
+        String previewText = savedMsg.getContent();
+        if ((previewText == null || previewText.isBlank()) && savedMsg.getImageUrl() != null) {
+            previewText = "📷 Image";
+        }
+
+        messagingTemplate.convertAndSendToUser(
+                chatMessage.getRecipientId(), "/queue/messages",
+                new ChatNotification(
+                        savedMsg.getId(),
+                        savedMsg.getSenderId(),
+                        savedMsg.getRecipientId(),
+                        previewText
+                )
+        );
     }
-
-    messagingTemplate.convertAndSendToUser(
-            chatMessage.getRecipientId(), "/queue/messages",
-            new ChatNotification(
-                    savedMsg.getId(),
-                    savedMsg.getSenderId(),
-                    savedMsg.getRecipientId(),
-                    previewText
-            )
-    );
-}
 
 
     @Operation(

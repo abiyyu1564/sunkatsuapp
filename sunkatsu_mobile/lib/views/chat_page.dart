@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+
 import '../models/chat_message.dart';
-import '../utils/websocket_service.dart';
-import '../widgets/user_list_tile.dart';
-import '../widgets/message_bubble.dart';
 import '../utils/constants.dart';
+import '../utils/jwt_utils.dart';
+import '../utils/websocket_service.dart';
+import '../widgets/message_bubble.dart';
+import '../widgets/user_list_tile.dart';
 
 class ChatPage extends StatefulWidget {
   final String userId;
@@ -60,6 +63,9 @@ class _ChatPageState extends State<ChatPage> {
           setState(() {
             messages.add(ChatMessage.fromJson(data));
           });
+        } else {
+          // notify user about the new message
+          _showInAppNotification(ChatMessage.fromJson(data));
         }
       },
     );
@@ -84,7 +90,8 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _fetchOnlineUsers() async {
-    final url = Uri.parse('http://localhost:8080/api/users/status/${widget.userId}');
+    final url =
+    Uri.parse('http://localhost:8080/api/users/status/${widget.userId}');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -98,14 +105,38 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  void _showInAppNotification(ChatMessage message) {
+    final senderName = onlineUsers
+        .firstWhere((user) => user['id'] == message.senderId,
+        orElse: () => {'username': 'Someone'})['username'];
+
+    final snackBar = SnackBar(
+      content: Text('$senderName sent you a message'),
+      action: SnackBarAction(
+        label: 'Open',
+        onPressed: () {
+          _selectUser(message.senderId);
+        },
+      ),
+      duration: const Duration(seconds: 5),
+      backgroundColor: Colors.grey[900],
+      behavior: SnackBarBehavior.floating,
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+
   Future<void> _loadChatHistory() async {
     if (selectedUserId == null) return;
 
-    final url = Uri.parse('http://localhost:8080/messages/${widget.userId}/$selectedUserId');
+    final url = Uri.parse(
+        'http://localhost:8080/messages/${widget.userId}/$selectedUserId');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
+        print("Data: $data");
         final List<ChatMessage> loadedMessages = data.map((json) {
           return ChatMessage(
             id: json['id'] ?? '',
@@ -113,6 +144,7 @@ class _ChatPageState extends State<ChatPage> {
             senderId: json['senderId'],
             recipientId: json['recipientId'],
             content: json['content'],
+            imageUrl: json['imageUrl'],
             senderType: json['senderType'] ?? 'user',
             timestamp: (json['timestamp'] != null)
                 ? DateTime.tryParse(json['timestamp'])?.toIso8601String() ?? DateTime.now().toIso8601String()
@@ -130,15 +162,17 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _sendMessage() {
+  Future<void> _sendMessage({String? imageUrl}) async {
     final content = controller.text.trim();
-    if (selectedUserId == null || content.isEmpty) return;
+    if (selectedUserId == null || (content.isEmpty && imageUrl == null)) return;
 
     final message = {
       "senderId": widget.userId,
       "recipientId": selectedUserId,
-      "content": content,
-      "senderType": "user"
+      "content": content.isEmpty ? null : content,
+      "imageUrl": imageUrl,
+      "senderType": "user",
+      "timestamp": DateTime.now().toIso8601String()
     };
 
     webSocketService.sendMessage(message);
@@ -149,6 +183,7 @@ class _ChatPageState extends State<ChatPage> {
         senderId: widget.userId,
         recipientId: selectedUserId!,
         content: content,
+        imageUrl: imageUrl,
         chatId: '',
         timestamp: DateTime.now().toIso8601String(),
         senderType: 'user',
@@ -156,6 +191,59 @@ class _ChatPageState extends State<ChatPage> {
       ));
     });
   }
+
+  Future<void> _pickAndSendImage() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Take a photo'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Choose from gallery'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: source);
+    if (pickedFile == null) return;
+
+    final token = await JwtUtils.getToken();
+    final uri = Uri.parse("http://localhost:8080/api/files/upload");
+
+    final request = http.MultipartRequest("POST", uri)
+      ..headers['Authorization'] = 'Bearer $token'
+      ..files.add(await http.MultipartFile.fromPath('file', pickedFile.path));
+
+    final response = await request.send();
+
+    if (response.statusCode == 200) {
+      final imageUrl = await response.stream.bytesToString();
+      await _sendMessage(imageUrl: imageUrl);
+    } else {
+      print("Image upload failed: ${response.statusCode}");
+    }
+  }
+
 
   void _selectUser(String userId) async {
     setState(() {
@@ -202,7 +290,6 @@ class _ChatPageState extends State<ChatPage> {
           // Main chat content
           Column(
             children: [
-              // Header
               Container(
                 color: AppColors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -217,8 +304,12 @@ class _ChatPageState extends State<ChatPage> {
                       CircleAvatar(
                         backgroundColor: AppColors.red.withOpacity(0.1),
                         child: Text(
-                          selectedUsername!.isNotEmpty ? selectedUsername![0].toUpperCase() : '?',
-                          style: const TextStyle(color: AppColors.red, fontWeight: FontWeight.bold),
+                          selectedUsername!.isNotEmpty
+                              ? selectedUsername![0].toUpperCase()
+                              : '?',
+                          style: const TextStyle(
+                              color: AppColors.red,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                     const SizedBox(width: 12),
@@ -228,11 +319,14 @@ class _ChatPageState extends State<ChatPage> {
                         children: [
                           Text(
                             selectedUsername ?? 'Select a user',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
                             overflow: TextOverflow.ellipsis,
                           ),
                           if (selectedUsername != null)
-                            const Text('Online', style: TextStyle(color: Colors.green, fontSize: 12)),
+                            const Text('Online',
+                                style:
+                                TextStyle(color: Colors.green, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -250,14 +344,14 @@ class _ChatPageState extends State<ChatPage> {
                 ),
               ),
 
-              // Chat area
               Expanded(
                 child: Container(
                   color: AppColors.grey.withOpacity(0.2),
                   child: selectedUserId == null
                       ? Center(
                     child: Text('Select a user to start chatting',
-                        style: TextStyle(color: Colors.black.withOpacity(0.5))),
+                        style: TextStyle(
+                            color: Colors.black.withOpacity(0.5))),
                   )
                       : ListView.builder(
                     padding: const EdgeInsets.all(16),
@@ -265,18 +359,25 @@ class _ChatPageState extends State<ChatPage> {
                     itemBuilder: (_, index) {
                       final msg = messages[index];
                       final isSender = msg.senderId == widget.userId;
-                      return MessageBubble(content: msg.content, isSender: isSender);
+                      return MessageBubble(
+                        content: msg.content,
+                        isSender: isSender,
+                        imageUrl: msg.imageUrl,
+                      );
                     },
                   ),
                 ),
               ),
 
-              // Message input
               Container(
                 padding: const EdgeInsets.all(12),
                 color: AppColors.white,
                 child: Row(
                   children: [
+                    IconButton(
+                      icon: const Icon(Icons.image),
+                      onPressed: _pickAndSendImage,
+                    ),
                     Expanded(
                       child: TextField(
                         controller: controller,
@@ -284,7 +385,8 @@ class _ChatPageState extends State<ChatPage> {
                           hintText: 'Type a message...',
                           fillColor: AppColors.grey.withOpacity(0.2),
                           filled: true,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(24),
                             borderSide: BorderSide.none,
@@ -298,7 +400,7 @@ class _ChatPageState extends State<ChatPage> {
                       backgroundColor: AppColors.red,
                       child: IconButton(
                         icon: const Icon(Icons.send, color: Colors.white),
-                        onPressed: _sendMessage,
+                        onPressed: () => _sendMessage(),
                       ),
                     ),
                   ],
@@ -331,7 +433,10 @@ class _ChatPageState extends State<ChatPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Online Users', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          const Text('Online Users',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold)),
                           IconButton(
                             icon: const Icon(Icons.close, color: Colors.white),
                             onPressed: _toggleSidebar,

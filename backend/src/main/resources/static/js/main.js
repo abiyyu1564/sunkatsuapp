@@ -500,11 +500,11 @@ function displayOnlineUsers(users) {
 }
 
 function onLogout() {
-  stompClient.send(
-    "/app/customer.disconnectCustomer",
-    {},
-    JSON.stringify({ customerId: customerId })
-  );
+  // stompClient.send(
+  //   "/app/customer.disconnectCustomer",
+  //   {},
+  //   JSON.stringify({ customerId: customerId })
+  // );
   window.location.href = "http://localhost:3000/menu";
 }
 
