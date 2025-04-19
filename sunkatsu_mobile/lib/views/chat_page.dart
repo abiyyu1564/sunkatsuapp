@@ -3,13 +3,15 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../models/chat_message.dart';
 import '../utils/constants.dart';
 import '../utils/jwt_utils.dart';
 import '../utils/websocket_service.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/user_list_tile.dart';
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 class ChatPage extends StatefulWidget {
   final String userId;
@@ -22,6 +24,8 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
   List<ChatMessage> messages = [];
   List<Map<String, dynamic>> onlineUsers = [];
   String? selectedUserId;
@@ -35,6 +39,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
+    _initializeNotifications();
     _loadUserDetails();
     _initWebSocket();
     _pollUsers();
@@ -55,17 +60,68 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  Future<void> _initializeNotifications() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    final InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+    );
+
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  Future<void> _showSystemNotification(ChatMessage message) async {
+    final senderName = onlineUsers
+        .firstWhere((user) => user['id'] == message.senderId,
+        orElse: () => {'username': 'Someone'})['username'];
+
+    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+      'chat_channel', // channel id
+      'Chat Messages', // channel name
+      channelDescription: 'Notification for chat messages',
+      importance: Importance.high,
+      priority: Priority.high,
+      showWhen: true,
+    );
+
+    const NotificationDetails platformDetails = NotificationDetails(
+      android: androidDetails,
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      DateTime.now().millisecondsSinceEpoch ~/ 1000, // id
+      '$senderName sent a message',
+      message.content?.isNotEmpty == true ? message.content : '[Image]',
+      platformDetails,
+    );
+  }
+
+
   void _initWebSocket() {
     webSocketService = WebSocketService(
       userId: widget.userId,
       onMessageReceived: (data) {
-        if (selectedUserId == data['senderId']) {
+        final incomingMessage = ChatMessage.fromJson(data);
+
+        if (selectedUserId == incomingMessage.senderId) {
           setState(() {
-            messages.add(ChatMessage.fromJson(data));
+            messages.add(incomingMessage);
           });
+          WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
         } else {
-          // notify user about the new message
-          _showInAppNotification(ChatMessage.fromJson(data));
+          _showInAppNotification(incomingMessage);
+          _showSystemNotification(incomingMessage);
         }
       },
     );
@@ -190,6 +246,7 @@ class _ChatPageState extends State<ChatPage> {
         id: '',
       ));
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
   }
 
   Future<void> _pickAndSendImage() async {
@@ -354,6 +411,7 @@ class _ChatPageState extends State<ChatPage> {
                             color: Colors.black.withOpacity(0.5))),
                   )
                       : ListView.builder(
+                    controller: _scrollController,
                     padding: const EdgeInsets.all(16),
                     itemCount: messages.length,
                     itemBuilder: (_, index) {
