@@ -28,17 +28,22 @@ public class ChatController {
     public void processMessage(@Payload ChatMessage chatMessage) {
         ChatMessage savedMsg = chatMessageService.save(chatMessage);
 
-        // Kirim notifikasi ke penerima berdasarkan ID
+        String previewText = savedMsg.getContent();
+        if ((previewText == null || previewText.isBlank()) && savedMsg.getImageUrl() != null) {
+            previewText = "📷 Image";
+        }
+
         messagingTemplate.convertAndSendToUser(
                 chatMessage.getRecipientId(), "/queue/messages",
                 new ChatNotification(
                         savedMsg.getId(),
                         savedMsg.getSenderId(),
                         savedMsg.getRecipientId(),
-                        savedMsg.getContent()
+                        previewText
                 )
         );
     }
+
 
     @Operation(
         summary = "Get all chat messages",

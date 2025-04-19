@@ -27,7 +27,7 @@
       <div class="chat-area">
         <div class="chat-area" id="chat-messages"></div>
 
-        <form id="messageForm" name="messageForm">
+        <form id="messageForm" name="messageForm" enctype="multipart/form-data">
           <div class="message-input">
             <input
               autocomplete="off"
@@ -35,9 +35,10 @@
               id="message"
               placeholder="Type your message..."
             />
+            <input type="file" id="imageInput" accept="image/*" />
             <button>Send</button>
           </div>
-        </form>
+        </form>        
       </div>
     </div>
 
