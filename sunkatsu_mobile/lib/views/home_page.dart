@@ -42,27 +42,55 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: AppColors.whiteBG,
       appBar: AppBar(
-        title: const Text(''),
+        title: const Text('HomePage'),
         backgroundColor: AppColors.white,
         elevation: 0,
         actions: [
+          // Button 1: Location
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 6),
             child: IconButton(
               icon: SvgPicture.asset(
-                '/assets/icons/location.svg',
+                'assets/icons/location.svg',  // remove leading slash
                 width: 24,
                 height: 24,
-                color: AppColors.black,
               ),
               onPressed: () {
-                // Action when location icon is clicked
                 print('Location icon clicked');
+              },
+            ),
+          ),
+          // Button 2: Cart
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: IconButton(
+              icon: SvgPicture.asset(
+                'assets/icons/heart.svg',
+                width: 24,
+                height: 24,
+              ),
+              onPressed: () {
+                print('Cart icon clicked');
+              },
+            ),
+          ),
+          // Button 3: Notification
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: IconButton(
+              icon: SvgPicture.asset(
+                'assets/icons/notification.svg',
+                width: 24,
+                height: 24,
+              ),
+              onPressed: () {
+                print('Notification icon clicked');
               },
             ),
           ),
         ],
       ),
+
       body: SingleChildScrollView(  // Wrap the entire body content with SingleChildScrollView
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
