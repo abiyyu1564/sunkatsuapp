@@ -1,7 +1,8 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import '../utils/constants.dart';
-import 'login_page.dart';
+import 'dart:async';
+
+import 'package:sunkatsu_mobile/utils/constants.dart';
+import 'package:sunkatsu_mobile/views/welcome_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -10,172 +11,125 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
-  // Single controller for the text animations with longer duration
-  late AnimationController _textAnimationController;
-  late Animation<Offset> _slideAnimation;
-  late Animation<double> _scaleAnimation;
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _textController;
+  late AnimationController _bgColorController;
 
-  // Controllers for fade animations
-  late AnimationController _logoController;
-  late Animation<double> _logoOpacity;
+  late Animation<double> _textOpacity;
+  late Animation<Color?> _backgroundColor;
 
-  late AnimationController _sloganController;
-  late Animation<double> _sloganOpacity;
+  late Animation<Offset> _textSlide;
+  late Animation<Color?> _textColor;
 
   @override
   void initState() {
     super.initState();
 
-
-    _textAnimationController = AnimationController(
+    // Background color transition controller
+    _bgColorController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 800),
     );
 
+    _backgroundColor = ColorTween(
+      begin: AppColors.red, // Start with red
+      end: AppColors.whiteBG, // End with white
+    ).animate(_bgColorController);
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 1.5),
-      end: Offset.zero,
+    // Text fade-in controller
+    _textController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    _textOpacity = Tween<double>(
+      begin: 1,
+      end: 1,
     ).animate(CurvedAnimation(
-      parent: _textAnimationController,
-      // First 60% of the animation
-      curve: const Interval(0.0, 0.6, curve: Curves.easeOutCubic),
+      parent: _textController,
+      curve: const Cubic(0.25, 1, 0.5, 1),
     ));
 
-    _scaleAnimation = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 36, end: 36),
-        weight: 60,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 36, end: 72)
-            .chain(CurveTween(curve: Curves.easeOutBack)),
-        weight: 40,
-      ),
-    ]).animate(_textAnimationController);
+    _textSlide = Tween<Offset>(
+      begin: const Offset(0, 8),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _textController,
+      curve: const Cubic(0.25, 1, 0.5, 1),
+    ));
 
-    // Logo fade animation
-    _logoController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-    _logoOpacity = CurvedAnimation(
-      parent: _logoController,
-      curve: Curves.easeIn,
-    );
+    _textColor = ColorTween(
+      begin: AppColors.white,
+      end: AppColors.red,
+    ).animate(_bgColorController);
 
-    // Slogan fade animation
-    _sloganController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-    _sloganOpacity = CurvedAnimation(
-      parent: _sloganController,
-      curve: Curves.easeIn,
-    );
-
-    _startAnimationSequence();
+    _startSequence();
   }
 
-  Future<void> _startAnimationSequence() async {
-    // Start the text animation
-    _textAnimationController.forward();
-
-    // Wait for the slide to complete before showing the logo
+  Future<void> _startSequence() async {
+    // Wait a little before showing text
     await Future.delayed(const Duration(milliseconds: 800));
+    _textController.forward();
 
-    // Start logo fade in
-    _logoController.forward();
+    // Wait more, then start background color transition
+    await Future.delayed(const Duration(milliseconds: 1000));
+    _bgColorController.forward();
 
-    // Wait a bit before showing the slogan
-    await Future.delayed(const Duration(milliseconds: 300));
+    // Then wait a bit before navigating to next screen
+    await Future.delayed(const Duration(milliseconds: 1000));
+    _navigateToWelcomePage();
+  }
 
-    // Start slogan fade in
-    _sloganController.forward();
-
-    // After all animations complete, move to login
-    await Future.delayed(const Duration(milliseconds: 1500));
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-      );
-    }
+  void _navigateToWelcomePage() {
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 800),
+        pageBuilder: (context, animation,
+            secondaryAnimation) => const WelcomePage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+      ),
+    );
   }
 
   @override
   void dispose() {
-    _textAnimationController.dispose();
-    _logoController.dispose();
-    _sloganController.dispose();
+    _textController.dispose();
+    _bgColorController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      body: Center(
-        child: AnimatedBuilder(
-          animation: Listenable.merge([
-            _textAnimationController,
-            _logoController,
-            _sloganController,
-          ]),
-          builder: (context, _) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Text with combined slide and scale animations
-                SlideTransition(
-                  position: _slideAnimation,
-                  child: Text(
-                    "Sunkatsu",
-                    style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.bold,
-                      fontSize: _scaleAnimation.value,
-                      color: AppColors.red,
-                      letterSpacing: 1.5,
-                      // Add a subtle shadow for better visibility
-                      shadows: [
-                        Shadow(
-                          color: AppColors.black.withOpacity(0.2),
-                          offset: const Offset(1, 1),
-                          blurRadius: 2,
-                        ),
-                      ],
-                    ),
+    return AnimatedBuilder(
+      animation: Listenable.merge([_textController, _bgColorController]),
+      builder: (context, child) {
+        return Scaffold(
+          backgroundColor: _backgroundColor.value,
+          body: Center(
+            child: SlideTransition(
+              position: _textSlide,
+              child: Opacity(
+                opacity: _textOpacity.value,
+                child: Text(
+                  'Sunkatsu',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 60,
+                    fontWeight: FontWeight.bold,
+                    color: _textColor.value,
                   ),
                 ),
-                const SizedBox(height: 24),
-                // Logo with fade animation
-                FadeTransition(
-                  opacity: _logoOpacity,
-                  child: Image.asset(
-                    'assets/logo.png',
-                    width: 120,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Slogan with fade animation
-                FadeTransition(
-                  opacity: _sloganOpacity,
-                  child: const Text(
-                    "Oriental Chicken Katsu",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontStyle: FontStyle.italic,
-                      color: AppColors.black,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
-
