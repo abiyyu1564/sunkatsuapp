@@ -4,15 +4,10 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:sunkatsu_mobile/utils/constants.dart';
+import 'package:sunkatsu_mobile/views/home_page.dart';
 import '../views/sign_up_page.dart';
 import '../views/chat_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -32,9 +27,7 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     _loadRememberedUsername();
-    Firebase.initializeApp(); // Pastikan Firebase sudah di-setup
   }
-
   void _loadRememberedUsername() async {
     final prefs = await SharedPreferences.getInstance();
     final rememberedUsername = prefs.getString('remembered_username');
@@ -45,7 +38,6 @@ class _LoginPageState extends State<LoginPage> {
       });
     }
   }
-
   void _handleLogin() async {
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
@@ -91,46 +83,12 @@ class _LoginPageState extends State<LoginPage> {
       );
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => ChatPage(userId: userId)),
+        MaterialPageRoute(builder: (_) => HomePage()),
       );
     } else {
       final responseBody = jsonDecode(response.body);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(responseBody['message'])),
-      );
-    }
-  }
-  Future<void> _handleGoogleSignIn() async {
-    try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) return; // Batal login
-
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-      final user = userCredential.user;
-
-      if (user != null) {
-        final token = await user.getIdToken();
-        await _storage.write(key: 'token', value: token);
-
-        if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Signed in with Google')),
-        );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => ChatPage(userId: user.uid)),
-        );
-      }
-    } catch (e) {
-      print('Google sign-in error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Google login failed: $e')),
       );
     }
   }
@@ -280,21 +238,6 @@ class _LoginPageState extends State<LoginPage> {
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: AppColors.white),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: _handleGoogleSignIn,
-                      icon: const Icon(Icons.g_mobiledata_rounded),
-                      label: const Text(
-                        'Continue with Google',
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.black),
                       ),
                     ),
                   ),
