@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:sunkatsu_mobile/utils/constants.dart';
 import 'package:sunkatsu_mobile/widgets/menu_item_card_big.dart';
 import 'package:sunkatsu_mobile/widgets/menu_item_card_small.dart';
-import 'package:sunkatsu_mobile/widgets/nav_bar.dart'; // Impor MyNavBar
+import 'package:sunkatsu_mobile/widgets/nav_bar.dart';
 import 'package:sunkatsu_mobile/widgets/search_bar.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:sunkatsu_mobile/views/chat_page.dart';
+import 'package:sunkatsu_mobile/views/chatbot_page.dart';
+import 'package:sunkatsu_mobile/utils/jwt_utils.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,7 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentIndex = 0; // Menambahkan variabel untuk track index navbar
+  int _currentIndex = 0;
   List<String> _searchResults = [];
   List<String> _dummyData = List.generate(
     10,
@@ -23,14 +26,12 @@ class _HomePageState extends State<HomePage> {
 
   void _search(String query) {
     setState(() {
-      _searchResults =
-          _dummyData
-              .where((item) => item.toLowerCase().contains(query.toLowerCase()))
-              .toList();
+      _searchResults = _dummyData
+          .where((item) => item.toLowerCase().contains(query.toLowerCase()))
+          .toList();
     });
   }
 
-  // Fungsi untuk menangani tap pada navbar
   void _onNavbarTapped(int index) {
     setState(() {
       _currentIndex = index;
@@ -46,31 +47,48 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: AppColors.white,
         elevation: 0,
         actions: [
-          // Button 1: Location
+          // Button 1: Chat
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),
             child: IconButton(
               icon: SvgPicture.asset(
-                'assets/icons/location.svg',  // remove leading slash
+                'assets/icons/chat_icon.svg',
                 width: 24,
                 height: 24,
               ),
-              onPressed: () {
-                print('Location icon clicked');
+              onPressed: () async {
+                final userId = await JwtUtils.getUserId();
+                if (userId != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatPage(userId: userId),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('You must login first!')),
+                  );
+                }
               },
             ),
           ),
-          // Button 2: Cart
+          // Button 2: Chatbot
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),
             child: IconButton(
               icon: SvgPicture.asset(
-                'assets/icons/heart.svg',
+                'assets/icons/chatbot_icon.svg',
                 width: 24,
                 height: 24,
               ),
               onPressed: () {
-                print('Cart icon clicked');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ChatbotPage(),
+                  ),
+                );
               },
             ),
           ),
@@ -90,8 +108,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-
-      body: SingleChildScrollView(  // Wrap the entire body content with SingleChildScrollView
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
@@ -102,7 +119,7 @@ class _HomePageState extends State<HomePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     'Your trusted picks!',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
@@ -117,7 +134,7 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 16),
               SizedBox(
-                height: 220, // tinggi scroll area
+                height: 220,
                 child: GridView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: 6,
@@ -131,23 +148,20 @@ class _HomePageState extends State<HomePage> {
                     return MenuItemCardSmall(
                       imageUrl: 'assets/images/food.png',
                       title: 'Chicken Katsu',
-                      desc:
-                      'Tasty and crispy! Tasty and crispy! Tasty and crispy! Tasty and crispy!',
+                      desc: 'Tasty and crispy! Tasty and crispy! Tasty and crispy!',
                       price: 25000,
                     );
                   },
                 ),
               ),
               const SizedBox(height: 20),
-              // Correctly placed Text widget for "Recommendation"
-              Text(
+              const Text(
                 'Recommendation',
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 16),
-              // Second GridView for Recommendations
               SizedBox(
-                height: 380, // tinggi scroll area
+                height: 380,
                 child: GridView.builder(
                   scrollDirection: Axis.vertical,
                   itemCount: 6,
@@ -161,8 +175,7 @@ class _HomePageState extends State<HomePage> {
                     return MenuItemCardBig(
                       imageUrl: 'assets/images/food.png',
                       title: 'Chicken Katsu',
-                      desc:
-                      'Tasty and crispy! Tasty and crispy! Tasty and crispy! Tasty and crispy!',
+                      desc: 'Tasty and crispy! Tasty and crispy! Tasty and crispy!',
                       price: 25000,
                     );
                   },
@@ -173,8 +186,8 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       bottomNavigationBar: MyNavBar(
-        currentIndex: _currentIndex, // Menambahkan currentIndex
-        onTap: _onNavbarTapped, // Menghubungkan dengan fungsi _onNavbarTapped
+        currentIndex: _currentIndex,
+        onTap: _onNavbarTapped,
       ),
     );
   }
