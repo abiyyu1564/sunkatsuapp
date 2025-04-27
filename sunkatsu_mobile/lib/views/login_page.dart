@@ -7,7 +7,6 @@ import 'package:sunkatsu_mobile/utils/constants.dart';
 import '../views/sign_up_page.dart';
 import '../views/chat_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -57,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    final url = Uri.parse('http://10.0.2.2:8080/api/auth/login');
+    final url = Uri.parse('http://localhost:8080/api/auth/login');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
