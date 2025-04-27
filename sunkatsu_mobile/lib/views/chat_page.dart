@@ -353,6 +353,14 @@ class _ChatPageState extends State<ChatPage> {
                 child: Row(
                   children: [
                     IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+
+                    // Keep your MENU (sidebar) button untouched
+                    IconButton(
                       icon: const Icon(Icons.menu),
                       onPressed: _toggleSidebar,
                     ),
@@ -501,6 +509,14 @@ class _ChatPageState extends State<ChatPage> {
                           )
                         ],
                       ),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.arrow_back, color: Colors.white),
+                      title: const Text('Back to Home', style: TextStyle(color: Colors.white)),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      tileColor: AppColors.black, // match sidebar background
                     ),
                     Expanded(
                       child: ListView.builder(
