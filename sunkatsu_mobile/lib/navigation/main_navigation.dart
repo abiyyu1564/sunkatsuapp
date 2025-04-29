@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sunkatsu_mobile/views/home_page.dart';
-import 'package:sunkatsu_mobile/views/order_page.dart';
+import 'package:sunkatsu_mobile/views/cart_page.dart';
 import 'package:sunkatsu_mobile/widgets/nav_bar.dart';
 
 
@@ -17,8 +17,8 @@ class _MainNavigationState extends State<MainNavigation> {
   final List<Widget> _pages = const [
     HomePage(),
     Placeholder(),
+    CartPage(),
     Placeholder(),
-    OrderPage(),
     Placeholder(),
   ];
 
