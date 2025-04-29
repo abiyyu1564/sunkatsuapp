@@ -21,8 +21,8 @@ class CartItemWidget extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade400),
       ),
       child: Row(
         children: [
@@ -31,28 +31,31 @@ class CartItemWidget extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                item.image,
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-                // Use a placeholder for now
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 80,
-                    height: 80,
-                    color: Colors.grey.shade200,
-                    child: Icon(Icons.image, color: Colors.grey.shade400),
-                  );
-                },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Image.asset(
+                  item.image,
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.fitHeight,
+                  // Use a placeholder for now
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 80,
+                      height: 80,
+                      color: Colors.grey.shade200,
+                      child: Icon(Icons.image, color: Colors.grey.shade400),
+                    );
+                  },
+                ),
               ),
             ),
           ),
           // Vertical divider
           Container(
-            height: 80,
+            height: 100,
             width: 1,
-            color: Colors.grey.shade300,
+            color: Colors.black,
           ),
           // Product details
           Expanded(
@@ -61,17 +64,20 @@ class CartItemWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    item.name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: textColor,
+                  Center(
+                    child: Text(
+                      item.name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 24,
+                        fontFamily: 'Montserrat',
+                        color: textColor,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       // Quantity controls
                       Row(
@@ -92,7 +98,7 @@ class CartItemWidget extends StatelessWidget {
                               ),
                               child: Icon(
                                 Icons.remove,
-                                size: 16,
+                                size: 24,
                                 color: textColor,
                               ),
                             ),
@@ -102,7 +108,8 @@ class CartItemWidget extends StatelessWidget {
                             child: Text(
                               item.quantity.toString(),
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w400,
+                                fontSize: 20,
                                 color: textColor,
                               ),
                             ),
@@ -121,7 +128,7 @@ class CartItemWidget extends StatelessWidget {
                               ),
                               child: Icon(
                                 Icons.add,
-                                size: 16,
+                                size: 24,
                                 color: textColor,
                               ),
                             ),
@@ -131,11 +138,14 @@ class CartItemWidget extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    'Price: Rp. ${item.price}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: textColor.withOpacity(0.8),
+                  Center(
+                    child: Text(
+                      'Price: Rp. ${item.price}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14,
+                        color: textColor.withOpacity(0.8),
+                      ),
                     ),
                   ),
                 ],

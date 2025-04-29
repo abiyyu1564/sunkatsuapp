@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sunkatsu_mobile/widgets/cart_item.dart';
+import 'package:intl/intl.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -9,10 +10,14 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-  bool selectAll = false;
-  int designVersion = 1; // 1, 2, 3, or 4 corresponding to the designs
 
   // Cart items
+  void addItem(CartItem newItem) {
+    setState(() {
+      items.add(newItem);
+    });
+  }
+  // Sample cart items
   final List<CartItem> items = [
     CartItem(
       name: "Chicken Katsu",
@@ -42,6 +47,19 @@ class _CartPageState extends State<CartPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+            'Your Cart',
+        style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontSize: 30,
+            fontWeight: FontWeight.w700,
+          ),
+      ),
+        backgroundColor: const Color(0xFFE05151),
+        foregroundColor: Colors.white,
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -51,35 +69,6 @@ class _CartPageState extends State<CartPage> {
                 child: Column(
                   children: [
                     // Select all button
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            selectAll = !selectAll;
-                            for (var item in items) {
-                              item.isSelected = selectAll;
-                            }
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: designVersion == 4
-                              ? const Color(0xFFE05151)
-                              : Colors.white,
-                          foregroundColor: designVersion == 4
-                              ? Colors.white
-                              : Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            side: const BorderSide(color: Colors.grey),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: const Text('Select all'),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    // Cart items
                     Expanded(
                       child: ListView.builder(
                         itemCount: items.length,
@@ -87,23 +76,12 @@ class _CartPageState extends State<CartPage> {
                           final item = items[index];
                           // Determine background color based on design version
                           Color? backgroundColor;
-                          if (designVersion == 1) {
-                            backgroundColor = Colors.white;
-                          } else if (designVersion == 2) {
-                            backgroundColor = index == 0
-                                ? const Color(0xFFE05151)
-                                : Colors.white;
-                          } else if (designVersion == 3 || designVersion == 4) {
-                            backgroundColor = const Color(0xFFE05151);
-                          }
+                          backgroundColor = Colors.white;
 
                           return CartItemWidget(
                             item: item,
                             backgroundColor: backgroundColor,
-                            textColor: (designVersion == 3 || designVersion == 4 ||
-                                (designVersion == 2 && index == 0))
-                                ? Colors.white
-                                : Colors.black,
+                            textColor: Colors.black,
                             onQuantityChanged: (newQuantity) {
                               setState(() {
                                 item.quantity = newQuantity;
@@ -141,7 +119,7 @@ class _CartPageState extends State<CartPage> {
                             ),
                           ),
                           Text(
-                            'Rp ${totalAmount == 0 ? "0" : totalAmount.toString()}',
+                            'Rp ${totalAmount == 0 ? "0" : NumberFormat("#,###", "id_ID").format(totalAmount)}',
                             style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               fontFamily: 'Montserrat',
