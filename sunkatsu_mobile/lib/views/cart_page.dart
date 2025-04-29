@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sunkatsu_mobile/widgets/cart_item.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -16,19 +17,19 @@ class _CartPageState extends State<CartPage> {
     CartItem(
       name: "Chicken Katsu",
       price: 25000,
-      image: "assets/images/chicken_katsu.png",
+      image: "assets/images/food.png",
       quantity: 1,
     ),
     CartItem(
       name: "Ice Tea",
       price: 10000,
-      image: "assets/images/ice_tea.png",
+      image: "assets/images/drink.png",
       quantity: 1,
     ),
     CartItem(
       name: "Oreo Ice Cream",
       price: 15000,
-      image: "assets/images/oreo_ice_cream.png",
+      image: "assets/images/dessert.png",
       quantity: 1,
     ),
   ];
@@ -95,7 +96,7 @@ class _CartPageState extends State<CartPage> {
                           } else if (designVersion == 3 || designVersion == 4) {
                             backgroundColor = const Color(0xFFE05151);
                           }
-        
+
                           return CartItemWidget(
                             item: item,
                             backgroundColor: backgroundColor,
@@ -136,14 +137,15 @@ class _CartPageState extends State<CartPage> {
                             'Total amount',
                             style: TextStyle(
                               color: Colors.grey,
-                              fontSize: 12,
+                              fontSize: 14,
                             ),
                           ),
                           Text(
                             'Rp ${totalAmount == 0 ? "0" : totalAmount.toString()}',
                             style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              fontFamily: 'Montserrat',
+                              fontSize: 24,
                               color: Colors.red,
                             ),
                           ),
@@ -190,149 +192,3 @@ class CartItem {
   });
 }
 
-class CartItemWidget extends StatelessWidget {
-  final CartItem item;
-  final Color? backgroundColor;
-  final Color textColor;
-  final Function(int) onQuantityChanged;
-
-  const CartItemWidget({
-    Key? key,
-    required this.item,
-    this.backgroundColor,
-    this.textColor = Colors.black,
-    required this.onQuantityChanged,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Row(
-        children: [
-          // Product image
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                item.image,
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-                // Use a placeholder for now
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 80,
-                    height: 80,
-                    color: Colors.grey.shade200,
-                    child: Icon(Icons.image, color: Colors.grey.shade400),
-                  );
-                },
-              ),
-            ),
-          ),
-          // Vertical divider
-          Container(
-            height: 80,
-            width: 1,
-            color: Colors.grey.shade300,
-          ),
-          // Product details
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: textColor,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Quantity controls
-                      Row(
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              if (item.quantity > 1) {
-                                onQuantityChanged(item.quantity - 1);
-                              }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: textColor.withOpacity(0.5),
-                                ),
-                              ),
-                              child: Icon(
-                                Icons.remove,
-                                size: 16,
-                                color: textColor,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Text(
-                              item.quantity.toString(),
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: textColor,
-                              ),
-                            ),
-                          ),
-                          InkWell(
-                            onTap: () {
-                              onQuantityChanged(item.quantity + 1);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: textColor.withOpacity(0.5),
-                                ),
-                              ),
-                              child: Icon(
-                                Icons.add,
-                                size: 16,
-                                color: textColor,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Price: Rp. ${item.price}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: textColor.withOpacity(0.8),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
