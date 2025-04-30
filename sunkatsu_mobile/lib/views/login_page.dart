@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'package:sunkatsu_mobile/navigation/main_navigation.dart';
 import 'package:sunkatsu_mobile/utils/constants.dart';
 import 'package:sunkatsu_mobile/views/home_page.dart';
 import '../views/sign_up_page.dart';
@@ -53,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    final url = Uri.parse('http://localhost:8080/api/auth/login');
+    final url = Uri.parse('http://10.0.2.2:8080/api/auth/login');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -85,9 +86,10 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Signed in successfully')),
       );
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => HomePage()),
+        MaterialPageRoute(builder: (_) => MainNavigation()),
+          (route) => false,
       );
     } else {
       final responseBody = jsonDecode(response.body);

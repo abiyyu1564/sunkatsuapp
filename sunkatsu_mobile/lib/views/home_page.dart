@@ -185,10 +185,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      bottomNavigationBar: MyNavBar(
-        currentIndex: _currentIndex,
-        onTap: _onNavbarTapped,
-      ),
     );
   }
 }
