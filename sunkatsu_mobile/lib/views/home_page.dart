@@ -8,6 +8,7 @@ import 'package:sunkatsu_mobile/widgets/search_bar.dart';
 import 'package:sunkatsu_mobile/views/chat_page.dart';
 import 'package:sunkatsu_mobile/views/chatbot_page.dart';
 import 'package:sunkatsu_mobile/utils/jwt_utils.dart';
+import 'package:sunkatsu_mobile/views/menu_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -124,7 +125,12 @@ class _HomePageState extends State<HomePage> {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MenuPage()),
+                      );
+                    },
                     child: const Text(
                       'View All',
                       style: TextStyle(fontSize: 12, color: AppColors.black),
