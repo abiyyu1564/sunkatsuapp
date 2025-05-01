@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:sunkatsu_mobile/utils/constants.dart';
+import 'package:sunkatsu_mobile/views/notification_page.dart';
 import 'package:sunkatsu_mobile/widgets/menu_item_card_big.dart';
 import 'package:sunkatsu_mobile/widgets/menu_item_card_small.dart';
 import 'package:sunkatsu_mobile/widgets/nav_bar.dart';
@@ -22,14 +23,15 @@ class _HomePageState extends State<HomePage> {
   List<String> _searchResults = [];
   List<String> _dummyData = List.generate(
     10,
-        (index) => 'Search result $index',
+    (index) => 'Search result $index',
   );
 
   void _search(String query) {
     setState(() {
-      _searchResults = _dummyData
-          .where((item) => item.toLowerCase().contains(query.toLowerCase()))
-          .toList();
+      _searchResults =
+          _dummyData
+              .where((item) => item.toLowerCase().contains(query.toLowerCase()))
+              .toList();
     });
   }
 
@@ -86,9 +88,7 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const ChatbotPage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const ChatbotPage()),
                 );
               },
             ),
@@ -103,7 +103,12 @@ class _HomePageState extends State<HomePage> {
                 height: 24,
               ),
               onPressed: () {
-                print('Notification icon clicked');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NotificationPage(),
+                  ),
+                );
               },
             ),
           ),
@@ -128,7 +133,9 @@ class _HomePageState extends State<HomePage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const MenuPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const MenuPage(),
+                        ),
                       );
                     },
                     child: const Text(
@@ -154,17 +161,15 @@ class _HomePageState extends State<HomePage> {
                     return MenuItemCardSmall(
                       imageUrl: 'assets/images/food.png',
                       title: 'Chicken Katsu',
-                      desc: 'Tasty and crispy! Tasty and crispy! Tasty and crispy!',
+                      desc:
+                          'Tasty and crispy! Tasty and crispy! Tasty and crispy!',
                       price: 25000,
                     );
                   },
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
-                'Recommendation',
-                style: TextStyle(fontSize: 16),
-              ),
+              const Text('Recommendation', style: TextStyle(fontSize: 16)),
               const SizedBox(height: 16),
               SizedBox(
                 height: 380,
@@ -181,7 +186,8 @@ class _HomePageState extends State<HomePage> {
                     return MenuItemCardBig(
                       imageUrl: 'assets/images/food.png',
                       title: 'Chicken Katsu',
-                      desc: 'Tasty and crispy! Tasty and crispy! Tasty and crispy!',
+                      desc:
+                          'Tasty and crispy! Tasty and crispy! Tasty and crispy!',
                       price: 25000,
                     );
                   },

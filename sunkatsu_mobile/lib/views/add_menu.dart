@@ -63,10 +63,7 @@ class _AddMenuPageState extends State<AddMenuPage> {
                       onTap: () {
                         Navigator.pop(context);
                       },
-                      child: const Icon(
-                        Icons.arrow_back,
-                        color: Colors.white,
-                      ),
+                      child: const Icon(Icons.arrow_back, color: Colors.white),
                     ),
                   ),
                 ),
@@ -108,15 +105,35 @@ class _AddMenuPageState extends State<AddMenuPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Form fields
-                        _buildFormField('Menu name', nameController, 'Enter menu name'),
+                        _buildFormField(
+                          'Menu name',
+                          nameController,
+                          'Enter menu name',
+                        ),
                         const SizedBox(height: 16),
-                        _buildFormField('Menu category', categoryController, 'Select categories'),
+                        _buildFormField(
+                          'Menu category',
+                          categoryController,
+                          'Select categories',
+                        ),
                         const SizedBox(height: 16),
-                        _buildFormField('Menu price', priceController, 'Enter a price'),
+                        _buildFormField(
+                          'Menu price',
+                          priceController,
+                          'Enter a price',
+                        ),
                         const SizedBox(height: 16),
-                        _buildFormField('Menu description', descriptionController, 'Write description'),
+                        _buildFormField(
+                          'Menu description',
+                          descriptionController,
+                          'Write description',
+                        ),
                         const SizedBox(height: 16),
-                        _buildFormField('Menu image', imageController, 'Select image'),
+                        _buildFormField(
+                          'Menu image',
+                          imageController,
+                          'Select image',
+                        ),
 
                         const Spacer(),
 
@@ -127,7 +144,6 @@ class _AddMenuPageState extends State<AddMenuPage> {
                             color: Colors.grey,
                             thickness: 1,
                             height: 1,
-
                           ),
                         ),
 
@@ -155,7 +171,9 @@ class _AddMenuPageState extends State<AddMenuPage> {
                                     ),
                                   ),
                                   child: const Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 0),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 0,
+                                    ),
                                     child: Text(
                                       'Discard Change',
                                       style: TextStyle(
@@ -167,8 +185,9 @@ class _AddMenuPageState extends State<AddMenuPage> {
                                 ),
                               ),
 
-                              const SizedBox(width: 16), // Increased spacing between buttons
-
+                              const SizedBox(
+                                width: 16,
+                              ), // Increased spacing between buttons
                               // Save button
                               Expanded(
                                 child: ElevatedButton(
@@ -209,25 +228,20 @@ class _AddMenuPageState extends State<AddMenuPage> {
     );
   }
 
-  Widget _buildFormField(String label, TextEditingController controller, String hintText) {
+  Widget _buildFormField(
+    String label,
+    TextEditingController controller,
+    String hintText,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
         const SizedBox(height: 4),
         Container(
           decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(
-                color: Colors.grey[300]!,
-                width: 1,
-              ),
+              bottom: BorderSide(color: Colors.grey[300]!, width: 1),
             ),
           ),
           child: Row(
@@ -237,16 +251,11 @@ class _AddMenuPageState extends State<AddMenuPage> {
                   controller: controller,
                   decoration: InputDecoration(
                     hintText: hintText,
-                    hintStyle: TextStyle(
-                      color: Colors.grey[400],
-                      fontSize: 16,
-                    ),
+                    hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(vertical: 8),
                   ),
-                  style: const TextStyle(
-                    fontSize: 16,
-                  ),
+                  style: const TextStyle(fontSize: 16),
                 ),
               ),
               GestureDetector(
@@ -294,7 +303,8 @@ class _AddMenuPageState extends State<AddMenuPage> {
       'category': categoryController.text,
       'price': priceController.text,
       'description': descriptionController.text,
-      'image': imageController.text.isEmpty ? 'default.png' : imageController.text,
+      'image':
+          imageController.text.isEmpty ? 'default.png' : imageController.text,
     };
 
     // Return to previous screen with new menu data
