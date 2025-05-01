@@ -39,7 +39,7 @@ class UserListTile extends StatelessWidget {
         title: Text(
           username,
           style: TextStyle(
-            color: AppColors.white,
+            color: AppColors.black,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
