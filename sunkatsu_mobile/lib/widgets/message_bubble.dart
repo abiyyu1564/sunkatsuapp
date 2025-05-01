@@ -1,22 +1,30 @@
 import 'package:flutter/material.dart';
 import '../utils/constants.dart';
+import 'image_loader.dart'; // add this import
 
 class MessageBubble extends StatelessWidget {
-  final String content;
+  final String? content;
+  final String? imageUrl;
   final bool isSender;
 
   const MessageBubble({
     required this.content,
     required this.isSender,
+    this.imageUrl,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final bubbleColor = isSender ? AppColors.red : AppColors.white;
+    final textColor = isSender ? AppColors.white : AppColors.black;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        mainAxisAlignment: isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+        isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isSender)
             const CircleAvatar(
@@ -25,12 +33,11 @@ class MessageBubble extends StatelessWidget {
               child: Icon(Icons.person, size: 16, color: AppColors.white),
             ),
           if (!isSender) const SizedBox(width: 8),
-
           Flexible(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: isSender ? AppColors.red : AppColors.white,
+                color: bubbleColor,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
@@ -45,15 +52,23 @@ class MessageBubble extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Text(
-                content,
-                style: TextStyle(
-                  color: isSender ? AppColors.white : AppColors.black,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (content != null && content!.isNotEmpty)
+                    Text(
+                      content!,
+                      style: TextStyle(color: textColor),
+                    ),
+                  if (imageUrl != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: SecureImageLoader(imageUrl: imageUrl!),
+                    ),
+                ],
               ),
             ),
           ),
-
           if (isSender) const SizedBox(width: 8),
           if (isSender)
             const CircleAvatar(

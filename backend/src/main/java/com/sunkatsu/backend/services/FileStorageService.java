@@ -16,21 +16,31 @@ public class FileStorageService {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    public Path storeFile(MultipartFile file) throws IOException {
+    public String storeFile(MultipartFile file) throws IOException {
+        if (file.isEmpty()) return null;
+
+        Path uploadPath = Paths.get(uploadDir);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
         String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-        Path targetLocation = Paths.get(uploadDir).resolve(fileName);
+        Path targetLocation = uploadPath.resolve(fileName);
         Files.copy(file.getInputStream(), targetLocation);
-        return targetLocation;
+
+        return fileName; // just return filename, not full path
     }
 
-    public void deleteFile(Path path) {
-        File file = path.toFile();
-        if (file.exists()) {
-            file.delete();
+    public void deleteFile(String filename) {
+        Path path = Paths.get(uploadDir, filename);
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            System.out.println("Failed to delete: " + filename);
         }
     }
 
-    public String getImageURL(Path imagePath) {
-        return imagePath.toString();
+    public Path getFilePath(String filename) {
+        return Paths.get(uploadDir, filename);
     }
 }

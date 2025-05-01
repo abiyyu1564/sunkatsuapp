@@ -99,7 +99,7 @@ public class MenuController {
 
         // Validasi file: ukuran
         long fileSizeInBytes = file.getSize();
-        long maxFileSizeInBytes = 10 * 1024 * 1024; // 5 MB
+        long maxFileSizeInBytes = 10 * 1024 * 1024; // 10 MB
         if (fileSizeInBytes > maxFileSizeInBytes) {
             return ResponseEntity.badRequest().body(new Message("Error : Ukuran file terlalu besar, maksimal 10 MB"));
         }
