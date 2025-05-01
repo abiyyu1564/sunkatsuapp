@@ -58,7 +58,7 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   Future<void> fetchMenuItems() async {
-    const String apiUrl = 'http://192.168.0.114:8080/api/menus';
+    const String apiUrl = 'http://localhost:8080/api/menus';
     final token = await JwtUtils.getToken();
 
     if (token == null) {
@@ -85,7 +85,7 @@ class _MenuPageState extends State<MenuPage> {
           try {
             final imageResponse = await http.get(
               Uri.parse(
-                  'http://192.168.0.114:8080/api/menus/images/${item.imageUrl}'),
+                  'http://localhost:8080/api/menus/images/${item.imageUrl}'),
               headers: {
                 'Authorization': 'Bearer $token',
               },
@@ -198,10 +198,6 @@ class _MenuPageState extends State<MenuPage> {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: MyNavBar(
-        currentIndex: _currentIndex,
-        onTap: _onNavbarTapped,
       ),
     );
   }
