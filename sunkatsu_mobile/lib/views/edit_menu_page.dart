@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:sunkatsu_mobile/utils/jwt_utils.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
+
 
 class EditMenuPage extends StatefulWidget {
-  final String initialName;
-  final String initialCategory;
-  final String initialPrice;
-  final String initialDescription;
-  final String initialImage;
-  final String imageUrl;
+  final Map<String, dynamic> foodData;
 
-  const EditMenuPage({
-    super.key,
-    this.initialName = 'Chicken Katsu',
-    this.initialCategory = 'Food',
-    this.initialPrice = '25.000',
-    this.initialDescription = 'Lorem ipsum',
-    this.initialImage = 'Katsu.png',
-    this.imageUrl = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-kLxFO8TEkLK0da8yBegS4hwRpqNbTT.png',
-  });
+  const EditMenuPage({super.key, required this.foodData});
 
   @override
   State<EditMenuPage> createState() => _EditMenuPageState();
@@ -28,17 +23,162 @@ class _EditMenuPageState extends State<EditMenuPage> {
   late TextEditingController priceController;
   late TextEditingController descriptionController;
   late TextEditingController imageController;
+  String? imageToDisplay;
+  File? imageFile;
+
+  // Fungsi pilih gambar
+  Future<void> pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
+
+  // Fungsi Edit Menu
+  Future<void> _saveChanges(BuildContext context) async {
+    final token = await JwtUtils.getToken();
+    if (token == null) return;
+
+    final id = widget.foodData['id'];
+
+    // Buat URI dengan query parameters
+    final uri = Uri.parse('http://localhost:8080/api/menus/$id').replace(queryParameters: {
+      'name': nameController.text,
+      'price': priceController.text,
+      'desc': descriptionController.text,
+      'category': categoryController.text,
+      'nums_bought': (widget.foodData['nums_bought'] ?? 0).toString(),
+    });
+
+    try {
+      final request = http.MultipartRequest('PUT', uri)
+        ..headers['Authorization'] = 'Bearer $token';
+
+      // Jika user memilih gambar baru
+      if (imageFile != null) {
+        final fileName = imageFile!.path.split('/').last;
+        final mimeType = lookupMimeType(imageFile!.path);
+
+        debugPrint('🖼️ Selected image: $fileName (MIME: $mimeType)');
+
+        // Validasi MIME type agar sesuai backend
+        if (mimeType != 'image/jpeg' && mimeType != 'image/png') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("File harus berupa gambar .jpg/.jpeg atau .png")),
+          );
+          return;
+        }
+
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'file',
+            imageFile!.path,
+            contentType: MediaType.parse(mimeType!),
+          ),
+        );
+      } else {
+        debugPrint('📁 No new image selected. Using existing image.');
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        final updatedData = jsonDecode(response.body);
+
+        Navigator.pop(context, {
+          'name': nameController.text,
+          'price': int.tryParse(priceController.text) ?? 0,
+          'category': categoryController.text,
+          'description': descriptionController.text,
+          'image': updatedData['image'], // <-- ini yang AKURAT
+        });
+        return;
+      }
+
+
+      debugPrint("RESPONSE STATUS: ${response.statusCode}");
+      debugPrint("RESPONSE BODY: ${response.body}");
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Berhasil menyimpan perubahan")),
+        );
+        Navigator.pop(context, {
+          'name': nameController.text,
+          'price': int.tryParse(priceController.text) ?? 0,
+          'category': categoryController.text,
+          'description': descriptionController.text,
+          'image': imageFile != null
+              ? imageFile!.path.split('/').last // atau pakai nama dari server jika ada
+              : widget.foodData['image'],
+        });
+        // kembali ke halaman sebelumnya
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Gagal menyimpan: ${response.statusCode}")),
+        );
+      }
+    } catch (e) {
+      debugPrint("❌ Error saat upload: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Terjadi kesalahan saat menyimpan")),
+      );
+    }
+  }
+
+
+
+
+  // Fungsi untuk menampilkan gambar
+  // Fungsi untuk mengambil gambar menggunakan http
+  Future<void> fetchImage(String imageName) async {
+    try {
+      final token = await JwtUtils.getToken();
+      final response = await http.get(
+        Uri.parse('http://localhost:8080/api/menus/images/$imageName'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final byteData = response.bodyBytes;
+        final imageUrl = Uri.dataFromBytes(byteData, mimeType: 'image/png').toString();
+
+        setState(() {
+          imageToDisplay = imageUrl;
+        });
+      } else {
+        throw Exception('Failed to load image');
+      }
+    } catch (e) {
+      debugPrint('Error fetching image: $e');
+      setState(() {
+        imageToDisplay = null; // Biarkan null untuk menampilkan Icon error
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    nameController = TextEditingController(text: widget.initialName);
-    categoryController = TextEditingController(text: widget.initialCategory);
-    priceController = TextEditingController(text: widget.initialPrice);
-    descriptionController = TextEditingController(text: widget.initialDescription);
-    imageController = TextEditingController(text: widget.initialImage);
-  }
+    nameController = TextEditingController(text: widget.foodData['name'] ?? '');
+    categoryController = TextEditingController(text: widget.foodData['category'] ?? '');
+    priceController = TextEditingController(text: widget.foodData['price'].toString());
+    descriptionController = TextEditingController(text: widget.foodData['description'] ?? '');
+    imageController = TextEditingController(text: widget.foodData['image'] ?? '');
 
+    // 🧠 Tambahkan pemanggilan fungsi fetchImage di sini
+    if (imageController.text.isNotEmpty) {
+      fetchImage(imageController.text);
+    }
+  }
   @override
   void dispose() {
     nameController.dispose();
@@ -100,7 +240,8 @@ class _EditMenuPageState extends State<EditMenuPage> {
 
                 // Food image
                 Center(
-                  child: Container(
+                  child: imageToDisplay != null
+                      ? Container(
                     width: 200,
                     height: 200,
                     decoration: BoxDecoration(
@@ -115,17 +256,27 @@ class _EditMenuPageState extends State<EditMenuPage> {
                       ],
                     ),
                     child: ClipOval(
-                      child: Image.network(
-                        widget.imageUrl,
+                      child: imageFile != null
+                          ? Image.file(
+                        imageFile!,
                         fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
+                      )
+                          : (imageToDisplay != null
+                          ? Image.memory(
+                        Uri.parse(imageToDisplay!).data!.contentAsBytes(),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.broken_image, size: 100),
+                      )
+                          : const Center(child: CircularProgressIndicator())),
+                    )
+                  )
+                      : const Center(child: CircularProgressIndicator()),
                 ),
 
                 // Form fields
                 Expanded(
-                  child: Padding(
+                  child: SingleChildScrollView(
                     padding: const EdgeInsets.all(24.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,22 +290,22 @@ class _EditMenuPageState extends State<EditMenuPage> {
                         const SizedBox(height: 16),
                         _buildFormField('Menu description', descriptionController),
                         const SizedBox(height: 16),
-                        _buildFormField('Menu image', imageController),
 
-                        const Spacer(),
-
-                        // Divider
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16.0),
-                          child: Divider(
-                            color: Colors.grey,
-                            thickness: 1,
-                            height: 1,
-
+                        TextButton(
+                          onPressed: pickImage,
+                          child: const Text(
+                            "Change Image",
+                            style: TextStyle(
+                              color: Color(0xFFE15B5B),
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
 
-                        // Action buttons - Updated to match the design
+
+                        const SizedBox(height: 24),
+
+                        // Action buttons
                         Padding(
                           padding: const EdgeInsets.only(bottom: 16.0),
                           child: Row(
@@ -179,16 +330,13 @@ class _EditMenuPageState extends State<EditMenuPage> {
                                   child: const Text(
                                     'Delete Menu',
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 15,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
                               ),
-
                               const SizedBox(width: 8),
-
-                              // Discard button
                               Expanded(
                                 child: OutlinedButton(
                                   onPressed: () {
@@ -205,22 +353,16 @@ class _EditMenuPageState extends State<EditMenuPage> {
                                       vertical: 16,
                                     ),
                                   ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 0), // tambahkan padding horizontal
-                                    child: const Text(
-                                      'Discard Change',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  child: const Text(
+                                    'Discard Change',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
                               ),
-
                               const SizedBox(width: 8),
-
-                              // Save button
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: () {
@@ -239,7 +381,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
                                   child: const Text(
                                     'Save Change',
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 15,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -252,6 +394,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
                     ),
                   ),
                 ),
+
               ],
             ),
           ),
@@ -345,22 +488,5 @@ class _EditMenuPageState extends State<EditMenuPage> {
     );
   }
 
-  void _saveChanges(BuildContext context) {
-    // Implement save functionality
-    // You can create a Menu model and pass the updated values back
 
-    // Example:
-    // final updatedMenu = Menu(
-    //   name: nameController.text,
-    //   category: categoryController.text,
-    //   price: priceController.text,
-    //   description: descriptionController.text,
-    //   image: imageController.text,
-    // );
-
-    // Navigator.pop(context, updatedMenu);
-
-    // For now, just go back
-    Navigator.pop(context);
-  }
 }

@@ -6,6 +6,7 @@ import 'food_detail_page.dart';
 import 'package:sunkatsu_mobile/utils/constants.dart';
 import 'package:sunkatsu_mobile/widgets/nav_bar.dart';
 import 'package:sunkatsu_mobile/utils/jwt_utils.dart';
+import 'package:sunkatsu_mobile/views/food_edit.dart';
 
 class MenuItem {
   final int? id;
@@ -47,6 +48,9 @@ class _MenuPageState extends State<MenuPage> {
   int _currentIndex = 0;
   String selectedCategory = 'All';
   int selectedNavIndex = 1;
+  String? userRole;
+  bool isLoading = true;
+
 
   List<MenuItem> foodItems = [];
   Map<String, Uint8List> imageBytesMap = {}; // Tambahkan ini
@@ -54,8 +58,26 @@ class _MenuPageState extends State<MenuPage> {
   @override
   void initState() {
     super.initState();
+    decodeAndSetUserRole();
     fetchMenuItems();
   }
+
+
+  Future<void> decodeAndSetUserRole() async {
+    final token = await JwtUtils.getToken();
+    if (token != null) {
+      final payload = await JwtUtils.parseJwtPayload();
+      setState(() {
+        userRole = payload?['role'];
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
 
   Future<void> fetchMenuItems() async {
     const String apiUrl = 'http://localhost:8080/api/menus';
@@ -83,6 +105,7 @@ class _MenuPageState extends State<MenuPage> {
         // Fetch image blobs
         for (final item in fetchedItems) {
           try {
+            print("Fetching image: ${item.imageUrl}");
             final imageResponse = await http.get(
               Uri.parse(
                   'http://localhost:8080/api/menus/images/${item.imageUrl}'),
@@ -138,6 +161,12 @@ class _MenuPageState extends State<MenuPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -234,21 +263,23 @@ class _MenuPageState extends State<MenuPage> {
   Widget _buildFoodItemCard(MenuItem item, BuildContext context) {
     return GestureDetector(
       onTap: () {
+        debugPrint('User role: $userRole');
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => FoodDetailPage(
-            foodData: {
-            'id': item.id,
-            'name': item.name,
-            'category': item.category,
-            'price': item.price,
-            'image': item.imageUrl,
-            'description': item.desc,
-            },
-            ),
+            builder: (context) => FoodDetailPage(foodData: {
+              'id': item.id,
+              'name': item.name,
+              'category': item.category,
+              'price': item.price,
+              'image': item.imageUrl,
+              'description': item.desc,
+            }),
           ),
-        );
+        ).then((_) {
+          // Setelah kembali dari detail page, refresh menu & gambar
+          fetchMenuItems();
+        });
       },
       child: SizedBox(
         height: 180,
@@ -314,6 +345,26 @@ class _MenuPageState extends State<MenuPage> {
                               color: AppColors.red,
                             ),
                           ),
+                          (userRole == 'OWNER')
+                              ? GestureDetector(
+                            onTap: () {
+                              // Edit action
+                            },
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                          )
+                              :
                           GestureDetector(
                             onTap: () {
                               // Tambah ke keranjang
