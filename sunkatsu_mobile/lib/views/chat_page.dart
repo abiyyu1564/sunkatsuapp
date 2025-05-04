@@ -46,8 +46,138 @@ class _ChatPageState extends State<ChatPage> {
     _pollUsers();
   }
 
+  Future<void> _deleteMessage(ChatMessage message) async {
+    // Show confirmation dialog
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Message'),
+        content: const Text('Are you sure you want to delete this message?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    try {
+      // Get the JWT token
+      final token = await JwtUtils.getToken();
+
+      final url = Uri.parse('http://localhost:8080/messages/${message.id}');
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          messages.removeWhere((msg) => msg.id == message.id);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Message deleted')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to delete message')),
+        );
+      }
+    } catch (e) {
+      print('Error deleting message: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error deleting message')),
+      );
+    }
+  }
+
+  Future<void> _editMessage(ChatMessage message) async {
+    final TextEditingController editController = TextEditingController(text: message.content);
+
+    final newContent = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Message'),
+        content: TextField(
+          controller: editController,
+          decoration: const InputDecoration(
+            hintText: 'Edit your message',
+            border: OutlineInputBorder(),
+          ),
+          maxLines: 3,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, editController.text),
+            child: const Text('Save', style: TextStyle(color: AppColors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (newContent == null || newContent.isEmpty || newContent == message.content) return;
+
+    try {
+      // Get the JWT token
+      final token = await JwtUtils.getToken();
+
+      final url = Uri.parse('http://localhost:8080/messages/${message.id}');
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'text/plain', // Set content type to plain text
+          'Authorization': 'Bearer $token',
+        },
+        body: newContent, // Send the content as plain text
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          final index = messages.indexWhere((msg) => msg.id == message.id);
+          if (index != -1) {
+            messages[index] = ChatMessage(
+              id: message.id,
+              chatId: message.chatId,
+              senderId: message.senderId,
+              recipientId: message.recipientId,
+              content: newContent,
+              imageUrl: message.imageUrl,
+              senderType: message.senderType,
+              timestamp: message.timestamp,
+            );
+          }
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Message updated')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update message')),
+        );
+      }
+    } catch (e) {
+      print('Error updating message: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error updating message')),
+      );
+    }
+  }
+
   Future<void> _loadUserDetails() async {
-    final url = Uri.parse('http://10.0.2.2:8080/api/users/${widget.userId}');
+    final url = Uri.parse('http://localhost:8080/api/users/${widget.userId}');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -151,7 +281,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> _fetchOnlineUsers() async {
     final url = Uri.parse(
-      'http://10.0.2.2:8080/api/users/status/${widget.userId}',
+      'http://localhost:8080/api/users/status/${widget.userId}',
     );
     try {
       final response = await http.get(url);
@@ -193,7 +323,7 @@ class _ChatPageState extends State<ChatPage> {
     if (selectedUserId == null) return;
 
     final url = Uri.parse(
-      'http://10.0.2.2:8080/messages/${widget.userId}/$selectedUserId',
+      'http://localhost:8080/messages/${widget.userId}/$selectedUserId',
     );
     try {
       final response = await http.get(url);
@@ -299,7 +429,7 @@ class _ChatPageState extends State<ChatPage> {
     if (pickedFile == null) return;
 
     final token = await JwtUtils.getToken();
-    final uri = Uri.parse("http://10.0.2.2:8080/api/files/upload");
+    final uri = Uri.parse("http://localhost:8080/api/files/upload");
 
     final request =
         http.MultipartRequest("POST", uri)
@@ -324,7 +454,7 @@ class _ChatPageState extends State<ChatPage> {
       messages = [];
     });
 
-    final url = Uri.parse('http://10.0.2.2:8080/api/users/$userId');
+    final url = Uri.parse('http://localhost:8080/api/users/$userId');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -466,6 +596,8 @@ class _ChatPageState extends State<ChatPage> {
                                   content: msg.content,
                                   isSender: isSender,
                                   imageUrl: msg.imageUrl,
+                                  onDelete: isSender ? (content) => _deleteMessage(msg) : null,
+                                  onEdit: isSender ? (content) => _editMessage(msg) : null,
                                 );
                               },
                             ),
