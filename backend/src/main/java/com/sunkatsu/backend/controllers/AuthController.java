@@ -31,9 +31,9 @@ public class AuthController {
         String result = authService.registerCustomer(customer);
         if (result.equals("Customer registered successfully")) {
             return ResponseEntity.ok(result);
-        } else {
-            return ResponseEntity.badRequest().body(result);
-        }
+        } 
+        return ResponseEntity.badRequest().body(result);
+        
     }
 
     @PostMapping("/login")

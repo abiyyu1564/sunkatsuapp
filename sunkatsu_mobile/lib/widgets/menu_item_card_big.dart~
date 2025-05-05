@@ -1,0 +1,103 @@
+import 'package:flutter/material.dart';
+import 'package:sunkatsu_mobile/utils/constants.dart';
+
+class MenuItemCardBig extends StatelessWidget {
+  final String imageUrl;
+  final String title;
+  final String desc;
+  final int price;
+
+  const MenuItemCardBig({
+    super.key,
+    required this.imageUrl,
+    required this.title,
+    required this.desc,
+    required this.price,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 180,
+      child: Card(
+        color: AppColors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: AppColors.black.withAlpha(50),
+            width: 0.65,
+          ),
+        ),
+        elevation: 0,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              ClipOval(
+                child: Image.asset(
+                  imageUrl,
+                  width: 150,
+                  height: 150,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 35),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: AppColors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      desc,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Colors.black87,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Rp ${price.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: AppColors.red,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            // your edit handler here
+                          },
+                          child: const Icon(
+                            Icons.add,
+                            size: 22,
+                            color: AppColors.black,
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
