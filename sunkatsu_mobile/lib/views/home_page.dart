@@ -1,60 +1,122 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:http/http.dart' as http;
 import 'package:sunkatsu_mobile/utils/constants.dart';
-import 'package:sunkatsu_mobile/widgets/menu_item_card_big.dart';
-import 'package:sunkatsu_mobile/widgets/menu_item_card_small.dart';
 import 'package:sunkatsu_mobile/widgets/nav_bar.dart';
 import 'package:sunkatsu_mobile/widgets/search_bar.dart';
+import 'package:sunkatsu_mobile/utils/jwt_utils.dart';
 import 'package:sunkatsu_mobile/views/chat_page.dart';
 import 'package:sunkatsu_mobile/views/chatbot_page.dart';
-import 'package:sunkatsu_mobile/utils/jwt_utils.dart';
+import 'package:sunkatsu_mobile/views/menu_page.dart';
+import 'package:sunkatsu_mobile/views/food_detail_page.dart';
+
+class MenuItem {
+  final int id;
+  final String name;
+  final String image;
+  final int price;
+  final String desc;
+  final String category;
+
+  MenuItem({
+    required this.id,
+    required this.name,
+    required this.image,
+    required this.price,
+    required this.desc,
+    required this.category,
+  });
+
+  factory MenuItem.fromJson(Map<String, dynamic> json) {
+    return MenuItem(
+      id: json['id'],
+      name: json['name'],
+      image: json['image'],
+      price: json['price'],
+      desc: json['desc'],
+      category: json['category'],
+    );
+  }
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  _HomePageState createState() => _HomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
-  List<String> _searchResults = [];
-  List<String> _dummyData = List.generate(
-    10,
-        (index) => 'Search result $index',
-  );
+
+  List<MenuItem> _searchResults = [];
+  bool _isSearching = false;
+  String _searchQuery = '';
+
+  List<MenuItem> favorites = [];
+  List<MenuItem> allMenus = [];
+  Map<String, Uint8List> imageBytesMap = {};
+  bool _isLoadingFavorites = true;
+  bool _isLoadingMenus = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchFavorites();
+    fetchAllMenus();
+  }
 
   void _search(String query) {
     setState(() {
-      _searchResults = _dummyData
-          .where((item) => item.toLowerCase().contains(query.toLowerCase()))
-          .toList();
+      _searchQuery = query;
+
+      if (query.isEmpty) {
+        _isSearching = false;
+        _searchResults = [];
+        return;
+      }
+
+      _isSearching = true;
+
+      // Search in both allMenus and favorites
+      final List<MenuItem> combinedMenus = [...allMenus, ...favorites];
+
+      // Remove duplicates (items might be in both lists)
+      final Map<int, MenuItem> uniqueItems = {};
+      for (var item in combinedMenus) {
+        uniqueItems[item.id] = item;
+      }
+
+      // Filter based on search query
+      _searchResults = uniqueItems.values.where((item) {
+        return item.name.toLowerCase().contains(query.toLowerCase()) ||
+            item.desc.toLowerCase().contains(query.toLowerCase()) ||
+            item.category.toLowerCase().contains(query.toLowerCase());
+      }).toList();
     });
   }
 
-<<<<<<< Updated upstream
-  void _onNavbarTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-=======
   Future<void> fetchFavorites() async {
     final token = await JwtUtils.getToken();
     final userId = await JwtUtils.getUserId();
 
     if (token == null || userId == null) return;
 
-    final url = Uri.parse('http://10.0.2.2:8080/api/customers/$userId/favorites');
+    final url = Uri.parse('http://localhost:8080/api/customers/$userId/favorites');
 
     try {
       final response = await http.get(url, headers: {'Authorization': 'Bearer $token'});
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = json.decode(response.body);
-        final List<MenuItem> fetchedItems = jsonData.map((e) => MenuItem.fromJson(e['menu'])).toList();
+        final List<MenuItem> fetchedItems = jsonData
+            .map((e) => MenuItem.fromJson(e['menu']))
+            .toList();
 
         for (final item in fetchedItems) {
-          await _fetchImageBlob(item.image, token, forceReload: true);
+          await _fetchImageBlob(item.image, token, forceReload: true); // gunakan forceReload
         }
 
         setState(() {
@@ -77,16 +139,19 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8080/api/menus'),
+        Uri.parse('http://localhost:8080/api/menus'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = json.decode(response.body);
-        final List<MenuItem> fetchedMenus = jsonData.map((e) => MenuItem.fromJson(e)).take(6).toList();
+        final List<MenuItem> fetchedMenus = jsonData
+            .map((e) => MenuItem.fromJson(e))
+            .take(6)
+            .toList();
 
         for (final item in fetchedMenus) {
-          await _fetchImageBlob(item.image, token, forceReload: true);
+          await _fetchImageBlob(item.image, token, forceReload: true); // gunakan forceReload
         }
 
         setState(() {
@@ -107,7 +172,7 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8080/api/menus/images/$imageName'),
+        Uri.parse('http://localhost:8080/api/menus/images/$imageName'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -362,7 +427,6 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 20),
       ],
     );
->>>>>>> Stashed changes
   }
 
   @override
@@ -374,84 +438,55 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: AppColors.white,
         elevation: 0,
         actions: [
-          // Button 1: Chat
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: IconButton(
-              icon: SvgPicture.asset(
-                'assets/icons/chat_icon.svg',
-                width: 24,
-                height: 24,
-              ),
-              onPressed: () async {
-                final userId = await JwtUtils.getUserId();
-                if (userId != null) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatPage(userId: userId),
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('You must login first!')),
-                  );
-                }
-              },
-            ),
+          IconButton(
+            icon: SvgPicture.asset('assets/icons/chat_icon.svg', width: 24),
+            onPressed: () async {
+              final userId = await JwtUtils.getUserId();
+              if (userId != null) {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => ChatPage(userId: userId)));
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('You must login first!')));
+              }
+            },
           ),
-          // Button 2: Chatbot
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: IconButton(
-              icon: SvgPicture.asset(
-                'assets/icons/chatbot_icon.svg',
-                width: 24,
-                height: 24,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ChatbotPage(),
-                  ),
-                );
-              },
-            ),
+          IconButton(
+            icon: SvgPicture.asset('assets/icons/chatbot_icon.svg', width: 24),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatbotPage()));
+            },
           ),
-          // Button 3: Notification
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: IconButton(
-              icon: SvgPicture.asset(
-                'assets/icons/notification.svg',
-                width: 24,
-                height: 24,
-              ),
-              onPressed: () {
-                print('Notification icon clicked');
-              },
-            ),
+          IconButton(
+            icon: SvgPicture.asset('assets/icons/notification.svg', width: 24),
+            onPressed: () {
+              print('Notification icon clicked');
+            },
           ),
         ],
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomSearchBar(onSearch: _search),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CustomSearchBar(onSearch: _search),
+
+            // Search Results Section (only visible when searching)
+            _buildSearchResultsSection(),
+
+            // Only show regular content when not searching
+            if (!_isSearching) ...[
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Your trusted picks!',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Your trusted picks!',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => const MenuPage()));
+                    },
                     child: const Text(
                       'View All',
                       style: TextStyle(fontSize: 12, color: AppColors.black),
@@ -461,60 +496,29 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 16),
               SizedBox(
-                height: 220,
-                child: GridView.builder(
+                height: 180, // Changed from 250 to match the card height
+                child: _isLoadingMenus
+                    ? const Center(child: CircularProgressIndicator())
+                    : ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  itemCount: 6,
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 280,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
-                    childAspectRatio: 3 / 2,
-                  ),
-                  itemBuilder: (context, index) {
-                    return MenuItemCardSmall(
-                      imageUrl: 'assets/images/food.png',
-                      title: 'Chicken Katsu',
-                      desc: 'Tasty and crispy! Tasty and crispy! Tasty and crispy!',
-                      price: 25000,
-                    );
-                  },
+                  itemCount: allMenus.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 16),
+                  itemBuilder: (context, index) =>
+                      _buildMenuPreviewCard(allMenus[index]),
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
-                'Recommendation',
-                style: TextStyle(fontSize: 16),
-              ),
+              const Text('Recommendation',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
-              SizedBox(
-                height: 380,
-                child: GridView.builder(
-                  scrollDirection: Axis.vertical,
-                  itemCount: 6,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 1,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
-                    childAspectRatio: 4 / 2,
-                  ),
-                  itemBuilder: (context, index) {
-                    return MenuItemCardBig(
-                      imageUrl: 'assets/images/food.png',
-                      title: 'Chicken Katsu',
-                      desc: 'Tasty and crispy! Tasty and crispy! Tasty and crispy!',
-                      price: 25000,
-                    );
-                  },
-                ),
-              ),
+              _isLoadingFavorites
+                  ? const Center(child: CircularProgressIndicator())
+                  : favorites.isEmpty
+                  ? const Text('No favorite menus found.')
+                  : Column(children: favorites.map(_buildFavoriteCard).toList()),
             ],
-          ),
+          ],
         ),
-      ),
-      bottomNavigationBar: MyNavBar(
-        currentIndex: _currentIndex,
-        onTap: _onNavbarTapped,
       ),
     );
   }
