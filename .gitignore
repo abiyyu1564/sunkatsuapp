@@ -1,4 +1,5 @@
 backend/uploads/*
 /.idea/libraries
-/.idea
-*.xml
+.idea/libraries/Dart_Packages.xml
+.idea/libraries/Dart_SDK.xml
+
