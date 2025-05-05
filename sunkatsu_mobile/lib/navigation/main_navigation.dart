@@ -19,7 +19,7 @@ class _MainNavigationState extends State<MainNavigation> with WidgetsBindingObse
   final List<Widget> _pages = const [
     HomePage(),
     MenuPage(),
-    Placeholder(),
+    CartPage(),
     OrderPage(),
     Placeholder(),
   ];
@@ -49,12 +49,22 @@ class _MainNavigationState extends State<MainNavigation> with WidgetsBindingObse
     super.dispose();
   }
 
+  List<Widget> _buildPages() {
+    return [
+      HomePage(key: UniqueKey()),
+      MenuPage(key: UniqueKey()),
+      CartPage(key: UniqueKey()),
+      OrderPage(key: UniqueKey()),
+      Placeholder(key: UniqueKey()),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: _pages,
+        children: _buildPages(),
       ),
       bottomNavigationBar: MyNavBar(
         currentIndex: _currentIndex,
