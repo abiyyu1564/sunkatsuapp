@@ -39,7 +39,15 @@ class MyNavBar extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: SvgPicture.asset(
-            _getIconPath('cart', currentIndex == 1),
+            _getIconPath('menu', currentIndex == 1),
+            width: 24,
+            height: 24,
+          ),
+          label: 'Menu',
+        ),
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            _getIconPath('cart', currentIndex == 2),
             width: 24,
             height: 24,
           ),
@@ -47,15 +55,15 @@ class MyNavBar extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: SvgPicture.asset(
-            _getIconPath('transaction', currentIndex == 2),
+            _getIconPath('order', currentIndex == 3),
             width: 24,
             height: 24,
           ),
-          label: 'Transaction',
+          label: 'Order',
         ),
         BottomNavigationBarItem(
           icon: SvgPicture.asset(
-            _getIconPath('profile', currentIndex == 3),
+            _getIconPath('profile', currentIndex == 4),
             width: 24,
             height: 24,
           ),
