@@ -45,6 +45,8 @@ class _ChatPageState extends State<ChatPage> {
     _pollUsers();
   }
 
+<<<<<<< Updated upstream
+=======
   Future<void> _deleteMessage(ChatMessage message) async {
     // Show confirmation dialog
     final confirm = await showDialog<bool>(
@@ -175,6 +177,7 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+>>>>>>> Stashed changes
   Future<void> _loadUserDetails() async {
     final url = Uri.parse('http://10.0.2.2:8080/api/users/${widget.userId}');
     try {
@@ -276,11 +279,14 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _fetchOnlineUsers() async {
-
+<<<<<<< Updated upstream
+    final url =
+    Uri.parse('http://localhost:8080/api/users/status/${widget.userId}');
+=======
     final url = Uri.parse(
       'http://10.0.2.2:8080/api/users/status/${widget.userId}',
     );
-
+>>>>>>> Stashed changes
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -320,8 +326,12 @@ class _ChatPageState extends State<ChatPage> {
     if (selectedUserId == null) return;
 
     final url = Uri.parse(
+<<<<<<< Updated upstream
+        'http://localhost:8080/messages/${widget.userId}/$selectedUserId');
+=======
       'http://10.0.2.2:8080/messages/${widget.userId}/$selectedUserId',
     );
+>>>>>>> Stashed changes
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
