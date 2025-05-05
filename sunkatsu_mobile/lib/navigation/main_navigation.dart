@@ -4,8 +4,9 @@ import 'package:sunkatsu_mobile/views/menu_page.dart';
 import 'package:sunkatsu_mobile/views/menu_page_owner.dart';
 import 'package:sunkatsu_mobile/views/order_page.dart';
 import 'package:sunkatsu_mobile/views/cart_page.dart';
+import 'package:sunkatsu_mobile/views/profile_page.dart';
 import 'package:sunkatsu_mobile/widgets/nav_bar.dart';
-
+import 'package:sunkatsu_mobile/views/profile_page.dart';
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
 
@@ -21,7 +22,7 @@ class _MainNavigationState extends State<MainNavigation> with WidgetsBindingObse
     MenuPage(),
     CartPage(),
     OrderPage(),
-    Placeholder(),
+    ProfilePage(),
   ];
 
   void _onNavbarTapped(int index) {
@@ -55,7 +56,7 @@ class _MainNavigationState extends State<MainNavigation> with WidgetsBindingObse
       MenuPage(key: UniqueKey()),
       CartPage(key: UniqueKey()),
       OrderPage(key: UniqueKey()),
-      Placeholder(key: UniqueKey()),
+      ProfilePage(key: UniqueKey()),
     ];
   }
 

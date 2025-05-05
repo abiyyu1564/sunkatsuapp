@@ -145,7 +145,7 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
     try {
       final token = await JwtUtils.getToken();
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/menus/images/$imageName'),
+        Uri.parse('http://localhost:8080$imageName'),
         headers: {
           'Authorization': 'Bearer $token',
         },

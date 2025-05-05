@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-
+import 'package:sunkatsu_mobile/navigation/main_navigation.dart';
 import 'package:sunkatsu_mobile/utils/constants.dart';
+import 'package:sunkatsu_mobile/utils/jwt_utils.dart';
 import 'package:sunkatsu_mobile/views/welcome_page.dart';
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -26,18 +28,16 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    // Background color transition controller
     _bgColorController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
 
     _backgroundColor = ColorTween(
-      begin: AppColors.red, // Start with red
-      end: AppColors.whiteBG, // End with white
+      begin: AppColors.red,
+      end: AppColors.whiteBG,
     ).animate(_bgColorController);
 
-    // Text fade-in controller
     _textController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -68,31 +68,39 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _startSequence() async {
-    // Wait a little before showing text
     await Future.delayed(const Duration(milliseconds: 800));
     _textController.forward();
 
-    // Wait more, then start background color transition
     await Future.delayed(const Duration(milliseconds: 1000));
     _bgColorController.forward();
 
-    // Then wait a bit before navigating to next screen
     await Future.delayed(const Duration(milliseconds: 1000));
-    _navigateToWelcomePage();
+    _checkTokenAndNavigate();
   }
 
-  void _navigateToWelcomePage() {
+  Future<void> _checkTokenAndNavigate() async {
+    final token = await JwtUtils.getToken();
+
+    bool isValid = false;
+
+    if (token != null) {
+      try {
+        final jwt = JWT.decode(token);
+        final exp = jwt.payload['exp'];
+        final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+        if (exp != null && now < exp) {
+          isValid = true;
+        }
+      } catch (e) {
+        isValid = false;
+      }
+    }
+
+    if (!context.mounted) return;
+
     Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 800),
-        pageBuilder: (context, animation,
-            secondaryAnimation) => const WelcomePage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
-        },
+      MaterialPageRoute(
+        builder: (_) => isValid ? const MainNavigation() : const WelcomePage(),
       ),
     );
   }
