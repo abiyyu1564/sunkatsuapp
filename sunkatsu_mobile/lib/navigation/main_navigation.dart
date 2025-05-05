@@ -3,6 +3,7 @@ import 'package:sunkatsu_mobile/views/home_page.dart';
 import 'package:sunkatsu_mobile/views/menu_page.dart';
 import 'package:sunkatsu_mobile/views/menu_page_owner.dart';
 import 'package:sunkatsu_mobile/views/order_page.dart';
+import 'package:sunkatsu_mobile/views/cart_page.dart';
 import 'package:sunkatsu_mobile/widgets/nav_bar.dart';
 
 class MainNavigation extends StatefulWidget {
