@@ -1,26 +1,14 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'package:sunkatsu_mobile/utils/constants.dart';
+import 'package:sunkatsu_mobile/utils/constants.dart'; // Pastikan sudah ada AppColors
 
 class OrderCard extends StatelessWidget {
-  final int id;
-  final String name;
-  final String date;
-  final String status;
-  final List<String> items;
-  final Color color;
+  final dynamic orderedItem; // Menggunakan objek Order
   final VoidCallback? onActionTap;
   final String role;
 
   const OrderCard({
     super.key,
-    required this.id,
-    required this.name,
-    required this.date,
-    required this.status,
-    required this.items,
-    required this.color,
+    required this.orderedItem, // Menggunakan objek Order
     required this.role,
     this.onActionTap,
   });
@@ -28,9 +16,10 @@ class OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String buttonText = '';
-    if (status == 'Payment') {
+    // Menentukan buttonText berdasarkan status pesanan
+    if (orderedItem.status == 'Payment') {
       buttonText = 'Pay Now';
-    } else if (status == 'On Going') {
+    } else if (orderedItem.status == 'On Going') {
       buttonText = 'Finish';
     }
 
@@ -38,7 +27,7 @@ class OrderCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color,
+        color: _getCardColor(), // Mendapatkan warna berdasarkan status
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -46,14 +35,15 @@ class OrderCard extends StatelessWidget {
         children: [
           // Tanggal
           Column(
-            children:
-            date
-                .split(' ')
-                .map(
-                  (line) =>
-                  Text(line, style: TextStyle(color: AppColors.white)),
-            )
-                .toList(),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                orderedItem.paymentDeadline != null
+                    ? orderedItem.paymentDeadline.toLocal().toString() // Formatkan tanggal jika ada
+                    : "No Deadline",
+                style: TextStyle(color: AppColors.white),
+              ),
+            ],
           ),
           const SizedBox(width: 16),
           // Isi pesanan
@@ -61,9 +51,11 @@ class OrderCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                /*
                 role == 'admin'
-                    ? Text(name, style: TextStyle(color: AppColors.white))
+                    ? Text(orderedItem.name, style: TextStyle(color: AppColors.white))
                     : Container(),
+                 */
                 Text(
                   role == 'admin' ? "Orders" : "Your Orders:",
                   style: TextStyle(
@@ -72,23 +64,25 @@ class OrderCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 6),
-                ...items.map(
-                      (item) =>
-                      Text(item, style: TextStyle(color: AppColors.white)),
+                ...orderedItem.cartItems.map(
+                      (item) => Text(
+                    '${item.menu.name} x ${item.quantity}',  // Menampilkan item berdasarkan menu
+                    style: TextStyle(color: AppColors.white),
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      status,
+                      orderedItem.status,
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: AppColors.white,
                       ),
                     ),
-                    if (role == 'admin' && status != 'Finished')
+                    if (role == 'admin' && orderedItem.status != 'Finished')
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
@@ -102,8 +96,8 @@ class OrderCard extends StatelessWidget {
                         ),
                         onPressed: onActionTap,
                         child: Text(
-                            buttonText,
-                            style: TextStyle(color: AppColors.red)
+                          buttonText,
+                          style: TextStyle(color: AppColors.red),
                         ),
                       ),
                   ],
@@ -114,5 +108,16 @@ class OrderCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // Mendapatkan warna card berdasarkan status
+  Color _getCardColor() {
+    if (orderedItem.status == 'Payment') {
+      return AppColors.black;
+    } else if (orderedItem.status == 'On Going') {
+      return AppColors.red;
+    } else {
+      return AppColors.black;
+    }
   }
 }
