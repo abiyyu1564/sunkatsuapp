@@ -7,35 +7,36 @@ import 'package:sunkatsu_mobile/utils/constants.dart';
 import 'package:sunkatsu_mobile/widgets/nav_bar.dart';
 import 'package:sunkatsu_mobile/utils/jwt_utils.dart';
 import 'package:sunkatsu_mobile/views/food_edit.dart';
+import 'package:sunkatsu_mobile/models/menu.dart';
 
-class MenuItem {
-  final int? id;
-  final String name;
-  final String imageUrl;
-  final int price;
-  final String desc;
-  final String category;
-
-  MenuItem({
-    required this.id,
-    required this.name,
-    required this.imageUrl,
-    required this.price,
-    required this.desc,
-    required this.category,
-  });
-
-  factory MenuItem.fromJson(Map<String, dynamic> json) {
-    return MenuItem(
-      id: (json['id'] ?? 0) as int,
-      name: json['name'] ?? '',
-      imageUrl: json['image'] ?? '', // Pastikan hanya nama file
-      price: json['price'] ?? 0,
-      desc: json['desc'] ?? '',
-      category: json['category'] ?? '',
-    );
-  }
-}
+// class MenuItem {
+//   final int? id;
+//   final String name;
+//   final String imageUrl;
+//   final int price;
+//   final String desc;
+//   final String category;
+//
+//   MenuItem({
+//     required this.id,
+//     required this.name,
+//     required this.imageUrl,
+//     required this.price,
+//     required this.desc,
+//     required this.category,
+//   });
+//
+//   factory MenuItem.fromJson(Map<String, dynamic> json) {
+//     return MenuItem(
+//       id: (json['id'] ?? 0) as int,
+//       name: json['name'] ?? '',
+//       imageUrl: json['image'] ?? '', // Pastikan hanya nama file
+//       price: json['price'] ?? 0,
+//       desc: json['desc'] ?? '',
+//       category: json['category'] ?? '',
+//     );
+//   }
+// }
 
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key});
@@ -52,7 +53,7 @@ class _MenuPageState extends State<MenuPage> {
   bool isLoading = true;
 
 
-  List<MenuItem> foodItems = [];
+  List<Menu> foodItems = [];
   Map<String, Uint8List> imageBytesMap = {}; // Tambahkan ini
 
   @override
@@ -61,6 +62,7 @@ class _MenuPageState extends State<MenuPage> {
     decodeAndSetUserRole();
     fetchMenuItems();
   }
+
 
   Future<void> decodeAndSetUserRole() async {
     final token = await JwtUtils.getToken();
@@ -79,7 +81,7 @@ class _MenuPageState extends State<MenuPage> {
 
 
   Future<void> fetchMenuItems() async {
-    const String apiUrl = 'http://10.0.2.2:8080/api/menus';
+    const String apiUrl = 'http://localhost:8080/api/menus';
     final token = await JwtUtils.getToken();
 
     if (token == null) {
@@ -98,16 +100,16 @@ class _MenuPageState extends State<MenuPage> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        final List<MenuItem> fetchedItems =
-        data.map((item) => MenuItem.fromJson(item)).toList();
+        final List<Menu> fetchedItems =
+        data.map((item) => Menu.fromJson(item)).toList();
 
         // Fetch image blobs
         for (final item in fetchedItems) {
           try {
-            print("Fetching image: ${item.imageUrl}");
+            //print("Fetching image: ${item.imageUrl}");
             final imageResponse = await http.get(
               Uri.parse(
-                  'http://10.0.2.2:8080/api/menus/images/${item.imageUrl}'),
+                  'http://localhost:8080${item.imageUrl}'),
               headers: {
                 'Authorization': 'Bearer $token',
               },
@@ -140,7 +142,7 @@ class _MenuPageState extends State<MenuPage> {
     });
   }
 
-  List<MenuItem> get filteredItems {
+  List<Menu> get filteredItems {
     if (selectedCategory == 'Food') {
       selectedCategory = 'food';
     }else if (selectedCategory == 'Drink') {
@@ -259,7 +261,7 @@ class _MenuPageState extends State<MenuPage> {
     );
   }
 
-  Widget _buildFoodItemCard(MenuItem item, BuildContext context) {
+  Widget _buildFoodItemCard(Menu item, BuildContext context) {
     return GestureDetector(
       onTap: () {
         debugPrint('User role: $userRole');

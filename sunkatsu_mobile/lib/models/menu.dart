@@ -1,5 +1,5 @@
 class Menu {
-  final String id;
+  final int id;
   final String name;
   final String imageUrl;
   final int price;
@@ -17,7 +17,7 @@ class Menu {
 
   factory Menu.fromJson(Map<String, dynamic> json){
     return Menu(
-      id: json['id'] ?? json['ID'] ?? '',
+      id: json['id'],
       name: json['name'] ?? '',
       imageUrl: json['imageURL'] ?? json['image'] ?? '',
       price: json['price'] ?? 0,

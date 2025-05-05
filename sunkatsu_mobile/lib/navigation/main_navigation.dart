@@ -3,6 +3,7 @@ import 'package:sunkatsu_mobile/views/home_page.dart';
 import 'package:sunkatsu_mobile/views/menu_page.dart';
 import 'package:sunkatsu_mobile/views/menu_page_owner.dart';
 import 'package:sunkatsu_mobile/views/order_page.dart';
+import 'package:sunkatsu_mobile/views/cart_page.dart';
 import 'package:sunkatsu_mobile/widgets/nav_bar.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -18,7 +19,7 @@ class _MainNavigationState extends State<MainNavigation> with WidgetsBindingObse
   final List<Widget> _pages = const [
     HomePage(),
     MenuPage(),
-    Placeholder(),
+    CartPage(),
     OrderPage(),
     Placeholder(),
   ];
@@ -48,12 +49,22 @@ class _MainNavigationState extends State<MainNavigation> with WidgetsBindingObse
     super.dispose();
   }
 
+  List<Widget> _buildPages() {
+    return [
+      HomePage(key: UniqueKey()),
+      MenuPage(key: UniqueKey()),
+      CartPage(key: UniqueKey()),
+      OrderPage(key: UniqueKey()),
+      Placeholder(key: UniqueKey()),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: _pages,
+        children: _buildPages(),
       ),
       bottomNavigationBar: MyNavBar(
         currentIndex: _currentIndex,
