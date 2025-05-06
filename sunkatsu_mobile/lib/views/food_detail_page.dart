@@ -129,8 +129,16 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
   Future<void> fetchImage(String imageName) async {
     try {
       final token = await JwtUtils.getToken();
+      final path = imageName.startsWith('/')
+          ? imageName
+          : '/api/menus/images/$imageName';
+
       final response = await http.get(
+<<<<<<< Updated upstream
         Uri.parse('http://192.168.0.114:8080/api/menus/images/$imageName'),
+=======
+        Uri.parse('http://localhost:8080$path'),
+>>>>>>> Stashed changes
         headers: {
           'Authorization': 'Bearer $token',
         },
