@@ -1,5 +1,6 @@
 // main.dart
 import 'package:flutter/material.dart';
+import 'package:sunkatsu_mobile/navigation/main_navigation.dart';
 import 'package:sunkatsu_mobile/preview_page.dart';
 import 'package:sunkatsu_mobile/views/add_menu.dart';
 import 'package:sunkatsu_mobile/views/edit_menu_page.dart';
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
       title: 'Sunkatsu App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true),
-      home: MainNavigation(),
+      home: SplashScreen(),
     );
   }
 }

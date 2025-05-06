@@ -8,17 +8,24 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import com.sunkatsu.backend.dto.Message;
 import com.sunkatsu.backend.models.ChatMessage;
 import com.sunkatsu.backend.models.ChatNotification;
 import com.sunkatsu.backend.services.ChatMessageService;
 
+import io.micrometer.core.ipc.http.HttpSender.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+
+@RestController
 @RequiredArgsConstructor
 public class ChatController {
     private final SimpMessagingTemplate messagingTemplate;
@@ -55,6 +62,30 @@ public class ChatController {
             @PathVariable String recipientId) {
         return ResponseEntity
                 .ok(chatMessageService.findChatMessages(senderId, recipientId));
+    }
+
+    @Operation(
+        summary = "Update a chat message",
+        description = "Update a single chat message by id"
+    )
+    @PutMapping("/messages/{id}")
+    public ResponseEntity<Object> putMethodName(@PathVariable String id, @RequestBody String newContent) {
+        ChatMessage updated = chatMessageService.updateMessage(id, newContent);
+        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.badRequest().body(new Message("Error: id not found")) ;
+    }
+
+
+    @Operation(
+        summary = "Delete a chat message",
+        description = "Delete a single chat message by id"
+    )
+    @DeleteMapping("/messages/{id}")
+    public ResponseEntity<Object> deleteMessage(@PathVariable String id) {
+        if (chatMessageService.deleteMessage(id)) {
+            return ResponseEntity.ok(new Message("Delete message successfully"));
+        } else {
+            return ResponseEntity.badRequest().body(new Message("Error: id not found"));
+        }
     }
 }
 

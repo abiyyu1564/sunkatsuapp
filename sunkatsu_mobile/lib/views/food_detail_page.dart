@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sunkatsu_mobile/utils/jwt_utils.dart';
+import 'package:sunkatsu_mobile/views/edit_menu_page.dart';
 import 'package:sunkatsu_mobile/views/menu_page.dart';
+import 'package:sunkatsu_mobile/views/edit_menu_page.dart';
 import 'dart:convert';
 
 class FoodDetailPage extends StatefulWidget {
@@ -16,6 +18,8 @@ class FoodDetailPage extends StatefulWidget {
 class _FoodDetailPageState extends State<FoodDetailPage> {
   int quantity = 1;
   String? imageToDisplay;
+  String? userRole;
+  bool isLoading = true;
 
   void incrementQuantity() {
     setState(() {
@@ -30,6 +34,15 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
       });
     }
   }
+  //ngambil userRole
+  Future<void> loadUserRole() async {
+    final payload = await JwtUtils.parseJwtPayload();
+    setState(() {
+      userRole = payload?['role'];
+      isLoading = false;
+    });
+  }
+
 
   //Fungsi untuk mengecek cart
   Future<String?> getOrCreateCart() async {
@@ -40,7 +53,7 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
     try {
       // Coba ambil cart yang sudah ada
       final res = await http.get(
-        Uri.parse('http://192.168.0.114:8080/api/customers/$userId/cart'),
+        Uri.parse('http://localhost:8080/api/customers/$userId/cart'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -51,7 +64,7 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
       } else {
         // Kalau belum ada, buat cart kosong
         final emptyRes = await http.get(
-          Uri.parse('http://192.168.0.114:8080/api/carts/empty?UserId=$userId'),
+          Uri.parse('http://localhost:8080/api/carts/empty?UserId=$userId'),
           headers: {'Authorization': 'Bearer $token'},
         );
         if (emptyRes.statusCode == 200) {
@@ -81,7 +94,7 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
     final menuId = widget.foodData['id']; // Pastikan `id` tersedia
     debugPrint(widget.foodData['id'].toString());
 
-    final uri = Uri.parse('http://192.168.0.114:8080/api/carts/$cartId/add-menu')
+    final uri = Uri.parse('http://localhost:8080/api/carts/$cartId/add-menu')
         .replace(queryParameters: {
       'menuId': menuId.toString(),
       'quantity': quantity.toString(),
@@ -127,18 +140,12 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
 
   // Fungsi untuk mengambil gambar menggunakan http
   Future<void> fetchImage(String imageName) async {
+    debugPrint("🖼️ Trying to fetch image: $imageName");
+
     try {
       final token = await JwtUtils.getToken();
-      final path = imageName.startsWith('/')
-          ? imageName
-          : '/api/menus/images/$imageName';
-
       final response = await http.get(
-<<<<<<< Updated upstream
-        Uri.parse('http://192.168.0.114:8080/api/menus/images/$imageName'),
-=======
-        Uri.parse('http://localhost:8080$path'),
->>>>>>> Stashed changes
+        Uri.parse('http://localhost:8080/api/menus/images/$imageName'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -167,9 +174,11 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
   @override
   void initState() {
     super.initState();
-    final imageName = widget.foodData['image']; // Pastikan field-nya sesuai
+    final imageName = widget.foodData['image'];
     fetchImage(imageName);
+    loadUserRole(); // load role user
   }
+
 
 
   @override
@@ -368,24 +377,62 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
                         ),
 
                         // Total and add to cart button
-                        Row(
+                        userRole == 'OWNER'
+                            ? Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'This item is owned by you',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            ElevatedButton.icon(
+                              onPressed: () async {
+                                // navigasi ke halaman edit
+                                final updatedFoodData = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => EditMenuPage(foodData: widget.foodData),
+                                  ),
+                                );
+
+                                // Jika ada data hasil edit yang dikembalikan
+                                if (updatedFoodData != null && mounted) {
+                                  setState(() {
+                                    widget.foodData.addAll(updatedFoodData); // Update data lokal
+                                    fetchImage(updatedFoodData['image']);    // Ambil gambar terbaru
+                                  });
+                                }
+
+                              },
+                              icon: const Icon(Icons.edit),
+                              label: const Text('Edit Menu'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.grey[800],
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            )
+                          ],
+                        )
+                            : Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Total amount',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 14,
-                                  ),
+                                const Text('Total amount',
+                                  style: TextStyle(color: Colors.grey, fontSize: 14),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   'Rp ${widget.foodData['price']}',
-                                  style: TextStyle(
-                                    color: const Color(0xFFE15B5B),
+                                  style: const TextStyle(
+                                    color: Color(0xFFE15B5B),
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -400,21 +447,16 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                 ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 12,
-                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                               ),
                               child: const Text(
                                 'Add to cart',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                             ),
                           ],
                         ),
+
                       ],
                     ),
                   ),

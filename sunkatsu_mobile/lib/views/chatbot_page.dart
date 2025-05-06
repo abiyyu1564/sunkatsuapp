@@ -33,28 +33,40 @@ class _ChatbotPageState extends State<ChatbotPage> {
     StringBuffer buffer = StringBuffer();
     streamedResponse.stream
         .transform(utf8.decoder)
-        .listen((chunk) {
-      buffer.write(chunk);
-      setState(() {
-        if (_messages.isNotEmpty && _messages.last.sender == MessageSender.bot) {
-          _messages[_messages.length - 1] =
-              ChatMessage(text: buffer.toString(), sender: MessageSender.bot);
-        } else {
-          _messages.add(ChatMessage(text: chunk, sender: MessageSender.bot));
-        }
-      });
-    }, onDone: () {
-      setState(() {
-        _isLoading = false;
-      });
-    }, onError: (_) {
-      setState(() {
-        _messages.add(ChatMessage(
-            text: "Maaf, terjadi kesalahan saat menghubungi server.",
-            sender: MessageSender.bot));
-        _isLoading = false;
-      });
-    });
+        .listen(
+          (chunk) {
+            buffer.write(chunk);
+            setState(() {
+              if (_messages.isNotEmpty &&
+                  _messages.last.sender == MessageSender.bot) {
+                _messages[_messages.length - 1] = ChatMessage(
+                  text: buffer.toString(),
+                  sender: MessageSender.bot,
+                );
+              } else {
+                _messages.add(
+                  ChatMessage(text: chunk, sender: MessageSender.bot),
+                );
+              }
+            });
+          },
+          onDone: () {
+            setState(() {
+              _isLoading = false;
+            });
+          },
+          onError: (_) {
+            setState(() {
+              _messages.add(
+                ChatMessage(
+                  text: "Maaf, terjadi kesalahan saat menghubungi server.",
+                  sender: MessageSender.bot,
+                ),
+              );
+              _isLoading = false;
+            });
+          },
+        );
   }
 
   @override
@@ -70,22 +82,24 @@ class _ChatbotPageState extends State<ChatbotPage> {
         ),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              reverse: true,
-              padding: const EdgeInsets.only(bottom: 12, top: 8),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final reversedIndex = _messages.length - 1 - index;
-                return ChatBubble(message: _messages[reversedIndex]);
-              },
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                reverse: true,
+                padding: const EdgeInsets.only(bottom: 12, top: 8),
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  final reversedIndex = _messages.length - 1 - index;
+                  return ChatBubble(message: _messages[reversedIndex]);
+                },
+              ),
             ),
-          ),
-          const Divider(height: 1),
-          _buildInputArea(),
-        ],
+            const Divider(height: 1),
+            _buildInputArea(),
+          ],
+        ),
       ),
     );
   }
@@ -104,7 +118,8 @@ class _ChatbotPageState extends State<ChatbotPage> {
                   color: AppColors.grey,
                   borderRadius: BorderRadius.circular(24),
                 ),
-                child: Center( // ⬅️ Tambahkan ini
+                child: Center(
+                  // ⬅️ Tambahkan ini
                   child: TextField(
                     controller: _controller,
                     onSubmitted: _sendMessage,

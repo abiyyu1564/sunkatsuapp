@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-<<<<<<< Updated upstream
-=======
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:sunkatsu_mobile/utils/jwt_utils.dart';
@@ -8,25 +6,12 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
->>>>>>> Stashed changes
+
 
 class EditMenuPage extends StatefulWidget {
-  final String initialName;
-  final String initialCategory;
-  final String initialPrice;
-  final String initialDescription;
-  final String initialImage;
-  final String imageUrl;
+  final Map<String, dynamic> foodData;
 
-  const EditMenuPage({
-    super.key,
-    this.initialName = 'Chicken Katsu',
-    this.initialCategory = 'Food',
-    this.initialPrice = '25.000',
-    this.initialDescription = 'Lorem ipsum',
-    this.initialImage = 'Katsu.png',
-    this.imageUrl = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-kLxFO8TEkLK0da8yBegS4hwRpqNbTT.png',
-  });
+  const EditMenuPage({super.key, required this.foodData});
 
   @override
   State<EditMenuPage> createState() => _EditMenuPageState();
@@ -34,216 +19,30 @@ class EditMenuPage extends StatefulWidget {
 
 class _EditMenuPageState extends State<EditMenuPage> {
   late TextEditingController nameController;
+  late TextEditingController categoryController;
   late TextEditingController priceController;
   late TextEditingController descriptionController;
   late TextEditingController imageController;
-<<<<<<< Updated upstream
-=======
   String? imageToDisplay;
   File? imageFile;
-  String selectedCategory = '';
-  bool isProcessingImage = false;
-  bool isSubmitting = false;
-  bool isDeleting = false;
 
-  final ImagePicker _picker = ImagePicker();
+  // Fungsi pilih gambar
+  Future<void> pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-  // Fungsi pilih gambar dari galeri
-  Future<void> _pickImage() async {
-    try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-      if (image != null) {
-        setState(() {
-          imageFile = File(image.path);
-          imageController.text = image.name;
-          isProcessingImage = true;
-        });
-
-        // Simulate background removal process
-        await Future.delayed(const Duration(seconds: 2));
-
-        setState(() {
-          isProcessingImage = false;
-        });
-
-
-      }
-    } catch (e) {
+    if (pickedFile != null) {
       setState(() {
-        isProcessingImage = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error picking image: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-
-  // Fungsi pilih gambar dari kamera
-  Future<void> _pickImageFromCamera() async {
-    try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-      if (image != null) {
-        setState(() {
-          imageFile = File(image.path);
-          imageController.text = image.name;
-          isProcessingImage = true;
-        });
-
-        // Simulate background removal process
-        await Future.delayed(const Duration(seconds: 2));
-
-        setState(() {
-          isProcessingImage = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        isProcessingImage = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error picking image: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-
-  // Fungsi untuk menampilkan opsi pilihan gambar
-  void _showImagePickerOptions() {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return SafeArea(
-          child: Wrap(
-            children: <Widget>[
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text('Photo Library'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _pickImage();
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_camera),
-                title: const Text('Camera'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _pickImageFromCamera();
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  // Fungsi Delete Menu
-  Future<void> _deleteMenu() async {
-    setState(() {
-      isDeleting = true;
-    });
-
-    try {
-      final token = await JwtUtils.getToken();
-      if (token == null) {
-        setState(() {
-          isDeleting = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Authentication token not found'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
-
-      final id = widget.foodData['id'];
-      final response = await http.delete(
-        Uri.parse('http://localhost:8080/api/menus/$id'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 204) {
-        // Successful deletion
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Menu deleted successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-
-        // Navigasi langsung ke MenuPage (pop semua halaman sampai ke MenuPage)
-        Navigator.of(context).popUntil((route) {
-          return route.settings.name == '/menu' || route.isFirst;
-        });
-      } else {
-        // Failed deletion
-        debugPrint('Delete failed with status: ${response.statusCode}');
-        debugPrint('Response body: ${response.body}');
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to delete menu: ${response.statusCode}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        setState(() {
-          isDeleting = false;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error deleting menu: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error deleting menu: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      setState(() {
-        isDeleting = false;
+        imageFile = File(pickedFile.path);
       });
     }
   }
+
 
   // Fungsi Edit Menu
   Future<void> _saveChanges(BuildContext context) async {
-    // Validate inputs
-    if (nameController.text.isEmpty ||
-        priceController.text.isEmpty ||
-        descriptionController.text.isEmpty ||
-        selectedCategory.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill all required fields'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    setState(() {
-      isSubmitting = true;
-    });
-
     final token = await JwtUtils.getToken();
-    if (token == null) {
-      setState(() {
-        isSubmitting = false;
-      });
-      return;
-    }
+    if (token == null) return;
 
     final id = widget.foodData['id'];
 
@@ -252,7 +51,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
       'name': nameController.text,
       'price': priceController.text,
       'desc': descriptionController.text,
-      'category': selectedCategory,
+      'category': categoryController.text,
       'nums_bought': (widget.foodData['nums_bought'] ?? 0).toString(),
     });
 
@@ -272,9 +71,6 @@ class _EditMenuPageState extends State<EditMenuPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("File harus berupa gambar .jpg/.jpeg atau .png")),
           );
-          setState(() {
-            isSubmitting = false;
-          });
           return;
         }
 
@@ -298,12 +94,13 @@ class _EditMenuPageState extends State<EditMenuPage> {
         Navigator.pop(context, {
           'name': nameController.text,
           'price': int.tryParse(priceController.text) ?? 0,
-          'category': selectedCategory,
+          'category': categoryController.text,
           'description': descriptionController.text,
           'image': updatedData['image'], // <-- ini yang AKURAT
         });
         return;
       }
+
 
       debugPrint("RESPONSE STATUS: ${response.statusCode}");
       debugPrint("RESPONSE BODY: ${response.body}");
@@ -315,7 +112,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
         Navigator.pop(context, {
           'name': nameController.text,
           'price': int.tryParse(priceController.text) ?? 0,
-          'category': selectedCategory,
+          'category': categoryController.text,
           'description': descriptionController.text,
           'image': imageFile != null
               ? imageFile!.path.split('/').last // atau pakai nama dari server jika ada
@@ -332,23 +129,19 @@ class _EditMenuPageState extends State<EditMenuPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Terjadi kesalahan saat menyimpan")),
       );
-    } finally {
-      setState(() {
-        isSubmitting = false;
-      });
     }
   }
 
+
+
+
+  // Fungsi untuk menampilkan gambar
   // Fungsi untuk mengambil gambar menggunakan http
   Future<void> fetchImage(String imageName) async {
     try {
       final token = await JwtUtils.getToken();
-      final path = imageName.startsWith('/')
-          ? imageName
-          : '/api/menus/images/$imageName';
-
       final response = await http.get(
-        Uri.parse('http://localhost:8080$path'),
+        Uri.parse('http://localhost:8080/api/menus/images/$imageName'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -371,36 +164,25 @@ class _EditMenuPageState extends State<EditMenuPage> {
       });
     }
   }
->>>>>>> Stashed changes
 
   @override
   void initState() {
     super.initState();
-<<<<<<< Updated upstream
-    nameController = TextEditingController(text: widget.initialName);
-    categoryController = TextEditingController(text: widget.initialCategory);
-    priceController = TextEditingController(text: widget.initialPrice);
-    descriptionController = TextEditingController(text: widget.initialDescription);
-    imageController = TextEditingController(text: widget.initialImage);
-=======
     nameController = TextEditingController(text: widget.foodData['name'] ?? '');
+    categoryController = TextEditingController(text: widget.foodData['category'] ?? '');
     priceController = TextEditingController(text: widget.foodData['price'].toString());
     descriptionController = TextEditingController(text: widget.foodData['description'] ?? '');
     imageController = TextEditingController(text: widget.foodData['image'] ?? '');
 
-    // Set initial category
-    selectedCategory = (widget.foodData['category'] ?? '').toLowerCase();
-
-    // Tambahkan pemanggilan fungsi fetchImage di sini
+    // 🧠 Tambahkan pemanggilan fungsi fetchImage di sini
     if (imageController.text.isNotEmpty) {
       fetchImage(imageController.text);
     }
->>>>>>> Stashed changes
   }
-
   @override
   void dispose() {
     nameController.dispose();
+    categoryController.dispose();
     priceController.dispose();
     descriptionController.dispose();
     imageController.dispose();
@@ -437,7 +219,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
           SafeArea(
             child: Column(
               children: [
-                // Back button
+                // Back button (optional)
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Align(
@@ -454,12 +236,12 @@ class _EditMenuPageState extends State<EditMenuPage> {
                   ),
                 ),
 
-<<<<<<< Updated upstream
                 const SizedBox(height: 29),
 
                 // Food image
                 Center(
-                  child: Container(
+                  child: imageToDisplay != null
+                      ? Container(
                     width: 200,
                     height: 200,
                     decoration: BoxDecoration(
@@ -474,26 +256,31 @@ class _EditMenuPageState extends State<EditMenuPage> {
                       ],
                     ),
                     child: ClipOval(
-                      child: Image.network(
-                        widget.imageUrl,
+                      child: imageFile != null
+                          ? Image.file(
+                        imageFile!,
                         fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
+                      )
+                          : (imageToDisplay != null
+                          ? Image.memory(
+                        Uri.parse(imageToDisplay!).data!.contentAsBytes(),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.broken_image, size: 100),
+                      )
+                          : const Center(child: CircularProgressIndicator())),
+                    )
+                  )
+                      : const Center(child: CircularProgressIndicator()),
                 ),
 
                 // Form fields
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-=======
-                // Scrollable content
-                Expanded(
                   child: SingleChildScrollView(
->>>>>>> Stashed changes
+                    padding: const EdgeInsets.all(24.0),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-<<<<<<< Updated upstream
                         // Form fields
                         _buildFormField('Menu name', nameController),
                         const SizedBox(height: 16),
@@ -503,162 +290,53 @@ class _EditMenuPageState extends State<EditMenuPage> {
                         const SizedBox(height: 16),
                         _buildFormField('Menu description', descriptionController),
                         const SizedBox(height: 16),
-                        _buildFormField('Menu image', imageController),
 
-                        const Spacer(),
-
-                        // Divider
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16.0),
-                          child: Divider(
-                            color: Colors.grey,
-                            thickness: 1,
-                            height: 1,
-
-                          ),
-                        ),
-
-                        // Action buttons - Updated to match the design
-=======
-                        const SizedBox(height: 20),
-
-                        // Image placeholder or selected image
-                        GestureDetector(
-                          onTap: isProcessingImage ? null : _showImagePickerOptions,
-                          child: Center(
-                            child: Container(
-                              width: 200,
-                              height: 200,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    spreadRadius: 2,
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 5),
-                                  ),
-                                ],
-                              ),
-                              child: isProcessingImage
-                                  ? const Center(
-                                child: CircularProgressIndicator(
-                                  color: Color(0xFFE15B5B),
-                                ),
-                              )
-                                  : ClipOval(
-                                child: imageFile != null
-                                    ? Image.file(
-                                  imageFile!,
-                                  fit: BoxFit.cover,
-                                  width: 200,
-                                  height: 200,
-                                )
-                                    : (imageToDisplay != null
-                                    ? Image.memory(
-                                  Uri.parse(imageToDisplay!).data!.contentAsBytes(),
-                                  fit: BoxFit.cover,
-                                  width: 200,
-                                  height: 200,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(Icons.broken_image, size: 100),
-                                )
-                                    : const Center(child: CircularProgressIndicator())),
-                              ),
+                        TextButton(
+                          onPressed: pickImage,
+                          child: const Text(
+                            "Change Image",
+                            style: TextStyle(
+                              color: Color(0xFFE15B5B),
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
 
-                        // Form fields
->>>>>>> Stashed changes
+
+                        const SizedBox(height: 24),
+
+                        // Action buttons
                         Padding(
-                          padding: const EdgeInsets.all(24.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              // Menu name
-                              _buildFormField('Menu name', nameController, 'Enter menu name'),
-                              const SizedBox(height: 16),
-
-                              // Menu category (dropdown)
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Menu category',
+                              // Delete button
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    _showDeleteConfirmation(context);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFE15B5B),
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Delete Menu',
                                     style: TextStyle(
-<<<<<<< Updated upstream
-                                      fontSize: 16,
+                                      fontSize: 15,
                                       fontWeight: FontWeight.bold,
-=======
-                                      fontSize: 14,
-                                      color: Colors.grey[600],
->>>>>>> Stashed changes
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          color: Colors.grey[300]!,
-                                          width: 1,
-                                        ),
-                                      ),
-                                    ),
-                                    child: DropdownButtonHideUnderline(
-                                      child: DropdownButton<String>(
-                                        isExpanded: true,
-                                        hint: Text(
-                                          'Select categories',
-                                          style: TextStyle(
-                                            color: Colors.grey[400],
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        value: selectedCategory.isEmpty ? null : selectedCategory,
-                                        onChanged: (String? newValue) {
-                                          setState(() {
-                                            selectedCategory = newValue!;
-                                          });
-                                        },
-                                        items: <String>['Food', 'Drink', 'Dessert']
-                                            .map<DropdownMenuItem<String>>((String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value.toLowerCase(),
-                                            child: Text(value),
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 16),
-
-                              // Menu price
-                              _buildFormField('Menu price', priceController, 'Enter a price', isNumber: true),
-                              const SizedBox(height: 16),
-
-                              // Menu description
-                              _buildFormField('Menu description', descriptionController, 'Write description'),
-
-                              // Divider
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                child: Divider(
-                                  color: Colors.white,
-                                  thickness: 1,
-                                  height: 1,
                                 ),
                               ),
-
-<<<<<<< Updated upstream
                               const SizedBox(width: 8),
-
-                              // Discard button
                               Expanded(
                                 child: OutlinedButton(
                                   onPressed: () {
@@ -670,86 +348,21 @@ class _EditMenuPageState extends State<EditMenuPage> {
                                     side: BorderSide(color: Colors.grey[300]!),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(30),
-=======
-                              // Action buttons - Keeping the original 3 buttons
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 16.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    // Delete button
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        onPressed: isDeleting || isSubmitting ? null : () {
-                                          _showDeleteConfirmation(context);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFFE15B5B),
-                                          foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(30),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 16,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          isDeleting ? 'Deleting...' : 'Delete Menu',
-                                          style: const TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
->>>>>>> Stashed changes
                                     ),
-
-                                    const SizedBox(width: 8),
-
-                                    // Discard button
-                                    Expanded(
-                                      child: OutlinedButton(
-                                        onPressed: isSubmitting || isDeleting ? null : () {
-                                          Navigator.pop(context);
-                                        },
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor: Colors.black,
-                                          backgroundColor: Colors.white,
-                                          side: BorderSide(color: Colors.grey[300]!),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(30),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 16,
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          'Discard Change',
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16,
                                     ),
-<<<<<<< Updated upstream
                                   ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 0), // tambahkan padding horizontal
-                                    child: const Text(
-                                      'Discard Change',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  child: const Text(
+                                    'Discard Change',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
                               ),
-
                               const SizedBox(width: 8),
-
-                              // Save button
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: () {
@@ -768,41 +381,10 @@ class _EditMenuPageState extends State<EditMenuPage> {
                                   child: const Text(
                                     'Save Change',
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 15,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-=======
-
-                                    const SizedBox(width: 8),
-
-                                    // Save button
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        onPressed: isSubmitting || isProcessingImage || isDeleting ? null : () {
-                                          _saveChanges(context);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.black,
-                                          foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(30),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 16,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          isSubmitting ? 'Submitting...' : 'Save Change',
-                                          style: const TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
->>>>>>> Stashed changes
                                 ),
                               ),
                             ],
@@ -812,6 +394,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
                     ),
                   ),
                 ),
+
               ],
             ),
           ),
@@ -820,7 +403,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
     );
   }
 
-  Widget _buildFormField(String label, TextEditingController controller, String hintText, {bool isNumber = false, bool readOnly = false}) {
+  Widget _buildFormField(String label, TextEditingController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -846,16 +429,9 @@ class _EditMenuPageState extends State<EditMenuPage> {
               Expanded(
                 child: TextField(
                   controller: controller,
-                  keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-                  readOnly: readOnly,
-                  decoration: InputDecoration(
-                    hintText: hintText,
-                    hintStyle: TextStyle(
-                      color: Colors.grey[400],
-                      fontSize: 16,
-                    ),
+                  decoration: const InputDecoration(
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                    contentPadding: EdgeInsets.symmetric(vertical: 8),
                   ),
                   style: const TextStyle(
                     fontSize: 16,
@@ -865,9 +441,6 @@ class _EditMenuPageState extends State<EditMenuPage> {
               GestureDetector(
                 onTap: () {
                   // Edit field
-                  if (label == 'Menu image') {
-                    _showImagePickerOptions();
-                  }
                 },
                 child: Container(
                   width: 24,
@@ -898,14 +471,15 @@ class _EditMenuPageState extends State<EditMenuPage> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Close dialog
+              Navigator.pop(context);
             },
             child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context); // Close dialog
-              _deleteMenu(); // Call the delete function
+              Navigator.pop(context); // Go back to menu page
+              // Add delete functionality here
             },
             child: const Text('Delete', style: TextStyle(color: Color(0xFFE15B5B))),
           ),
@@ -913,26 +487,6 @@ class _EditMenuPageState extends State<EditMenuPage> {
       ),
     );
   }
-<<<<<<< Updated upstream
 
-  void _saveChanges(BuildContext context) {
-    // Implement save functionality
-    // You can create a Menu model and pass the updated values back
 
-    // Example:
-    // final updatedMenu = Menu(
-    //   name: nameController.text,
-    //   category: categoryController.text,
-    //   price: priceController.text,
-    //   description: descriptionController.text,
-    //   image: imageController.text,
-    // );
-
-    // Navigator.pop(context, updatedMenu);
-
-    // For now, just go back
-    Navigator.pop(context);
-  }
-=======
->>>>>>> Stashed changes
 }

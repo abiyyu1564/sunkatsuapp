@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class FoodEdit extends StatefulWidget {
-  const FoodEdit({super.key});
+  const FoodEdit({super.key, required Map<String, Object?> foodData});
 
   @override
   State<FoodEdit> createState() => _FoodEditState();

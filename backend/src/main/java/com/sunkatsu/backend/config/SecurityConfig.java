@@ -97,6 +97,10 @@ public class SecurityConfig {
                                 .requestMatchers(PATCH, "/api/files/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
                                 .requestMatchers("/api/files/images/**").permitAll()
 
+                                .requestMatchers(PUT, "/messages/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                .requestMatchers(DELETE, "/messages/**").hasAnyAuthority("CUSTOMER", "STAFF", "OWNER")
+                                
+
                                 .anyRequest()
                                 .authenticated()
                 )
