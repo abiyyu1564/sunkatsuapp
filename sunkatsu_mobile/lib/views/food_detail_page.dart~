@@ -140,6 +140,8 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
 
   // Fungsi untuk mengambil gambar menggunakan http
   Future<void> fetchImage(String imageName) async {
+    debugPrint("🖼️ Trying to fetch image: $imageName");
+
     try {
       final token = await JwtUtils.getToken();
       final response = await http.get(
@@ -247,7 +249,7 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
                       ],
                     ),
                     child: ClipOval(
-                    child: Image.memory(
+                      child: Image.memory(
                         Uri.parse(imageToDisplay!).data!.contentAsBytes(), // convert dari Data URI
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
