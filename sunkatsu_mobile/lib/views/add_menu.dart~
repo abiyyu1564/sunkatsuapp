@@ -420,29 +420,6 @@ class _AddMenuPageState extends State<AddMenuPage> {
                               _buildFormField('Menu description', descriptionController, 'Write description'),
 
 
-                              // Menu image field (read-only)
-
-
-                              // Add image button
-                              Padding(
-                                padding: const EdgeInsets.only(top: 16.0),
-                                child: ElevatedButton.icon(
-                                  onPressed: isProcessingImage ? null : _showImagePickerOptions,
-                                  icon: const Icon(Icons.add_photo_alternate),
-                                  label: const Text('Add Menu Image'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFE15B5B),
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                      horizontal: 16,
-                                    ),
-                                  ),
-                                ),
-                              ),
 
                               // Divider
                               const Padding(

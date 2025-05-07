@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 
-
 class EditMenuPage extends StatefulWidget {
   final Map<String, dynamic> foodData;
 
@@ -19,39 +18,223 @@ class EditMenuPage extends StatefulWidget {
 
 class _EditMenuPageState extends State<EditMenuPage> {
   late TextEditingController nameController;
-  late TextEditingController categoryController;
   late TextEditingController priceController;
   late TextEditingController descriptionController;
   late TextEditingController imageController;
   String? imageToDisplay;
   File? imageFile;
+  String selectedCategory = '';
+  bool isProcessingImage = false;
+  bool isSubmitting = false;
+  bool isDeleting = false;
 
-  // Fungsi pilih gambar
-  Future<void> pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  final ImagePicker _picker = ImagePicker();
 
-    if (pickedFile != null) {
+  // Fungsi pilih gambar dari galeri
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        setState(() {
+          imageFile = File(image.path);
+          imageController.text = image.name;
+          isProcessingImage = true;
+        });
+
+        // Simulate background removal process
+        await Future.delayed(const Duration(seconds: 2));
+
+        setState(() {
+          isProcessingImage = false;
+        });
+
+
+      }
+    } catch (e) {
       setState(() {
-        imageFile = File(pickedFile.path);
+        isProcessingImage = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error picking image: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  // Fungsi pilih gambar dari kamera
+  Future<void> _pickImageFromCamera() async {
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+      if (image != null) {
+        setState(() {
+          imageFile = File(image.path);
+          imageController.text = image.name;
+          isProcessingImage = true;
+        });
+
+        // Simulate background removal process
+        await Future.delayed(const Duration(seconds: 2));
+
+        setState(() {
+          isProcessingImage = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isProcessingImage = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error picking image: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  // Fungsi untuk menampilkan opsi pilihan gambar
+  void _showImagePickerOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Photo Library'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickImage();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_camera),
+                title: const Text('Camera'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickImageFromCamera();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Fungsi Delete Menu
+  Future<void> _deleteMenu() async {
+    setState(() {
+      isDeleting = true;
+    });
+
+    try {
+      final token = await JwtUtils.getToken();
+      if (token == null) {
+        setState(() {
+          isDeleting = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Authentication token not found'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      final id = widget.foodData['id'];
+      final response = await http.delete(
+        Uri.parse('http://localhost:8080/api/menus/$id'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        // Successful deletion
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Menu deleted successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Navigasi langsung ke MenuPage (pop semua halaman sampai ke MenuPage)
+        Navigator.of(context).popUntil((route) {
+          return route.settings.name == '/menu' || route.isFirst;
+        });
+      } else {
+        // Failed deletion
+        debugPrint('Delete failed with status: ${response.statusCode}');
+        debugPrint('Response body: ${response.body}');
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete menu: ${response.statusCode}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        setState(() {
+          isDeleting = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error deleting menu: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error deleting menu: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      setState(() {
+        isDeleting = false;
       });
     }
   }
 
-
   // Fungsi Edit Menu
   Future<void> _saveChanges(BuildContext context) async {
+    // Validate inputs
+    if (nameController.text.isEmpty ||
+        priceController.text.isEmpty ||
+        descriptionController.text.isEmpty ||
+        selectedCategory.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill all required fields'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      isSubmitting = true;
+    });
+
     final token = await JwtUtils.getToken();
-    if (token == null) return;
+    if (token == null) {
+      setState(() {
+        isSubmitting = false;
+      });
+      return;
+    }
 
     final id = widget.foodData['id'];
 
     // Buat URI dengan query parameters
-    final uri = Uri.parse('http://10.0.2.2:8080/api/menus/$id').replace(queryParameters: {
+    final uri = Uri.parse('http://localhost:8080/api/menus/$id').replace(queryParameters: {
       'name': nameController.text,
       'price': priceController.text,
       'desc': descriptionController.text,
-      'category': categoryController.text,
+      'category': selectedCategory,
       'nums_bought': (widget.foodData['nums_bought'] ?? 0).toString(),
     });
 
@@ -71,6 +254,9 @@ class _EditMenuPageState extends State<EditMenuPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("File harus berupa gambar .jpg/.jpeg atau .png")),
           );
+          setState(() {
+            isSubmitting = false;
+          });
           return;
         }
 
@@ -94,13 +280,12 @@ class _EditMenuPageState extends State<EditMenuPage> {
         Navigator.pop(context, {
           'name': nameController.text,
           'price': int.tryParse(priceController.text) ?? 0,
-          'category': categoryController.text,
+          'category': selectedCategory,
           'description': descriptionController.text,
           'image': updatedData['image'], // <-- ini yang AKURAT
         });
         return;
       }
-
 
       debugPrint("RESPONSE STATUS: ${response.statusCode}");
       debugPrint("RESPONSE BODY: ${response.body}");
@@ -112,7 +297,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
         Navigator.pop(context, {
           'name': nameController.text,
           'price': int.tryParse(priceController.text) ?? 0,
-          'category': categoryController.text,
+          'category': selectedCategory,
           'description': descriptionController.text,
           'image': imageFile != null
               ? imageFile!.path.split('/').last // atau pakai nama dari server jika ada
@@ -129,19 +314,23 @@ class _EditMenuPageState extends State<EditMenuPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Terjadi kesalahan saat menyimpan")),
       );
+    } finally {
+      setState(() {
+        isSubmitting = false;
+      });
     }
   }
 
-
-
-
-  // Fungsi untuk menampilkan gambar
   // Fungsi untuk mengambil gambar menggunakan http
   Future<void> fetchImage(String imageName) async {
     try {
       final token = await JwtUtils.getToken();
+      final path = imageName.startsWith('/')
+          ? imageName
+          : '/api/menus/images/$imageName';
+
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8080/api/menus/images/$imageName'),
+        Uri.parse('http://localhost:8080$path'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -169,20 +358,22 @@ class _EditMenuPageState extends State<EditMenuPage> {
   void initState() {
     super.initState();
     nameController = TextEditingController(text: widget.foodData['name'] ?? '');
-    categoryController = TextEditingController(text: widget.foodData['category'] ?? '');
     priceController = TextEditingController(text: widget.foodData['price'].toString());
     descriptionController = TextEditingController(text: widget.foodData['description'] ?? '');
     imageController = TextEditingController(text: widget.foodData['image'] ?? '');
 
-    // 🧠 Tambahkan pemanggilan fungsi fetchImage di sini
+    // Set initial category
+    selectedCategory = (widget.foodData['category'] ?? '').toLowerCase();
+
+    // Tambahkan pemanggilan fungsi fetchImage di sini
     if (imageController.text.isNotEmpty) {
       fetchImage(imageController.text);
     }
   }
+
   @override
   void dispose() {
     nameController.dispose();
-    categoryController.dispose();
     priceController.dispose();
     descriptionController.dispose();
     imageController.dispose();
@@ -219,7 +410,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
           SafeArea(
             child: Column(
               children: [
-                // Back button (optional)
+                // Back button
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Align(
@@ -236,155 +427,229 @@ class _EditMenuPageState extends State<EditMenuPage> {
                   ),
                 ),
 
-                const SizedBox(height: 29),
-
-                // Food image
-                Center(
-                  child: imageToDisplay != null
-                      ? Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          spreadRadius: 2,
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: ClipOval(
-                      child: imageFile != null
-                          ? Image.file(
-                        imageFile!,
-                        fit: BoxFit.cover,
-                      )
-                          : (imageToDisplay != null
-                          ? Image.memory(
-                        Uri.parse(imageToDisplay!).data!.contentAsBytes(),
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.broken_image, size: 100),
-                      )
-                          : const Center(child: CircularProgressIndicator())),
-                    )
-                  )
-                      : const Center(child: CircularProgressIndicator()),
-                ),
-
-                // Form fields
+                // Scrollable content
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24.0),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Form fields
-                        _buildFormField('Menu name', nameController),
-                        const SizedBox(height: 16),
-                        _buildFormField('Menu category', categoryController),
-                        const SizedBox(height: 16),
-                        _buildFormField('Menu price', priceController),
-                        const SizedBox(height: 16),
-                        _buildFormField('Menu description', descriptionController),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
 
-                        TextButton(
-                          onPressed: pickImage,
-                          child: const Text(
-                            "Change Image",
-                            style: TextStyle(
-                              color: Color(0xFFE15B5B),
-                              fontWeight: FontWeight.bold,
+                        // Image placeholder or selected image
+                        GestureDetector(
+                          onTap: isProcessingImage ? null : _showImagePickerOptions,
+                          child: Center(
+                            child: Container(
+                              width: 200,
+                              height: 200,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    spreadRadius: 2,
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: isProcessingImage
+                                  ? const Center(
+                                child: CircularProgressIndicator(
+                                  color: Color(0xFFE15B5B),
+                                ),
+                              )
+                                  : ClipOval(
+                                child: imageFile != null
+                                    ? Image.file(
+                                  imageFile!,
+                                  fit: BoxFit.cover,
+                                  width: 200,
+                                  height: 200,
+                                )
+                                    : (imageToDisplay != null
+                                    ? Image.memory(
+                                  Uri.parse(imageToDisplay!).data!.contentAsBytes(),
+                                  fit: BoxFit.cover,
+                                  width: 200,
+                                  height: 200,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                  const Icon(Icons.broken_image, size: 100),
+                                )
+                                    : const Center(child: CircularProgressIndicator())),
+                              ),
                             ),
                           ),
                         ),
 
-
-                        const SizedBox(height: 24),
-
-                        // Action buttons
+                        // Form fields
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 16.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          padding: const EdgeInsets.all(24.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Delete button
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    _showDeleteConfirmation(context);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFE15B5B),
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    'Delete Menu',
+                              // Menu name
+                              _buildFormField('Menu name', nameController, 'Enter menu name'),
+                              const SizedBox(height: 16),
+
+                              // Menu category (dropdown)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Menu category',
                                     style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
                                     ),
                                   ),
+                                  const SizedBox(height: 4),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: Colors.grey[300]!,
+                                          width: 1,
+                                        ),
+                                      ),
+                                    ),
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton<String>(
+                                        isExpanded: true,
+                                        hint: Text(
+                                          'Select categories',
+                                          style: TextStyle(
+                                            color: Colors.grey[400],
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        value: selectedCategory.isEmpty ? null : selectedCategory,
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            selectedCategory = newValue!;
+                                          });
+                                        },
+                                        items: <String>['Food', 'Drink', 'Dessert']
+                                            .map<DropdownMenuItem<String>>((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value.toLowerCase(),
+                                            child: Text(value),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 16),
+
+                              // Menu price
+                              _buildFormField('Menu price', priceController, 'Enter a price', isNumber: true),
+                              const SizedBox(height: 16),
+
+                              // Menu description
+                              _buildFormField('Menu description', descriptionController, 'Write description'),
+
+                              // Divider
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 10),
+                                child: Divider(
+                                  color: Colors.white,
+                                  thickness: 1,
+                                  height: 1,
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: OutlinedButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: Colors.black,
-                                    backgroundColor: Colors.white,
-                                    side: BorderSide(color: Colors.grey[300]!),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
+
+                              // Action buttons - Keeping the original 3 buttons
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 16.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    // Delete button
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: isDeleting || isSubmitting ? null : () {
+                                          _showDeleteConfirmation(context);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(0xFFE15B5B),
+                                          foregroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(30),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 16,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          isDeleting ? 'Deleting...' : 'Delete Menu',
+                                          style: const TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
+
+                                    const SizedBox(width: 8),
+
+                                    // Discard button
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        onPressed: isSubmitting || isDeleting ? null : () {
+                                          Navigator.pop(context);
+                                        },
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: Colors.black,
+                                          backgroundColor: Colors.white,
+                                          side: BorderSide(color: Colors.grey[300]!),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(30),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 16,
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          'Discard Change',
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  child: const Text(
-                                    'Discard Change',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
+
+                                    const SizedBox(width: 8),
+
+                                    // Save button
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: isSubmitting || isProcessingImage || isDeleting ? null : () {
+                                          _saveChanges(context);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.black,
+                                          foregroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(30),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 16,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          isSubmitting ? 'Submitting...' : 'Save Change',
+                                          style: const TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    _saveChanges(context);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.black,
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    'Save Change',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -394,7 +659,6 @@ class _EditMenuPageState extends State<EditMenuPage> {
                     ),
                   ),
                 ),
-
               ],
             ),
           ),
@@ -403,7 +667,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
     );
   }
 
-  Widget _buildFormField(String label, TextEditingController controller) {
+  Widget _buildFormField(String label, TextEditingController controller, String hintText, {bool isNumber = false, bool readOnly = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -429,9 +693,16 @@ class _EditMenuPageState extends State<EditMenuPage> {
               Expanded(
                 child: TextField(
                   controller: controller,
-                  decoration: const InputDecoration(
+                  keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+                  readOnly: readOnly,
+                  decoration: InputDecoration(
+                    hintText: hintText,
+                    hintStyle: TextStyle(
+                      color: Colors.grey[400],
+                      fontSize: 16,
+                    ),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 8),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
                   ),
                   style: const TextStyle(
                     fontSize: 16,
@@ -441,6 +712,9 @@ class _EditMenuPageState extends State<EditMenuPage> {
               GestureDetector(
                 onTap: () {
                   // Edit field
+                  if (label == 'Menu image') {
+                    _showImagePickerOptions();
+                  }
                 },
                 child: Container(
                   width: 24,
@@ -471,15 +745,14 @@ class _EditMenuPageState extends State<EditMenuPage> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(context); // Close dialog
             },
             child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context); // Close dialog
-              Navigator.pop(context); // Go back to menu page
-              // Add delete functionality here
+              _deleteMenu(); // Call the delete function
             },
             child: const Text('Delete', style: TextStyle(color: Color(0xFFE15B5B))),
           ),
@@ -487,6 +760,4 @@ class _EditMenuPageState extends State<EditMenuPage> {
       ),
     );
   }
-
-
 }

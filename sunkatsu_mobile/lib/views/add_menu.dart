@@ -233,7 +233,9 @@ class _AddMenuPageState extends State<AddMenuPage> {
         });
 
         // Close the page
-        Navigator.pop(context, true); // Return true to indicate success
+        Navigator.of(context).popUntil((route) {
+          return route.settings.name == '/menu' || route.isFirst;
+        }); // Return true to indicate success
       } else {
         throw Exception('Failed to create menu: ${response.statusCode}, $responseData');
       }
