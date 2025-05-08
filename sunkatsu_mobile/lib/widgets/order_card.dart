@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sunkatsu_mobile/utils/constants.dart'; // Pastikan sudah ada AppColors
+import 'package:intl/intl.dart';
 
 class OrderCard extends StatelessWidget {
   final dynamic orderedItem; // Menggunakan objek Order
@@ -13,9 +14,17 @@ class OrderCard extends StatelessWidget {
     this.onActionTap,
   });
 
+
   @override
   Widget build(BuildContext context) {
-    String buttonText = '';
+    DateTime paymentDeadline = orderedItem.paymentDeadline ?? DateTime.now();
+    String buttonText = orderedItem.status == 'Accepted'
+      ? 'Finish'
+        : orderedItem.status == 'Not Paid'
+          ? 'Accept'
+          : 'Done'
+    ;
+
     // Menentukan buttonText berdasarkan status pesanan
     if (orderedItem.status == 'Payment') {
       buttonText = 'Pay Now';
@@ -37,12 +46,26 @@ class OrderCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                orderedItem.paymentDeadline != null
-                    ? orderedItem.paymentDeadline.toLocal().toString() // Formatkan tanggal jika ada
-                    : "No Deadline",
-                style: TextStyle(color: AppColors.white),
-              ),
+              if (orderedItem.status == 'Not Paid')
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Date (top)
+                    Text(
+                      orderedItem.paymentDeadline != null
+                          ? DateFormat('d MMMM, yyyy').format(orderedItem.paymentDeadline!.toLocal()) // Format date
+                          : "No Deadline",
+                      style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
+                    ),
+                    // Time (below)
+                    Text(
+                      orderedItem.paymentDeadline != null
+                          ? DateFormat('HH:mm').format(orderedItem.paymentDeadline!.toLocal()) // Format time
+                          : "",
+                      style: TextStyle(color: AppColors.white),
+                    ),
+                  ],
+                )
             ],
           ),
           const SizedBox(width: 16),
@@ -51,13 +74,11 @@ class OrderCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /*
-                role == 'admin'
+                role == ''
                     ? Text(orderedItem.name, style: TextStyle(color: AppColors.white))
                     : Container(),
-                 */
                 Text(
-                  role == 'admin' ? "Orders" : "Your Orders:",
+                  role == 'STAFF' ? "Orders" : "Your Orders:",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: AppColors.white,
@@ -82,7 +103,7 @@ class OrderCard extends StatelessWidget {
                         color: AppColors.white,
                       ),
                     ),
-                    if (role == 'admin' && orderedItem.status != 'Finished')
+                    if (role == 'STAFF' && orderedItem.status != 'Finished')
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
@@ -109,6 +130,8 @@ class OrderCard extends StatelessWidget {
       ),
     );
   }
+
+
 
   // Mendapatkan warna card berdasarkan status
   Color _getCardColor() {
