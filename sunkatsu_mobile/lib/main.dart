@@ -11,6 +11,7 @@ import 'package:sunkatsu_mobile/views/sign_up_page.dart';
 import 'package:sunkatsu_mobile/views/staff_order_page.dart';
 import 'package:sunkatsu_mobile/views/welcome_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 import 'views/chat_page.dart';
 import 'views/chatbot_page.dart';
@@ -21,6 +22,19 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Inisialisasi notifikasi
+  AwesomeNotifications().initialize(
+    null, // Use default icon
+    [
+      NotificationChannel(
+        channelKey: 'order_status_channel',
+        channelName: 'Order Status',
+        channelDescription: 'Notifications for order status changes',
+        defaultColor: const Color(0xFF9D50DD),
+        ledColor: Colors.white,
+        importance: NotificationImportance.High,
+      ),
+    ],
+  );
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
@@ -30,6 +44,13 @@ void main() async {
   const InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
   );
+
+  AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+    if (!isAllowed) {
+      // Request permission to send notifications
+      AwesomeNotifications().requestPermissionToSendNotifications();
+    }
+  });
 
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
