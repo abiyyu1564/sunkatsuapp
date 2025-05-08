@@ -20,10 +20,25 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
   String? imageToDisplay;
   String? userRole;
   bool isLoading = true;
+  bool _hasEdited = false;
+  late int totalAmount; // Add total amount variable
+
+  @override
+  void initState() {
+    super.initState();
+    final imageName = widget.foodData['image'];
+    fetchImage(imageName);
+    loadUserRole();
+
+    // Initialize total amount
+    totalAmount = widget.foodData['price'] * quantity;
+  }
 
   void incrementQuantity() {
     setState(() {
       quantity++;
+      // Update total amount when quantity changes
+      totalAmount = widget.foodData['price'] * quantity;
     });
   }
 
@@ -31,9 +46,12 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
     if (quantity > 1) {
       setState(() {
         quantity--;
+        // Update total amount when quantity changes
+        totalAmount = widget.foodData['price'] * quantity;
       });
     }
   }
+
   //ngambil userRole
   Future<void> loadUserRole() async {
     final payload = await JwtUtils.parseJwtPayload();
@@ -82,6 +100,27 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
 
   // fungsi add to cart
   Future<void> addToCart() async {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Dialog(
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("Adding to cart..."),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
     final token = await JwtUtils.getToken();
     final cartId = await getOrCreateCart();
     final userId = await JwtUtils.getUserId();
@@ -89,7 +128,10 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
     debugPrint("Token: $token");
     debugPrint("UserID: $userId");
 
-    if (token == null || cartId == null) return;
+    if (token == null || cartId == null) {
+      Navigator.pop(context); // Close loading dialog
+      return;
+    }
 
     final menuId = widget.foodData['id']; // Pastikan `id` tersedia
     debugPrint(widget.foodData['id'].toString());
@@ -107,31 +149,53 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
         'Authorization': 'Bearer $token',
       });
 
+      // Close loading dialog
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
+
       if (response.statusCode == 200) {
         // Tampilkan SnackBar
         debugPrint('berhasil add to cart');
-        ScaffoldMessenger.of(context).showSnackBar(
-
-          const SnackBar(
-            content: Text("Berhasil ditambahkan ke keranjang"),
-            duration: Duration(seconds: 2),
-          ),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Berhasil ditambahkan ke keranjang"),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
 
         // Delay sebentar sebelum navigasi (agar snackbar terlihat)
         await Future.delayed(const Duration(milliseconds: 300));
 
         // Navigasi ke MenuPage
         if (context.mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => MenuPage()),
-          );
+          // Pop back to MenuPage with refresh flag
+          Navigator.of(context).pop(true);
         }
       } else {
         debugPrint('Add to cart failed: ${response.statusCode}');
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Failed to add to cart: ${response.statusCode}"),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     } catch (e) {
+      // Close loading dialog
+      if (context.mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error: $e"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       debugPrint('Error adding to cart: $e');
     }
   }
@@ -173,17 +237,13 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
     }
   }
 
-
-
-  @override
-  void initState() {
-    super.initState();
-    final imageName = widget.foodData['image'];
-    fetchImage(imageName);
-    loadUserRole(); // load role user
+  // Format price with thousand separator
+  String formatPrice(int price) {
+    return price.toString().replaceAllMapped(
+        RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+            (Match m) => '${m[1]}.'
+    );
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -222,7 +282,9 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
                     alignment: Alignment.topLeft,
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.pop(context);
+                        // Return with hasEdited flag to trigger refresh if needed
+                        Navigator.of(context).pop(_hasEdited);
+                        debugPrint("Returning with hasEdited: $_hasEdited");
                       },
                       child: const Icon(
                         Icons.arrow_back,
@@ -253,7 +315,7 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
                       ],
                     ),
                     child: ClipOval(
-                    child: Image.memory(
+                      child: Image.memory(
                         Uri.parse(imageToDisplay!).data!.contentAsBytes(), // convert dari Data URI
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
@@ -261,7 +323,23 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
                       ),
                     ),
                   )
-                      : const Center(child: CircularProgressIndicator()),
+                      : Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey[200],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          spreadRadius: 2,
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: const Center(child: CircularProgressIndicator()),
+                  ),
                 ),
 
                 // Food details
@@ -295,7 +373,7 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Rp ${widget.foodData['price']}',
+                                  'Rp ${formatPrice(widget.foodData['price'])}',
                                   style: TextStyle(
                                     color: const Color(0xFFE15B5B),
                                     fontSize: 18,
@@ -394,22 +472,54 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
                             ),
                             ElevatedButton.icon(
                               onPressed: () async {
-                                // navigasi ke halaman edit
-                                final updatedFoodData = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => EditMenuPage(foodData: widget.foodData),
-                                  ),
+                                // Show loading indicator
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return const Dialog(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(20.0),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            CircularProgressIndicator(),
+                                            SizedBox(width: 20),
+                                            Text("Loading editor..."),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 );
 
-                                // Jika ada data hasil edit yang dikembalikan
-                                if (updatedFoodData != null && mounted) {
-                                  setState(() {
-                                    widget.foodData.addAll(updatedFoodData); // Update data lokal
-                                    fetchImage(updatedFoodData['image']);    // Ambil gambar terbaru
-                                  });
-                                }
+                                // Small delay to show loading
+                                await Future.delayed(const Duration(milliseconds: 100));
 
+                                if (context.mounted) {
+                                  // Close loading dialog
+                                  Navigator.pop(context);
+
+                                  // navigasi ke halaman edit
+                                  final updatedFoodData = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EditMenuPage(foodData: widget.foodData),
+                                    ),
+                                  );
+
+                                  // Jika ada data hasil edit yang dikembalikan
+                                  if (updatedFoodData != null && mounted) {
+                                    setState(() {
+                                      widget.foodData.addAll(updatedFoodData);
+                                      fetchImage(updatedFoodData['image']);
+                                      _hasEdited = true; // tandai bahwa sudah diedit
+
+                                      // Update total amount if price changed
+                                      totalAmount = widget.foodData['price'] * quantity;
+                                    });
+                                  }
+                                }
                               },
                               icon: const Icon(Icons.edit),
                               label: const Text('Edit Menu'),
@@ -434,7 +544,7 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Rp ${widget.foodData['price']}',
+                                  'Rp ${formatPrice(totalAmount)}', // Use calculated total amount
                                   style: const TextStyle(
                                     color: Color(0xFFE15B5B),
                                     fontSize: 20,

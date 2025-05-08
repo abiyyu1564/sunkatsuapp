@@ -21,6 +21,7 @@ class _MenuPageState extends State<MenuPage> {
   String selectedCategory = 'All';
   String? userRole;
   bool isLoading = true;
+  bool isRefreshing = false; // New flag for refresh state
   List<Menu> foodItems = [];
   Map<String, Uint8List> imageBytesMap = {};
 
@@ -29,13 +30,23 @@ class _MenuPageState extends State<MenuPage> {
     super.initState();
     decodeAndSetUserRole();
     fetchMenuItems(forceReloadImages: true);
+
+    // Add a focus listener to refresh when page gets focus again
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final focusNode = FocusNode();
+      FocusScope.of(context).requestFocus(focusNode);
+      focusNode.addListener(() {
+        if (focusNode.hasFocus) {
+          fetchMenuItems(forceReloadImages: true);
+        }
+      });
+    });
   }
 
   Future<void> _refreshAfterPop() async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 100)); // Reduced delay
     await fetchMenuItems(forceReloadImages: true);
   }
-
 
   Future<void> decodeAndSetUserRole() async {
     final token = await JwtUtils.getToken();
@@ -53,12 +64,27 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   Future<void> fetchMenuItems({bool forceReloadImages = false}) async {
+    if (!mounted) return;
+
+    setState(() {
+      isRefreshing = true; // Show refresh indicator
+    });
+
     const String apiUrl = 'http://localhost:8080/api/menus';
     final token = await JwtUtils.getToken();
 
-    if (token == null) return;
+    if (token == null) {
+      if (mounted) {
+        setState(() {
+          isRefreshing = false;
+          isLoading = false;
+        });
+      }
+      return;
+    }
 
     try {
+      // Fetch menu items
       final response = await http.get(
         Uri.parse(apiUrl),
         headers: {
@@ -71,31 +97,71 @@ class _MenuPageState extends State<MenuPage> {
         final List<dynamic> data = json.decode(response.body);
         final List<Menu> fetchedItems = data.map((item) => Menu.fromJson(item)).toList();
 
-        for (final item in fetchedItems) {
-          try {
-            final imageUrl = 'http://localhost:8080${item.imageUrl}';
-            final imageResponse = await http.get(
-              Uri.parse(imageUrl),
-              headers: {'Authorization': 'Bearer $token'},
-            );
-
-            if (imageResponse.statusCode == 200) {
-              // Force update image cache
-              imageBytesMap[item.imageUrl] = imageResponse.bodyBytes;
-            }
-          } catch (e) {
-            print('Error fetching image for ${item.name}: $e');
-          }
+        // Update state with new menu items immediately
+        if (mounted) {
+          setState(() {
+            foodItems = fetchedItems;
+            isLoading = false;
+          });
         }
 
-        setState(() {
-          foodItems = fetchedItems;
-        });
+        // Fetch images in parallel instead of sequentially
+        final List<Future<void>> imageFutures = [];
+
+        for (final item in fetchedItems) {
+          // Skip already loaded images unless forced reload
+          if (!forceReloadImages && imageBytesMap.containsKey(item.imageUrl)) {
+            continue;
+          }
+
+          imageFutures.add(_fetchSingleImage(item.imageUrl, token));
+        }
+
+        // Wait for all image fetches to complete
+        await Future.wait(imageFutures);
+
+        // Update UI after all images are loaded
+        if (mounted) {
+          setState(() {
+            isRefreshing = false;
+          });
+        }
       } else {
-        print('Failed to fetch data: ${response.statusCode}');
+        debugPrint('Failed to fetch data: ${response.statusCode}');
+        if (mounted) {
+          setState(() {
+            isRefreshing = false;
+            isLoading = false;
+          });
+        }
       }
     } catch (e) {
-      print('Error fetching menu: $e');
+      debugPrint('Error fetching menu: $e');
+      if (mounted) {
+        setState(() {
+          isRefreshing = false;
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  // Helper method to fetch a single image
+  Future<void> _fetchSingleImage(String imageUrl, String token) async {
+    try {
+      final url = 'http://localhost:8080${imageUrl}';
+      final imageResponse = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (imageResponse.statusCode == 200 && mounted) {
+        setState(() {
+          imageBytesMap[imageUrl] = imageResponse.bodyBytes;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching image for $imageUrl: $e');
     }
   }
 
@@ -147,9 +213,14 @@ class _MenuPageState extends State<MenuPage> {
               'image': item.imageUrl,
               'description': item.desc,
             }),
+            settings: const RouteSettings(name: '/food-detail'),
           ),
-        ).then((_) {
-          fetchMenuItems(forceReloadImages: true);
+        ).then((result) {
+          // Check if we need to refresh based on the returned result
+          if (result == true) {
+            debugPrint("Refreshing menu after returning from detail page");
+            fetchMenuItems(forceReloadImages: true);
+          }
         });
       },
       child: SizedBox(
@@ -165,6 +236,7 @@ class _MenuPageState extends State<MenuPage> {
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             child: Row(
               children: [
+                // Image with loading indicator
                 ClipOval(
                   child: imageBytesMap.containsKey(item.imageUrl)
                       ? Image.memory(
@@ -173,7 +245,17 @@ class _MenuPageState extends State<MenuPage> {
                     height: 150,
                     fit: BoxFit.cover,
                   )
-                      : const Icon(Icons.broken_image, size: 80),
+                      : Container(
+                    width: 150,
+                    height: 150,
+                    color: Colors.grey[200],
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.red,
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 35),
                 Expanded(
@@ -206,6 +288,9 @@ class _MenuPageState extends State<MenuPage> {
       );
     }
 
+    // Use a static route name for navigation purposes
+    const routeName = '/menu';
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -219,6 +304,12 @@ class _MenuPageState extends State<MenuPage> {
           ],
         ),
         actions: [
+          // Add refresh button
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => fetchMenuItems(forceReloadImages: true),
+            color: Colors.grey[800],
+          ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {},
@@ -231,51 +322,79 @@ class _MenuPageState extends State<MenuPage> {
         onPressed: () async {
           final result = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AddMenuPage()),
+            MaterialPageRoute(
+              builder: (context) => const AddMenuPage(),
+              settings: const RouteSettings(name: '/add-menu'),
+            ),
           );
 
           if (result == true) {
-            await _refreshAfterPop();
-          }
-
-
-          if (result == true) {
-            await fetchMenuItems(forceReloadImages: true); // 💥 Fetch ulang
+            debugPrint("Refreshing menu after adding new item");
+            await fetchMenuItems(forceReloadImages: true);
           }
         },
         backgroundColor: const Color(0xFFE15B5B),
         child: const Icon(Icons.add),
       )
           : null,
-      body: Column(
+      body: Stack(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: Colors.white,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _buildCategoryButton('All'),
-                  const SizedBox(width: 8),
-                  _buildCategoryButton('Food'),
-                  const SizedBox(width: 8),
-                  _buildCategoryButton('Drink'),
-                  const SizedBox(width: 8),
-                  _buildCategoryButton('Dessert'),
-                ],
+          Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                color: Colors.white,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildCategoryButton('All'),
+                      const SizedBox(width: 8),
+                      _buildCategoryButton('Food'),
+                      const SizedBox(width: 8),
+                      _buildCategoryButton('Drink'),
+                      const SizedBox(width: 8),
+                      _buildCategoryButton('Dessert'),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () => fetchMenuItems(forceReloadImages: true),
+                  child: foodItems.isEmpty
+                      ? const Center(child: Text("No menu items available"))
+                      : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: filteredItems.length,
+                    itemBuilder: (context, index) => _buildFoodItemCard(filteredItems[index]),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // Overlay loading indicator during refresh
+          if (isRefreshing)
+            Container(
+              color: Colors.black.withOpacity(0.1),
+              child: const Center(
+                child: Card(
+                  elevation: 4,
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(color: AppColors.red),
+                        SizedBox(height: 16),
+                        Text("Loading menu...", style: TextStyle(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: foodItems.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: filteredItems.length,
-              itemBuilder: (context, index) => _buildFoodItemCard(filteredItems[index]),
-            ),
-          ),
         ],
       ),
     );
