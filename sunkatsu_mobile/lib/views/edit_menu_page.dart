@@ -42,13 +42,11 @@ class _EditMenuPageState extends State<EditMenuPage> {
         });
 
         // Simulate background removal process
-        await Future.delayed(const Duration(seconds: 2));
+        await Future.delayed(const Duration(seconds: 1)); // Reduced delay
 
         setState(() {
           isProcessingImage = false;
         });
-
-
       }
     } catch (e) {
       setState(() {
@@ -76,7 +74,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
         });
 
         // Simulate background removal process
-        await Future.delayed(const Duration(seconds: 2));
+        await Future.delayed(const Duration(seconds: 1)); // Reduced delay
 
         setState(() {
           isProcessingImage = false;
@@ -219,11 +217,35 @@ class _EditMenuPageState extends State<EditMenuPage> {
       isSubmitting = true;
     });
 
+    // Show loading overlay
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Dialog(
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("Saving changes..."),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
     final token = await JwtUtils.getToken();
     if (token == null) {
-      setState(() {
-        isSubmitting = false;
-      });
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading dialog
+        setState(() {
+          isSubmitting = false;
+        });
+      }
       return;
     }
 
@@ -251,9 +273,12 @@ class _EditMenuPageState extends State<EditMenuPage> {
 
         // Validasi MIME type agar sesuai backend
         if (mimeType != 'image/jpeg' && mimeType != 'image/png') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("File harus berupa gambar .jpg/.jpeg atau .png")),
-          );
+          if (context.mounted) {
+            Navigator.pop(context); // Close loading dialog
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("File harus berupa gambar .jpg/.jpeg atau .png")),
+            );
+          }
           setState(() {
             isSubmitting = false;
           });
@@ -274,16 +299,28 @@ class _EditMenuPageState extends State<EditMenuPage> {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading dialog
+      }
+
       if (response.statusCode == 200) {
         final updatedData = jsonDecode(response.body);
 
-        Navigator.pop(context, {
-          'name': nameController.text,
-          'price': int.tryParse(priceController.text) ?? 0,
-          'category': selectedCategory,
-          'description': descriptionController.text,
-          'image': updatedData['image'], // <-- ini yang AKURAT
-        });
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Berhasil menyimpan perubahan")),
+          );
+        }
+
+        // Return with updated data and true flag to trigger refresh
+        // Use a direct navigation approach to reduce the navigation chain
+        if (context.mounted) {
+          // Pop back to MenuPage directly with refresh flag
+          Navigator.of(context).popUntil((route) => route.settings.name == '/menu' || route.isFirst);
+
+          // Trigger a refresh on the MenuPage
+          // This is handled by the navigation listener in MainNavigation
+        }
         return;
       }
 
@@ -291,29 +328,29 @@ class _EditMenuPageState extends State<EditMenuPage> {
       debugPrint("RESPONSE BODY: ${response.body}");
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Berhasil menyimpan perubahan")),
-        );
-        Navigator.pop(context, {
-          'name': nameController.text,
-          'price': int.tryParse(priceController.text) ?? 0,
-          'category': selectedCategory,
-          'description': descriptionController.text,
-          'image': imageFile != null
-              ? imageFile!.path.split('/').last // atau pakai nama dari server jika ada
-              : widget.foodData['image'],
-        });
-        // kembali ke halaman sebelumnya
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Berhasil menyimpan perubahan")),
+          );
+
+          // Pop back to MenuPage directly with refresh flag
+          Navigator.of(context).popUntil((route) => route.settings.name == '/menu' || route.isFirst);
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Gagal menyimpan: ${response.statusCode}")),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Gagal menyimpan: ${response.statusCode}")),
+          );
+        }
       }
     } catch (e) {
       debugPrint("❌ Error saat upload: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Terjadi kesalahan saat menyimpan")),
-      );
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Terjadi kesalahan saat menyimpan")),
+        );
+      }
     } finally {
       setState(() {
         isSubmitting = false;
@@ -417,7 +454,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
                     alignment: Alignment.topLeft,
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.pop(context, {'refresh': false}); // Don't trigger refresh if just going back
                       },
                       child: const Icon(
                         Icons.arrow_back,

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sunkatsu_mobile/views/cart_page.dart';
+import '../models/cart.dart';
 
 class CartItemWidget extends StatelessWidget {
-  final CartItem item;
+  final CartItemModel item;
   final Color? backgroundColor;
   final Color textColor;
   final Function(int) onQuantityChanged;
@@ -34,7 +35,7 @@ class CartItemWidget extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Image.asset(
-                  item.image,
+                  item.menu.imageUrl,
                   width: 80,
                   height: 80,
                   fit: BoxFit.fitHeight,
@@ -66,7 +67,7 @@ class CartItemWidget extends StatelessWidget {
                 children: [
                   Center(
                     child: Text(
-                      item.name,
+                      item.menu.name,
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 24,
@@ -140,7 +141,7 @@ class CartItemWidget extends StatelessWidget {
                   const SizedBox(height: 8),
                   Center(
                     child: Text(
-                      'Price: Rp. ${item.price}',
+                      'Price: Rp. ${item.menu.price}',
                       style: TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 14,

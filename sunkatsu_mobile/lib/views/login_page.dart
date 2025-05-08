@@ -12,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-
+import 'package:flutter/services.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -89,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => MainNavigation()),
-          (route) => false,
+            (route) => false,
       );
     } else {
       final responseBody = jsonDecode(response.body);
@@ -120,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   const SizedBox(height: 16),
                   IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () => SystemNavigator.pop(),
                     icon: const Icon(Icons.arrow_back),
                   ),
                   const SizedBox(height: 16),

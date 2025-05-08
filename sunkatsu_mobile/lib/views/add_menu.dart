@@ -232,10 +232,8 @@ class _AddMenuPageState extends State<AddMenuPage> {
           selectedImage = null;
         });
 
-        // Close the page
-        Navigator.of(context).popUntil((route) {
-          return route.settings.name == '/menu' || route.isFirst;
-        }); // Return true to indicate success
+        // Return to MenuPage with refresh flag
+        Navigator.of(context).pop(true); // Return true to indicate success and trigger refresh
       } else {
         throw Exception('Failed to create menu: ${response.statusCode}, $responseData');
       }
