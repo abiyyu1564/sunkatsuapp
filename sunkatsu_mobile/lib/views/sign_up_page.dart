@@ -26,18 +26,18 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   void _handleSignUp() async {
-    final email = _emailController.text.trim();
+
     final password = _passwordController.text.trim();
     final username = _usernameController.text.trim();
 
-    if (email.isEmpty || password.isEmpty || username.isEmpty) {
+    if (password.isEmpty || username.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all fields')),
       );
       return;
     }
 
-    final url = Uri.parse('http://10.0.2.2:8080/api/auth/register');
+    final url = Uri.parse('http://localhost:8080/api/auth/register');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -117,20 +117,20 @@ class _SignUpPageState extends State<SignUpPage> {
               const SizedBox(height: 16),
 
               // Email
-              const Text(
-                'Email',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: _inputDecoration('Enter your email'),
-              ),
+              // const Text(
+              //   'Email',
+              //   style: TextStyle(
+              //     fontSize: 14,
+              //     color: AppColors.red,
+              //     fontWeight: FontWeight.bold,
+              //   ),
+              // ),
+              // const SizedBox(height: 8),
+              // TextField(
+              //   controller: _emailController,
+              //   keyboardType: TextInputType.emailAddress,
+              //   decoration: _inputDecoration('Enter your email'),
+              // ),
               const SizedBox(height: 16),
 
               // Password

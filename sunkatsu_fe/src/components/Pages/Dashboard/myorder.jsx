@@ -22,8 +22,8 @@ const Order = () => {
       try {
         const url =
           user.role === "CUSTOMER"
-            ? `http://10.0.0.2:8080/api/customers/${user.id}/orders`
-            : "http://10.0.0.2:8080/api/orders";
+            ? `http://localhost:8080/api/customers/${user.id}/orders`
+            : "http://localhost:8080/api/orders";
         const response = await axios.get(url, {
           headers: {
             Authorization: `Bearer ${Cookies.get("token")}`,
@@ -35,7 +35,7 @@ const Order = () => {
           for (const orders of response.data) {
             if (!customerData[orders.userID]) {
               const customerResponse = await axios.get(
-                `http://10.0.0.2:8080/api/customers/${orders.userID}`,
+                `http://localhost:8080/api/customers/${orders.userID}`,
                 {
                   headers: {
                     Authorization: `Bearer ${Cookies.get("token")}`,
@@ -59,7 +59,7 @@ const Order = () => {
   const getCustomerbyId = async (id) => {
     try {
       const response = await axios.get(
-        `http://10.0.0.2:8080/api/customers/${id}`,
+        `http://localhost:8080/api/customers/${id}`,
         {
           headers: {
             Authorization: `Bearer ${Cookies.get("token")}`,
@@ -82,7 +82,7 @@ const Order = () => {
 
     // Jika belum, buat request untuk mendapatkan gambar
     axios
-      .get(`http://10.0.0.2:8080/api/menus/images/${menuId}`, {
+      .get(`http://localhost:8080/api/menus/images/${menuId}`, {
         // Endpoint ini hanya contoh, sesuaikan dengan API yang benar
         headers: {
           Authorization: `Bearer ${Cookies.get("token")}`,
@@ -131,7 +131,7 @@ const Order = () => {
       if (result.isConfirmed) {
         axios
           .put(
-            `http://10.0.0.2:8080/api/orders/${id}/finish`,
+            `http://localhost:8080/api/orders/${id}/finish`,
             {},
             {
               headers: {
@@ -167,7 +167,7 @@ const Order = () => {
       if (result.isConfirmed) {
         axios
           .put(
-            `http://10.0.0.2:8080/api/orders/${id}/accept`,
+            `http://localhost:8080/api/orders/${id}/accept`,
             {},
             {
               headers: {

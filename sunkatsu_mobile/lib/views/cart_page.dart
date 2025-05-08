@@ -17,7 +17,7 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   ShoppingCart? cart;
   bool isLoading = true;
-  final String baseUrl = "http://10.0.2.2:8080";
+  final String baseUrl = "http://localhost:8080";
 
   // Store fetched image bytes here
   Map<String, Uint8List> imageBytesMap = {};
