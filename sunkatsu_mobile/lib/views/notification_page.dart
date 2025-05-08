@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sunkatsu_mobile/utils/constants.dart';
+// Tambahkan import berikut di bagian atas file
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -10,53 +13,73 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-  // Sample notifications data to match the image
-  final List<Map<String, dynamic>> notifications = [
-    {
-      'message': 'Your order has been placed',
-      'timestamp': DateTime.now().subtract(const Duration(minutes: 1)),
-      'status': 'placed',
-    },
-    {
-      'message': 'Your order has been completed',
-      'timestamp': DateTime(2025, 3, 11, 11, 0),
-      'status': 'completed',
-    },
-    {
-      'message': 'Your order has been placed',
-      'timestamp': DateTime(2025, 3, 11, 10, 20),
-      'status': 'placed',
-    },
-    {
-      'message': 'Your order has been completed',
-      'timestamp': DateTime(2025, 3, 10, 19, 0),
-      'status': 'completed',
-    },
-    {
-      'message': 'Your order has been placed',
-      'timestamp': DateTime(2025, 3, 10, 18, 55),
-      'status': 'placed',
-    },
-  ];
+  // Ubah variabel notifications menjadi:
+  List<Map<String, dynamic>> notifications = [];
+  bool isLoading = true;
 
-  bool showNotifications = true;
+  // Ubah initState menjadi:
+  @override
+  void initState() {
+    super.initState();
+    _loadNotifications();
+  }
 
-  void _clearAllNotifications() {
+// Tambahkan fungsi ini di dalam class _NotificationPageState
+  Future<void> _loadNotifications() async {
     setState(() {
-      showNotifications = false;
+      isLoading = true;
+    });
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final notificationsJson = prefs.getString('notifications') ?? '[]';
+      final loadedNotifications = List<Map<String, dynamic>>.from(
+        jsonDecode(notificationsJson),
+      );
+      
+      // Langsung gunakan notifikasi yang tersimpan, tanpa data contoh
+      notifications = loadedNotifications;
+
+      // Urutkan notifikasi berdasarkan waktu (terbaru di atas)
+      notifications.sort((a, b) {
+        final aTime = DateTime.parse(a['timestamp'] as String);
+        final bTime = DateTime.parse(b['timestamp'] as String);
+        return bTime.compareTo(aTime);
+      });
+    } catch (e) {
+      debugPrint('Error loading notifications: $e');
+    }
+
+    setState(() {
+      isLoading = false;
     });
   }
 
+// Ubah fungsi _clearAllNotifications menjadi:
+  void _clearAllNotifications() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('notifications');
+      
+      setState(() {
+        notifications.clear();
+      });
+    } catch (e) {
+      debugPrint('Error clearing notifications: $e');
+    }
+  }
+
+// Ubah awal fungsi build menjadi:
   @override
   Widget build(BuildContext context) {
     // Group notifications by date
     Map<String, List<Map<String, dynamic>>> groupedNotifications = {};
-
-    if (showNotifications) {
+    
+    if (!isLoading && notifications.isNotEmpty) {
       for (var notification in notifications) {
-        final timestamp = notification['timestamp'] as DateTime;
+        final timestamp = DateTime.parse(notification['timestamp'] as String);
         final date = DateFormat('d MMMM yyyy').format(timestamp);
-
+        
         if (DateFormat('d MMMM yyyy').format(DateTime.now()) == date) {
           // If the notification is from today
           if (!groupedNotifications.containsKey('Today')) {
@@ -88,10 +111,7 @@ class _NotificationPageState extends State<NotificationPage> {
             child: TextButton(
               onPressed: _clearAllNotifications,
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.grey[400],
                   borderRadius: BorderRadius.circular(20),
@@ -105,55 +125,57 @@ class _NotificationPageState extends State<NotificationPage> {
           ),
         ],
       ),
-      body:
-          !showNotifications
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : notifications.isEmpty
               ? const Center(
-                child: Text(
-                  'No notification in this moment',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                  child: Text(
+                    'No notification in this moment',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-              )
+                )
               : ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: groupedNotifications.length,
-                itemBuilder: (context, index) {
-                  final date = groupedNotifications.keys.elementAt(index);
-                  final dateNotifications = groupedNotifications[date]!;
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0, top: 16.0),
-                        child: Text(
-                          date,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: groupedNotifications.length,
+                  itemBuilder: (context, index) {
+                    final date = groupedNotifications.keys.elementAt(index);
+                    final dateNotifications = groupedNotifications[date]!;
+                    
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0, top: 16.0),
+                          child: Text(
+                            date,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
                           ),
                         ),
-                      ),
-                      ...dateNotifications.map((notification) {
-                        return _buildNotificationCard(notification);
-                      }).toList(),
-                    ],
-                  );
-                },
-              ),
+                        ...dateNotifications.map((notification) {
+                          return _buildNotificationCard(notification);
+                        }).toList(),
+                      ],
+                    );
+                  },
+                ),
     );
   }
 
+// Ubah fungsi _buildNotificationCard menjadi:
   Widget _buildNotificationCard(Map<String, dynamic> notification) {
-    final timestamp = notification['timestamp'] as DateTime;
+    final timestamp = DateTime.parse(notification['timestamp'] as String);
     final status = notification['status'] as String;
-
+    
     // Determine background color based on status and recency
     Color backgroundColor;
-    if (status == 'placed' &&
+    if (status == 'placed' && 
         DateTime.now().difference(timestamp).inHours < 1) {
       backgroundColor = AppColors.red;
     } else {
@@ -190,7 +212,10 @@ class _NotificationPageState extends State<NotificationPage> {
             const SizedBox(height: 4),
             Text(
               formattedTime,
-              style: const TextStyle(color: Colors.white70, fontSize: 14),
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 14,
+              ),
             ),
           ],
         ),

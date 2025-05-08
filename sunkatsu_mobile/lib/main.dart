@@ -1,4 +1,3 @@
-// main.dart
 import 'package:flutter/material.dart';
 import 'package:sunkatsu_mobile/navigation/main_navigation.dart';
 import 'package:sunkatsu_mobile/preview_page.dart';
@@ -11,13 +10,29 @@ import 'package:sunkatsu_mobile/views/order_page.dart';
 import 'package:sunkatsu_mobile/views/sign_up_page.dart';
 import 'package:sunkatsu_mobile/views/staff_order_page.dart';
 import 'package:sunkatsu_mobile/views/welcome_page.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'views/chat_page.dart';
 import 'views/chatbot_page.dart';
 import 'views/splash_screen.dart';
 import 'package:sunkatsu_mobile/navigation/main_navigation.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inisialisasi notifikasi
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+
+  const InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+  );
+
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
   runApp(const MyApp());
 }
 

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:sunkatsu_mobile/utils/constants.dart';
-import 'package:sunkatsu_mobile/views/notification_page.dart';
 import 'package:sunkatsu_mobile/widgets/menu_item_card_big.dart';
 import 'package:sunkatsu_mobile/widgets/menu_item_card_small.dart';
 import 'package:sunkatsu_mobile/widgets/nav_bar.dart';
 import 'package:sunkatsu_mobile/widgets/search_bar.dart';
 import 'package:sunkatsu_mobile/views/chat_page.dart';
 import 'package:sunkatsu_mobile/views/chatbot_page.dart';
+import 'package:sunkatsu_mobile/views/notification_page.dart';
 import 'package:sunkatsu_mobile/utils/jwt_utils.dart';
 import 'package:sunkatsu_mobile/views/menu_page.dart';
 
@@ -41,6 +41,19 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _navigateToNotifications() async {
+    // Navigasi ke halaman notifikasi
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const NotificationPage()),
+    );
+
+    // Setelah kembali dari halaman notifikasi, perbarui UI jika diperlukan
+    setState(() {
+      // Perbarui UI jika diperlukan
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,67 +64,48 @@ class _HomePageState extends State<HomePage> {
         elevation: 0,
         actions: [
           // Button 1: Chat
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: IconButton(
-              icon: SvgPicture.asset(
-                'assets/icons/chat_icon.svg',
-                width: 24,
-                height: 24,
-              ),
-              onPressed: () async {
-                final userId = await JwtUtils.getUserId();
-                if (userId != null) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatPage(userId: userId),
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('You must login first!')),
-                  );
-                }
-              },
+          IconButton(
+            icon: SvgPicture.asset(
+              'assets/icons/chat_icon.svg',
+              width: 24,
+              height: 24,
             ),
-          ),
-          // Button 2: Chatbot
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: IconButton(
-              icon: SvgPicture.asset(
-                'assets/icons/chatbot_icon.svg',
-                width: 24,
-                height: 24,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ChatbotPage()),
-                );
-              },
-            ),
-          ),
-          // Button 3: Notification
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: IconButton(
-              icon: SvgPicture.asset(
-                'assets/icons/notification.svg',
-                width: 24,
-                height: 24,
-              ),
-              onPressed: () {
+            onPressed: () async {
+              final userId = await JwtUtils.getUserId();
+              if (userId != null) {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const NotificationPage(),
+                    builder: (context) => ChatPage(userId: userId),
                   ),
                 );
-              },
-            ),
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('You must login first!')),
+                );
+              }
+            },
           ),
+          // Button 2: Chatbot
+          IconButton(
+            icon: SvgPicture.asset(
+              'assets/icons/chatbot_icon.svg',
+              width: 24,
+              height: 24,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ChatbotPage()),
+              );
+            },
+          ),
+          // Button 3: Notification - Simplified to ensure it works
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: _navigateToNotifications,
+          ),
+          const SizedBox(width: 8),
         ],
       ),
       body: SingleChildScrollView(
