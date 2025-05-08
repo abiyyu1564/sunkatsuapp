@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:sunkatsu_mobile/utils/constants.dart'; // Pastikan sudah ada AppColors
-import 'package:sunkatsu_mobile/widgets/order_card.dart'; // Pastikan sudah ada OrderCard
+import 'package:sunkatsu_mobile/utils/constants.dart';
+import 'package:sunkatsu_mobile/widgets/order_card.dart';
+// Tambahkan import berikut di bagian atas file
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'dart:async';
 
 class OrderPage extends StatefulWidget {
   const OrderPage({super.key});
@@ -11,38 +16,103 @@ class OrderPage extends StatefulWidget {
 
 class _OrderPageState extends State<OrderPage> {
   String selectedCategory = 'All'; // Filter kategori yang dipilih
+  // Tambahkan variabel ini di dalam class _OrderPageState
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   // Data dummy pesanan tanpa cardColor, yang akan ditentukan berdasarkan status
   final List<Map<String, dynamic>> allOrders = [
     {
-      'id': 0,
+      'id': '0',
       'name': 'Rifqy',
       'date': '15 March 2025',
       'status': 'On Going',
       'items': ['1x Chicken Katsu', '1x Ice Tea', '1x Oreo Ice Cream'],
     },
     {
-      'id': 1,
+      'id': '1',
       'name': 'Raygama',
       'date': '15 March 2025',
       'status': 'Payment',
       'items': ['1x Chicken Katsu', '1x Ice Tea'],
     },
     {
-      'id': 2,
+      'id': '2',
       'name': 'Rangga',
       'date': '3 March 2025',
       'status': 'Finished',
       'items': ['2x Chicken Katsu', '2x Ice Tea'],
     },
     {
-      'id': 3,
+      'id': '3',
       'name': 'Melin',
       'date': '3 March 2025',
       'status': 'Payment',
       'items': ['2x Chicken Katsu', '2x Ice Tea'],
     },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeNotifications();
+  }
+
+  // Tambahkan fungsi ini di dalam class _OrderPageState
+  Future<void> _initializeNotifications() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  // Tambahkan fungsi ini di dalam class _OrderPageState
+  Future<void> _showNotification(String title, String body) async {
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+          'order_status_channel',
+          'Order Status',
+          channelDescription: 'Notifications for order status changes',
+          importance: Importance.high,
+          priority: Priority.high,
+          showWhen: true,
+        );
+
+    const NotificationDetails platformDetails = NotificationDetails(
+      android: androidDetails,
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      DateTime.now().millisecond,
+      title,
+      body,
+      platformDetails,
+    );
+  }
+
+  // Tambahkan fungsi ini di dalam class _OrderPageState
+  Future<void> _saveNotification(String message, String status) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final notificationsJson = prefs.getString('notifications') ?? '[]';
+      final notifications = List<Map<String, dynamic>>.from(
+        jsonDecode(notificationsJson),
+      );
+
+      notifications.add({
+        'message': message,
+        'timestamp': DateTime.now().toIso8601String(),
+        'status': status,
+      });
+
+      await prefs.setString('notifications', jsonEncode(notifications));
+    } catch (e) {
+      debugPrint('Error saving notification: $e');
+    }
+  }
 
   // Filter berdasarkan kategori
   List<Map<String, dynamic>> get filteredOrders {
@@ -78,7 +148,7 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  // Fungsi untuk ubah status
+  // Ubah fungsi _onActionTap dengan kode berikut
   void _onActionTap(int index) {
     setState(() {
       if (allOrders[index]['status'] == 'Payment') {
@@ -87,6 +157,16 @@ class _OrderPageState extends State<OrderPage> {
       } else if (allOrders[index]['status'] == 'On Going') {
         allOrders[index]['status'] =
             'Finished'; // Mengubah status pesanan menjadi Finished
+
+        // Tambahkan notifikasi saat status berubah menjadi Finished
+        final orderName = allOrders[index]['name'];
+        final message = 'Pesanan untuk $orderName telah selesai';
+
+        // Simpan notifikasi
+        _saveNotification(message, 'completed');
+
+        // Tampilkan notifikasi
+        _showNotification('Pesanan Selesai', message);
       }
     });
   }
@@ -154,7 +234,7 @@ class _OrderPageState extends State<OrderPage> {
                       }
                     },
                     child: OrderCard(
-                      id: order['id'],
+                      id: int.parse(order['id']),
                       name: order['name'],
                       date: order['date'],
                       status: order['status'],
