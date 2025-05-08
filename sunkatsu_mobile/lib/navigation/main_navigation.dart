@@ -3,8 +3,10 @@ import 'package:sunkatsu_mobile/views/home_page.dart';
 import 'package:sunkatsu_mobile/views/menu_page.dart';
 import 'package:sunkatsu_mobile/views/order_page.dart';
 import 'package:sunkatsu_mobile/views/cart_page.dart';
+import 'package:sunkatsu_mobile/views/profile_page.dart';
 import 'package:sunkatsu_mobile/widgets/nav_bar.dart';
 import 'package:sunkatsu_mobile/preview_page.dart';
+import 'package:sunkatsu_mobile/views/profile_page.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -82,7 +84,7 @@ class _MainNavigationState extends State<MainNavigation> with WidgetsBindingObse
       case 3:
         return OrderPage(key: _pageKeys[3]);
       case 4:
-        return PreviewPage(key: _pageKeys[4]);
+        return ProfilePage(key: _pageKeys[4]);
       default:
         return HomePage(key: _pageKeys[0]);
     }
