@@ -32,7 +32,7 @@ public class ChatMessageService {
         repository.save(chatMessage);
         return chatMessage;
     }
-
+    
     public List<ChatMessage> findChatMessages(String senderId, String recipientId) {
         var chatId = chatRoomService.getChatRoomId(senderId, recipientId, false);
         return chatId.map(repository::findByChatId).orElse(new ArrayList<>());
