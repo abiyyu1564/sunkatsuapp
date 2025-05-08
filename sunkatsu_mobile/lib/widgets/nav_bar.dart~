@@ -6,10 +6,6 @@ class MyNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
 
-  String _getIconPath(String name, bool isActive) {
-    return 'assets/icons/${name}_${isActive ? 'filled' : 'outline'}.svg';
-  }
-
   const MyNavBar({
     super.key,
     required this.currentIndex,

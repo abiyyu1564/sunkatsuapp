@@ -8,13 +8,13 @@ import 'package:sunkatsu_mobile/models/menu.dart';
 import 'package:sunkatsu_mobile/views/food_detail_page.dart';
 
 class PreviewPage extends StatefulWidget {
-  const PreviewPage({Key? key}) : super(key: key);
+  const PreviewPage({super.key});
 
   @override
   State<PreviewPage> createState() => _PreviewPageState();
 }
 
-class _PreviewPageState extends State<PreviewPage> {
+class _PreviewPageState extends State<PreviewPage> with AutomaticKeepAliveClientMixin {
   List<Menu> menuItems = [];
   List<Menu> recommendedItems = [];
   Map<String, Uint8List> imageBytesMap = {};
@@ -23,9 +23,19 @@ class _PreviewPageState extends State<PreviewPage> {
   List<Menu> searchResults = [];
 
   @override
+  bool get wantKeepAlive => false; // Don't keep alive to force refresh
+
+  @override
   void initState() {
     super.initState();
-    debugPrint("PreviewPage initialized with key: ${widget.key}");
+    fetchMenuItems();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // This will be called when the widget is inserted into the tree
+    // and when dependencies change
     fetchMenuItems();
   }
 
@@ -62,7 +72,6 @@ class _PreviewPageState extends State<PreviewPage> {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         final List<Menu> fetchedItems = data.map((item) => Menu.fromJson(item)).toList();
-        debugPrint("Fetched ${fetchedItems.length} menu items");
 
         // Fetch images for each menu item
         for (final item in fetchedItems) {
@@ -90,7 +99,6 @@ class _PreviewPageState extends State<PreviewPage> {
             menuItems = fetchedItems;
             recommendedItems = sortedItems.take(min(6, sortedItems.length)).toList();
             isLoading = false;
-            debugPrint("Updated state with ${menuItems.length} menu items");
           });
         }
       } else {
@@ -132,27 +140,32 @@ class _PreviewPageState extends State<PreviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("Building PreviewPage with key: ${widget.key}");
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
 
     return Scaffold(
       backgroundColor: AppColors.whiteBG,
       appBar: AppBar(
-        title: const Text('Preview Page'),
+        title: const Text(''),
         backgroundColor: AppColors.white,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              debugPrint("Manual refresh button pressed");
-              fetchMenuItems();
-            },
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: IconButton(
+              icon: Icon(
+                Icons.location_on,
+                color: AppColors.black,
+              ),
+              onPressed: () {
+                // Action when location icon is clicked
+                debugPrint('Location icon clicked');
+              },
+            ),
           ),
         ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          debugPrint("Pull-to-refresh triggered");
           await fetchMenuItems();
         },
         child: isLoading
@@ -180,15 +193,6 @@ class _PreviewPageState extends State<PreviewPage> {
                       fillColor: Colors.grey[200],
                       contentPadding: const EdgeInsets.symmetric(vertical: 0),
                     ),
-                  ),
-                ),
-
-                // Debug info
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Text(
-                    "Items loaded: ${menuItems.length}",
-                    style: const TextStyle(color: Colors.grey),
                   ),
                 ),
 
