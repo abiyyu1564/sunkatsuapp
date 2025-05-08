@@ -48,10 +48,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
+class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
   List<MenuItem> _searchResults = [];
@@ -67,24 +64,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   @override
   void initState() {
     super.initState();
-    refreshData();
-  }
-
-  Future<void> refreshData() async {
-    setState(() {
-      _isLoadingFavorites = true;
-      _isLoadingMenus = true;
-    });
-    await Future.wait([
-      fetchFavorites(),
-      fetchAllMenus(),
-    ]);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    refreshData();
+    fetchFavorites();
+    fetchAllMenus();
   }
 
   void _search(String query) {
@@ -99,13 +80,16 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
 
       _isSearching = true;
 
+      // Search in both allMenus and favorites
       final List<MenuItem> combinedMenus = [...allMenus, ...favorites];
 
+      // Remove duplicates (items might be in both lists)
       final Map<int, MenuItem> uniqueItems = {};
       for (var item in combinedMenus) {
         uniqueItems[item.id] = item;
       }
 
+      // Filter based on search query
       _searchResults = uniqueItems.values.where((item) {
         return item.name.toLowerCase().contains(query.toLowerCase()) ||
             item.desc.toLowerCase().contains(query.toLowerCase()) ||
@@ -120,17 +104,19 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
 
     if (token == null || userId == null) return;
 
-    final url = Uri.parse('http://localhost:8080/api/customers/$userId/favorites');
+    final url = Uri.parse('http://10.0.2.2:8080/api/customers/$userId/favorites');
 
     try {
       final response = await http.get(url, headers: {'Authorization': 'Bearer $token'});
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = json.decode(response.body);
-        final List<MenuItem> fetchedItems = jsonData.map((e) => MenuItem.fromJson(e['menu'])).toList();
+        final List<MenuItem> fetchedItems = jsonData
+            .map((e) => MenuItem.fromJson(e['menu']))
+            .toList();
 
         for (final item in fetchedItems) {
-          await _fetchImageBlob(item.image, token, forceReload: true);
+          await _fetchImageBlob(item.image, token, forceReload: true); // gunakan forceReload
         }
 
         setState(() {
@@ -153,16 +139,19 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
 
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/menus'),
+        Uri.parse('http://10.0.2.2:8080/api/menus'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = json.decode(response.body);
-        final List<MenuItem> fetchedMenus = jsonData.map((e) => MenuItem.fromJson(e)).take(6).toList();
+        final List<MenuItem> fetchedMenus = jsonData
+            .map((e) => MenuItem.fromJson(e))
+            .take(6)
+            .toList();
 
         for (final item in fetchedMenus) {
-          await _fetchImageBlob(item.image, token, forceReload: true);
+          await _fetchImageBlob(item.image, token, forceReload: true); // gunakan forceReload
         }
 
         setState(() {
@@ -183,7 +172,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
 
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/menus/images/$imageName'),
+        Uri.parse('http://10.0.2.2:8080/api/menus/images/$imageName'),
         headers: {'Authorization': 'Bearer $token'},
       );
 

@@ -32,7 +32,7 @@ class _SecureImageLoaderState extends State<SecureImageLoader> {
   Future<void> _loadImage() async {
     try {
       final token = await JwtUtils.getToken();
-      final uri = Uri.parse("http://localhost:8080${widget.imageUrl}");
+      final uri = Uri.parse("http://10.0.2.2:8080${widget.imageUrl}");
 
       final response = await http.get(uri, headers: {
         'Authorization': 'Bearer $token',
