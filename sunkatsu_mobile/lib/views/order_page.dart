@@ -9,8 +9,6 @@ import 'package:sunkatsu_mobile/utils/jwt_utils.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-import 'chat_page.dart';
-
 class OrderItem {
   final int? id;
   int total;
@@ -19,6 +17,7 @@ class OrderItem {
   String status;
   final List<CartItem> cartItems;
   final DateTime? paymentDeadline;
+  String? username;
 
   OrderItem({
     required this.id,
@@ -28,6 +27,7 @@ class OrderItem {
     required this.status,
     required this.cartItems,
     required this.paymentDeadline,
+    this.username,
   });
 
   factory OrderItem.fromJSON(Map<String, dynamic> json) {
@@ -56,49 +56,35 @@ class OrderPage extends StatefulWidget {
 }
 
 class _OrderPageState extends State<OrderPage> {
-  int _currentIndex = 0;
   String selectedCategory = 'All';
   String? userRole;
   bool _isLoading = true;
-
   List<OrderItem> orderedItems = [];
-
 
   @override
   void initState() {
     super.initState();
     decodeAndSetUserRole();
-    fetchOrderItems();
   }
 
   Future<void> decodeAndSetUserRole() async {
     final token = await JwtUtils.getToken();
     if (token != null) {
       final payload = await JwtUtils.parseJwtPayload();
-      setState(() {
-        userRole = payload?['role'];
-        _isLoading = false;
-      });
-    } else {
-      setState(() {
-        _isLoading = false;
-      });
+      userRole = payload?['role'];
     }
+    await fetchOrderItems();
   }
 
   Future<void> fetchOrderItems() async {
     final token = await JwtUtils.getToken();
     final userId = await JwtUtils.getUserId();
     final url = userRole == "CUSTOMER"
-        ? Uri.parse('http://10.0.2.2:8080/api/customers/$userId/orders')
-        : Uri.parse('http://10.0.2.2:8080/api/orders'); // For STAFF role
+        ? Uri.parse('http://localhost:8080/api/customers/$userId/orders')
+        : Uri.parse('http://localhost:8080/api/orders');
 
-    if (token == null) {
-      print('No token found. User might not be logged in.');
-      return;
-    }
-    if (userId == null) {
-      print('No userId found.');
+    if (token == null || userId == null) {
+      print("Token or userId is null");
       return;
     }
 
@@ -113,258 +99,111 @@ class _OrderPageState extends State<OrderPage> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        final List<OrderItem> fetchedItems =
-        data.map((item) => OrderItem.fromJSON(item)).toList();
+        final List<OrderItem> fetchedItems = [];
+
+        for (var item in data) {
+          final order = OrderItem.fromJSON(item);
+          print("Processing order with userID: ${order.userID}");
+
+          if (order.userID != null) {
+            print("Fetching customer data for userID: ${order.userID}");
+            final customerData = await getCustomerById(order.userID!);
+            print("Customer data: $customerData");
+            order.username = customerData?['username'];
+          } else {
+            print("userID is null for order: ${order.id}");
+          }
+
+          fetchedItems.add(order);
+        }
 
         setState(() {
           orderedItems = fetchedItems;
           _isLoading = false;
-
         });
       } else {
-        print('Failed to fetch data: ${response.statusCode}');
-        setState(() {
-          _isLoading = false;
-        });
+        print("Failed to fetch orders: ${response.statusCode}");
+        setState(() => _isLoading = false);
       }
     } catch (e) {
       print('Error fetching orders: $e');
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
     }
-  }
-
-  List<OrderItem> get filteredItems {
-    if (selectedCategory.toLowerCase() == 'all') return orderedItems;
-
-    return orderedItems.where((item) {
-      final statusLower = item.status.toLowerCase();
-      final categoryLower = selectedCategory.toLowerCase();
-
-      return statusLower == categoryLower ||
-          (statusLower == 'notpaid' && categoryLower == 'not paid') ||
-          (statusLower == 'ongoing' && categoryLower == 'on going') ||
-          (statusLower == 'finished' && categoryLower == 'finished');
-    }).toList();
   }
 
   Future<Map<String, dynamic>?> getCustomerById(int id) async {
     try {
-      // Retrieve token from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');  // Assuming 'token' is saved here
-
-      if (token == null) {
-        print('Token is missing.');
-        return null;
-      }
+      final token = await JwtUtils.getToken();
 
       final response = await http.get(
-        Uri.parse('http://10.0.0.2:8080/api/customers/$id'),
+        Uri.parse('http://localhost:8080/api/customers/${id.toString()}'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
+          'accept': 'application/hal+json',
         },
       );
 
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
       if (response.statusCode == 200) {
-        // Decode the response body if the request is successful
-        final data = json.decode(response.body);
-
-        print(data);
-        return data;
+        return json.decode(response.body);
       } else {
-        // Handle non-200 status code
         print('Failed to fetch customer: ${response.statusCode}');
-        return null;
       }
-    } catch (error) {
-      // Handle error during the request
-      print('Error fetching customer: $error');
-      return null;
+    } catch (e) {
+      print('Error fetching customer: $e');
     }
+    return null;
   }
 
-  Widget _buildCategoryButton(String category) {
-    final isSelected = selectedCategory == category;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedCategory = category;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.red : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppColors.red : Colors.grey[400]!,
-          ),
-        ),
-        child: Text(
-          category,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black87,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
+  List<OrderItem> get filteredItems {
+    if (selectedCategory.toLowerCase() == 'all') return orderedItems;
+    return orderedItems.where((item) {
+      final statusLower = item.status.toLowerCase();
+      final categoryLower = selectedCategory.toLowerCase();
+      return statusLower == categoryLower;
+    }).toList();
   }
 
-  Future<void> _initializeNotifications() async {
-    const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    const InitializationSettings initializationSettings =
-    InitializationSettings(android: initializationSettingsAndroid);
-
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-  }
-
-  Future<void> _showNotification(String title, String body) async {
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'order_status_channel',
-      'Order Status',
-      channelDescription: 'Notifications for order status changes',
-      importance: Importance.high,
-      priority: Priority.high,
-      showWhen: true,
-    );
-
-    const NotificationDetails platformDetails = NotificationDetails(
-      android: androidDetails,
-    );
-
-    await flutterLocalNotificationsPlugin.show(
-      DateTime.now().millisecond,
-      title,
-      body,
-      platformDetails,
-    );
-  }
-
-  Future<void> _saveNotification(String message, String status) async {
+  Future<void> acceptOrder(int orderId) async {
+    final token = await JwtUtils.getToken();
+    final url = Uri.parse('http://localhost:8080/api/orders/$orderId/accept');
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final notificationsJson = prefs.getString('notifications') ?? '[]';
-      final notifications = List<Map<String, dynamic>>.from(
-        jsonDecode(notificationsJson),
-      );
-
-      notifications.add({
-        'message': message,
-        'timestamp': DateTime.now().toIso8601String(),
-        'status': status,
+      final response = await http.put(url, headers: {
+        'Authorization': 'Bearer $token',
       });
 
-      await prefs.setString('notifications', jsonEncode(notifications));
+      if (response.statusCode == 200) {
+        fetchOrderItems();
+      }
     } catch (e) {
-      debugPrint('Error saving notification:$e');
+      print('Error: $e');
     }
   }
 
-  void _onActionTap(int index) {
-    setState(() {
-      if (orderedItems[index].status == 'Payment') {
-        orderedItems[index].status = 'On Going'; // Change status to On Going
-      } else if (orderedItems[index].status == 'On Going') {
-        orderedItems[index].status = 'Finished'; // Change status to Finished
-
-        // Add notification when status changes to Finished
-        final orderName = orderedItems[index].cartItems; // Use appropriate property to identify order name
-        final message = 'Pesanan untuk $orderName telah selesai';
-
-        // Save in-app notification
-        _saveNotification(message, 'completed');
-
-        // Show in-app notification
-        _showNotification('Pesanan Selesai', message);
-
-        // Push Awesome Notification
-        AwesomeNotifications().createNotification(
-          content: NotificationContent(
-            id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
-            channelKey: 'order_status_channel',
-            title: 'Pesanan Selesai',
-            body: message,
-            notificationLayout: NotificationLayout.Default,
-          ),
-        );
-      }
-    });
-  }
-
-
-
-  Future<void> acceptOrder() async {
+  Future<void> finishOrder(int orderId) async {
     final token = await JwtUtils.getToken();
-    final userId = await JwtUtils.getUserId();
-    final url = Uri.parse('http://10.0.2.2:8080/api/orders/$userId/accept');
-
+    final url = Uri.parse('http://localhost:8080/api/orders/$orderId/finish');
     try {
       final response = await http.put(
         url,
         headers: {
           'Authorization': 'Bearer $token',
+          'accept': 'application/hal+json',
         },
       );
 
       if (response.statusCode == 200) {
-        print('Order Accepted');
-        // Optionally refresh or show a success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Order Accepted!')),
-        );
-      } else {
-        print('Response status: ${response.statusCode}');
-        print('Response body: ${response.body}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to accept the order.')),
-        );
+        final data = json.decode(response.body);
+        if (data['status']?.toLowerCase() == 'finished') {
+          fetchOrderItems();
+        }
       }
     } catch (e) {
       print('Error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred.')),
-      );
-    }
-  }
-
-  Future<void> finishOrder() async {
-    final token = await JwtUtils.getToken();
-    final userId = await JwtUtils.getUserId();
-    final url = Uri.parse('http://10.0.2.2:8080/api/orders/$userId/finish');
-
-    try {
-      final response = await http.put(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        print('Order Accepted');
-        // Optionally refresh or show a success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Order Accepted!')),
-        );
-      } else {
-        print('Response status: ${response.statusCode}');
-        print('Response body: ${response.body}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to accept the order.')),
-        );
-      }
-    } catch (e) {
-      print('Error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred.')),
-      );
     }
   }
 
@@ -393,36 +232,53 @@ class _OrderPageState extends State<OrderPage> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: Builder(
-                builder: (context) {
-                  return filteredItems.isEmpty
-                      ? const Center(child: Text("No orders found"))
-                      : ListView.builder(
-                    itemCount: filteredItems.length,
-                    itemBuilder: (context, index) {
-                      final orderItem = filteredItems[index];
-                      Color cardColor;
+              child: filteredItems.isEmpty
+                  ? const Center(child: Text("No orders found"))
+                  : ListView.builder(
+                itemCount: filteredItems.length,
+                itemBuilder: (context, index) {
+                  final orderItem = filteredItems[index];
+                  return OrderCard(
+                    orderedItem: orderItem,
+                    role: userRole ?? 'CUSTOMER',
+                    onActionTap: () {
                       if (orderItem.status == 'Not Paid') {
-                        cardColor = AppColors.red;
+                        acceptOrder(orderItem.id!);
                       } else if (orderItem.status == 'Accepted') {
-                        cardColor = AppColors.red;
-                      } else {
-                        cardColor = AppColors.black;
+                        finishOrder(orderItem.id!);
                       }
-                      return GestureDetector(
-                        onTap: () => _onActionTap(index), // Fixed to use index
-                        child: OrderCard(
-                          orderedItem: orderItem,
-                          role: userRole ?? 'CUSTOMER',
-                          onActionTap: acceptOrder,
-                        ),
-                      );
                     },
                   );
                 },
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryButton(String category) {
+    final isSelected = selectedCategory == category;
+    return GestureDetector(
+      onTap: () {
+        setState(() => selectedCategory = category);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.red : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.red : Colors.grey[400]!,
+          ),
+        ),
+        child: Text(
+          category,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );

@@ -54,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    final url = Uri.parse('http://10.0.2.2:8080/api/auth/login');
+    final url = Uri.parse('http://localhost:8080/api/auth/login');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -77,6 +77,7 @@ class _LoginPageState extends State<LoginPage> {
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body);
       final token = responseBody['token'];
+      // print("token: $token");
       await _storage.write(key: 'token', value: token);
 
       final jwt = JWT.decode(token);
