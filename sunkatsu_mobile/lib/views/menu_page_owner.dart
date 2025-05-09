@@ -58,7 +58,7 @@ class _MenuPageOwnerState extends State<MenuPageOwner> {
   }
 
   Future<void> fetchMenuItems() async {
-    const String apiUrl = 'http://localhost:8080/api/menus';
+    const String apiUrl = 'http://10.0.2.2:8080/api/menus';
     final token = await JwtUtils.getToken();
 
     if (token == null) {
@@ -85,7 +85,7 @@ class _MenuPageOwnerState extends State<MenuPageOwner> {
           try {
             final imageResponse = await http.get(
               Uri.parse(
-                  'http://localhost:8080/api/menus/images/${item.imageUrl}'),
+                  'http://10.0.2.2:8080/api/menus/images/${item.imageUrl}'),
               headers: {
                 'Authorization': 'Bearer $token',
               },
@@ -152,7 +152,7 @@ class _MenuPageOwnerState extends State<MenuPageOwner> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                color: Colors.grey[800],
+                color: AppColors.grey,
               ),
             ),
           ],
@@ -161,7 +161,7 @@ class _MenuPageOwnerState extends State<MenuPageOwner> {
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {},
-            color: Colors.grey[800],
+            color: AppColors.grey,
           ),
         ],
       ),
@@ -223,7 +223,7 @@ class _MenuPageOwnerState extends State<MenuPageOwner> {
         child: Text(
           category,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.grey[800],
+            color: isSelected ? Colors.white : AppColors.grey,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),

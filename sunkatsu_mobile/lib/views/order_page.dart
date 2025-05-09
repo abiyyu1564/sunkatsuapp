@@ -80,8 +80,8 @@ class _OrderPageState extends State<OrderPage> {
     final token = await JwtUtils.getToken();
     final userId = await JwtUtils.getUserId();
     final url = userRole == "CUSTOMER"
-        ? Uri.parse('http://localhost:8080/api/customers/$userId/orders')
-        : Uri.parse('http://localhost:8080/api/orders');
+        ? Uri.parse('http://10.0.2.2:8080/api/customers/$userId/orders')
+        : Uri.parse('http://10.0.2.2:8080/api/orders');
 
     if (token == null || userId == null) {
       print("Token or userId is null");
@@ -137,7 +137,7 @@ class _OrderPageState extends State<OrderPage> {
       final token = await JwtUtils.getToken();
 
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/customers/${id.toString()}'),
+        Uri.parse('http://10.0.2.2:8080/api/customers/${id.toString()}'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -170,7 +170,7 @@ class _OrderPageState extends State<OrderPage> {
 
   Future<void> acceptOrder(int orderId) async {
     final token = await JwtUtils.getToken();
-    final url = Uri.parse('http://localhost:8080/api/orders/$orderId/accept');
+    final url = Uri.parse('http://10.0.2.2:8080/api/orders/$orderId/accept');
     try {
       final response = await http.put(url, headers: {
         'Authorization': 'Bearer $token',
@@ -186,7 +186,7 @@ class _OrderPageState extends State<OrderPage> {
 
   Future<void> finishOrder(int orderId) async {
     final token = await JwtUtils.getToken();
-    final url = Uri.parse('http://localhost:8080/api/orders/$orderId/finish');
+    final url = Uri.parse('http://10.0.2.2:8080/api/orders/$orderId/finish');
     try {
       final response = await http.put(
         url,
@@ -214,7 +214,6 @@ class _OrderPageState extends State<OrderPage> {
     return Scaffold(
       backgroundColor: AppColors.whiteBG,
       appBar: AppBar(
-        title: const Text("Order List"),
         backgroundColor: Colors.white,
         elevation: 1,
       ),

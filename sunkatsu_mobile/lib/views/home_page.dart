@@ -104,7 +104,7 @@ class _HomePageState extends State<HomePage> {
 
     if (token == null || userId == null) return;
 
-    final url = Uri.parse('http://localhost:8080/api/customers/$userId/favorites');
+    final url = Uri.parse('http://10.0.2.2:8080/api/customers/$userId/favorites');
 
     try {
       final response = await http.get(url, headers: {'Authorization': 'Bearer $token'});
@@ -139,7 +139,7 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/menus'),
+        Uri.parse('http://10.0.2.2:8080/api/menus'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -172,7 +172,7 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/menus/images/$imageName'),
+        Uri.parse('http://10.0.2.2:8080/api/menus/images/$imageName'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -434,7 +434,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: AppColors.whiteBG,
       appBar: AppBar(
-        title: const Text('HomePage'),
+        title: const Text('Sunkatsu'),
         backgroundColor: AppColors.white,
         elevation: 0,
         actions: [
@@ -456,12 +456,12 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatbotPage()));
             },
           ),
-          IconButton(
-            icon: SvgPicture.asset('assets/icons/notification.svg', width: 24),
-            onPressed: () {
-              print('Notification icon clicked');
-            },
-          ),
+          // IconButton(
+          //   icon: SvgPicture.asset('assets/icons/notification.svg', width: 24),
+          //   onPressed: () {
+          //     print('Notification icon clicked');
+          //   },
+          // ),
         ],
       ),
       body: SingleChildScrollView(
@@ -480,7 +480,7 @@ class _HomePageState extends State<HomePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Your trusted picks!',
+                  const Text('Recommendation',
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   GestureDetector(
                     onTap: () {
@@ -508,7 +508,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(height: 20),
-              const Text('Recommendation',
+              const Text('Your trusted picks!',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               _isLoadingFavorites

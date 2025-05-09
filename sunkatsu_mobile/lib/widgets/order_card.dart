@@ -19,7 +19,6 @@ class OrderCard extends StatelessWidget {
     String buttonText;
     switch (orderedItem.status) {
       case 'Accepted':
-      case 'On Going':
         buttonText = 'Finish';
         break;
       case 'Not Paid':
@@ -45,29 +44,61 @@ class OrderCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'User: ${orderedItem.username ?? 'Unknown'}',
-                  style: const TextStyle(color: Colors.white),
-                ),
-                Text(
-                  'Total: Rp ${orderedItem.total}',
-                  style: const TextStyle(color: Colors.white),
-                ),
+                if (role == 'STAFF' || role == 'OWNER') // CUSTOMER NAME
+                  Text(
+                    '${orderedItem.username ?? 'Unknown'}',
+                    style: const TextStyle(
+                      color: AppColors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 const SizedBox(height: 6),
-                Text(
-                  (role == 'STAFF' || role == 'OWNER')
-                      ? "Orders:"
-                      : "Your Orders:",
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                // Text(
+                //   (role == 'STAFF' || role == 'OWNER')
+                //       ? "Orders:"
+                //       : "Your Orders:",
+                //   style: const TextStyle(
+                //     fontWeight: FontWeight.bold,
+                //     color: Colors.white,
+                //     fontSize: 18,
+                //   ),
+                // ),
+                const SizedBox(height: 4),
+                ...orderedItem.cartItems.map(
+                  (item) => Text(
+                    '${item.menu.name} x ${item.quantity}',
+                    style: const TextStyle(
+                      color: AppColors.white,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 6),
-                ...orderedItem.cartItems.map(
-                      (item) => Text(
-                    '${item.menu.name} x ${item.quantity}',
-                    style: const TextStyle(color: Colors.white),
+                const SizedBox(height: 10),
+                  Text(
+                    role == 'STAFF' || role == "OWNER"
+                    ? 'Customer must pay before'
+                    : 'Pay at cashier before',
+                    style: const TextStyle(
+                      color: AppColors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                Text(
+                  '${orderedItem.paymentDeadline != null ? DateFormat('d MMM yyyy HH.mm').format(orderedItem.paymentDeadline!) : 'No date available'}',
+                  style: const TextStyle(
+                    color: AppColors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Rp ${orderedItem.total}',
+                  style: const TextStyle(
+                    color: AppColors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -77,7 +108,7 @@ class OrderCard extends StatelessWidget {
                     Text(
                       orderedItem.status,
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
@@ -86,18 +117,22 @@ class OrderCard extends StatelessWidget {
                         orderedItem.status != 'Finished')
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
+                          backgroundColor: AppColors.white,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 4),
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          side: const BorderSide(color: Colors.red),
                         ),
                         onPressed: onActionTap,
                         child: Text(
                           buttonText,
-                          style: const TextStyle(color: AppColors.red),
+                          style: const TextStyle(
+                            color: AppColors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                   ],
@@ -112,12 +147,12 @@ class OrderCard extends StatelessWidget {
 
   Color _getCardColor() {
     switch (orderedItem.status) {
-      case 'On Going':
+      case 'Accepted':
         return AppColors.red;
       case 'Not Paid':
-        return Colors.orange;
-      default:
         return AppColors.black;
+      default:
+        return AppColors.grey;
     }
   }
 }

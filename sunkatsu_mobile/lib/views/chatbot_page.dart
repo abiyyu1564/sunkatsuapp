@@ -26,7 +26,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
     });
     _controller.clear();
 
-    final uri = Uri.parse('http://localhost:8080/stream?message=$message');
+    final uri = Uri.parse('http://10.0.2.2:8080/stream?message=$message');
     final request = http.Request('GET', uri);
     final streamedResponse = await request.send();
 
@@ -72,7 +72,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: AppColors.whiteBG,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: AppColors.red,
@@ -96,7 +96,8 @@ class _ChatbotPageState extends State<ChatbotPage> {
                 },
               ),
             ),
-            const Divider(height: 1),
+            Divider(height: 1, color: AppColors.grey),
+            SizedBox(height: 6),
             _buildInputArea(),
           ],
         ),
@@ -107,7 +108,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
   Widget _buildInputArea() {
     return SafeArea(
       child: Container(
-        color: AppColors.white,
+        color: AppColors.whiteBG,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
@@ -115,8 +116,12 @@ class _ChatbotPageState extends State<ChatbotPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 decoration: BoxDecoration(
-                  color: AppColors.grey,
+                  color: AppColors.white,
                   borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: AppColors.grey,
+                    width: 1,
+                  )
                 ),
                 child: Center(
                   // ⬅️ Tambahkan ini

@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
+import 'package:sunkatsu_mobile/utils/constants.dart';
 
 class EditMenuPage extends StatefulWidget {
   final Map<String, dynamic> foodData;
@@ -56,7 +57,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error picking image: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.red,
         ),
       );
     }
@@ -88,7 +89,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error picking image: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.red,
         ),
       );
     }
@@ -140,7 +141,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Authentication token not found'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.red,
           ),
         );
         return;
@@ -148,7 +149,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
 
       final id = widget.foodData['id'];
       final response = await http.delete(
-        Uri.parse('http://localhost:8080/api/menus/$id'),
+        Uri.parse('http://10.0.2.2:8080/api/menus/$id'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -176,7 +177,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to delete menu: ${response.statusCode}'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.red,
           ),
         );
         setState(() {
@@ -207,7 +208,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please fill all required fields'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.red,
         ),
       );
       return;
@@ -252,13 +253,15 @@ class _EditMenuPageState extends State<EditMenuPage> {
     final id = widget.foodData['id'];
 
     // Buat URI dengan query parameters
-    final uri = Uri.parse('http://localhost:8080/api/menus/$id').replace(queryParameters: {
-      'name': nameController.text,
-      'price': priceController.text,
-      'desc': descriptionController.text,
-      'category': selectedCategory,
-      'nums_bought': (widget.foodData['nums_bought'] ?? 0).toString(),
-    });
+    final uri = Uri.parse('http://10.0.2.2:8080/api/menus/$id').replace(
+      queryParameters: {
+        'name': nameController.text,
+        'price': priceController.text,
+        'desc': descriptionController.text,
+        'category': selectedCategory,
+        'nums_bought': (widget.foodData['nums_bought'] ?? 0).toString(),
+      },
+    );
 
     try {
       final request = http.MultipartRequest('PUT', uri)
@@ -276,7 +279,9 @@ class _EditMenuPageState extends State<EditMenuPage> {
           if (context.mounted) {
             Navigator.pop(context); // Close loading dialog
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("File harus berupa gambar .jpg/.jpeg atau .png")),
+              const SnackBar(
+                content: Text("File harus berupa gambar .jpg/.jpeg atau .png"),
+              ),
             );
           }
           setState(() {
@@ -316,7 +321,9 @@ class _EditMenuPageState extends State<EditMenuPage> {
         // Use a direct navigation approach to reduce the navigation chain
         if (context.mounted) {
           // Pop back to MenuPage directly with refresh flag
-          Navigator.of(context).popUntil((route) => route.settings.name == '/menu' || route.isFirst);
+          Navigator.of(context).popUntil(
+            (route) => route.settings.name == '/menu' || route.isFirst,
+          );
 
           // Trigger a refresh on the MenuPage
           // This is handled by the navigation listener in MainNavigation
@@ -334,7 +341,9 @@ class _EditMenuPageState extends State<EditMenuPage> {
           );
 
           // Pop back to MenuPage directly with refresh flag
-          Navigator.of(context).popUntil((route) => route.settings.name == '/menu' || route.isFirst);
+          Navigator.of(context).popUntil(
+            (route) => route.settings.name == '/menu' || route.isFirst,
+          );
         }
       } else {
         if (context.mounted) {
@@ -362,20 +371,20 @@ class _EditMenuPageState extends State<EditMenuPage> {
   Future<void> fetchImage(String imageName) async {
     try {
       final token = await JwtUtils.getToken();
-      final path = imageName.startsWith('/')
-          ? imageName
-          : '/api/menus/images/$imageName';
+      final path =
+          imageName.startsWith('/')
+              ? imageName
+              : '/api/menus/images/$imageName';
 
       final response = await http.get(
-        Uri.parse('http://localhost:8080$path'),
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
+        Uri.parse('http://10.0.2.2:8080$path'),
+        headers: {'Authorization': 'Bearer $token'},
       );
 
       if (response.statusCode == 200) {
         final byteData = response.bodyBytes;
-        final imageUrl = Uri.dataFromBytes(byteData, mimeType: 'image/png').toString();
+        final imageUrl =
+            Uri.dataFromBytes(byteData, mimeType: 'image/png').toString();
 
         setState(() {
           imageToDisplay = imageUrl;
@@ -395,9 +404,15 @@ class _EditMenuPageState extends State<EditMenuPage> {
   void initState() {
     super.initState();
     nameController = TextEditingController(text: widget.foodData['name'] ?? '');
-    priceController = TextEditingController(text: widget.foodData['price'].toString());
-    descriptionController = TextEditingController(text: widget.foodData['description'] ?? '');
-    imageController = TextEditingController(text: widget.foodData['image'] ?? '');
+    priceController = TextEditingController(
+      text: widget.foodData['price'].toString(),
+    );
+    descriptionController = TextEditingController(
+      text: widget.foodData['description'] ?? '',
+    );
+    imageController = TextEditingController(
+      text: widget.foodData['image'] ?? '',
+    );
 
     // Set initial category
     selectedCategory = (widget.foodData['category'] ?? '').toLowerCase();
@@ -421,308 +436,373 @@ class _EditMenuPageState extends State<EditMenuPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
-        children: [
-          // Red background for top section
-          Container(
-            height: MediaQuery.of(context).size.height * 0.4,
-            color: const Color(0xFFE15B5B),
-          ),
+          children: [
+            // Red background for top section
+            Container(
+              height: MediaQuery.of(context).size.height * 0.4,
+              color: AppColors.red,
+            ),
 
-          // White curved container
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.7,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
+            // White curved container
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.7,
+                decoration: const BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
                 ),
               ),
             ),
-          ),
 
-          // Content
-          SafeArea(
-            child: Column(
-              children: [
-                // Back button
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context, {'refresh': false}); // Don't trigger refresh if just going back
-                      },
-                      child: const Icon(
-                        Icons.arrow_back,
-                        color: Colors.white,
+            // Content
+            SafeArea(
+              child: Column(
+                children: [
+                  // Back button
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context, {
+                            'refresh': false,
+                          }); // Don't trigger refresh if just going back
+                        },
+                        child: const Icon(
+                          Icons.arrow_back,
+                          color: AppColors.black,
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                // Scrollable content
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 20),
+                  // Scrollable content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 20),
 
-                        // Image placeholder or selected image
-                        GestureDetector(
-                          onTap: isProcessingImage ? null : _showImagePickerOptions,
-                          child: Center(
-                            child: Container(
-                              width: 200,
-                              height: 200,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    spreadRadius: 2,
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 5),
-                                  ),
-                                ],
-                              ),
-                              child: isProcessingImage
-                                  ? const Center(
-                                child: CircularProgressIndicator(
-                                  color: Color(0xFFE15B5B),
+                          // Image placeholder or selected image
+                          GestureDetector(
+                            onTap:
+                                isProcessingImage
+                                    ? null
+                                    : _showImagePickerOptions,
+                            child: Center(
+                              child: Container(
+                                width: 200,
+                                height: 200,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      spreadRadius: 2,
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 5),
+                                    ),
+                                  ],
                                 ),
-                              )
-                                  : ClipOval(
-                                child: imageFile != null
-                                    ? Image.file(
-                                  imageFile!,
-                                  fit: BoxFit.cover,
-                                  width: 200,
-                                  height: 200,
-                                )
-                                    : (imageToDisplay != null
-                                    ? Image.memory(
-                                  Uri.parse(imageToDisplay!).data!.contentAsBytes(),
-                                  fit: BoxFit.cover,
-                                  width: 200,
-                                  height: 200,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(Icons.broken_image, size: 100),
-                                )
-                                    : const Center(child: CircularProgressIndicator())),
+                                child:
+                                    isProcessingImage
+                                        ? const Center(
+                                          child: CircularProgressIndicator(
+                                            color: Color(0xFFE15B5B),
+                                          ),
+                                        )
+                                        : ClipOval(
+                                          child:
+                                              imageFile != null
+                                                  ? Image.file(
+                                                    imageFile!,
+                                                    fit: BoxFit.cover,
+                                                    width: 200,
+                                                    height: 200,
+                                                  )
+                                                  : (imageToDisplay != null
+                                                      ? Image.memory(
+                                                        Uri.parse(
+                                                              imageToDisplay!,
+                                                            ).data!
+                                                            .contentAsBytes(),
+                                                        fit: BoxFit.cover,
+                                                        width: 200,
+                                                        height: 200,
+                                                        errorBuilder:
+                                                            (
+                                                              context,
+                                                              error,
+                                                              stackTrace,
+                                                            ) => const Icon(
+                                                              Icons
+                                                                  .broken_image,
+                                                              size: 100,
+                                                            ),
+                                                      )
+                                                      : const Center(
+                                                        child:
+                                                            CircularProgressIndicator(),
+                                                      )),
+                                        ),
                               ),
                             ),
                           ),
-                        ),
 
-                        // Form fields
-                        Padding(
-                          padding: const EdgeInsets.all(24.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Menu name
-                              _buildFormField('Menu name', nameController, 'Enter menu name'),
-                              const SizedBox(height: 16),
-
-                              // Menu category (dropdown)
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Menu category',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          color: Colors.grey[300]!,
-                                          width: 1,
-                                        ),
-                                      ),
-                                    ),
-                                    child: DropdownButtonHideUnderline(
-                                      child: DropdownButton<String>(
-                                        isExpanded: true,
-                                        hint: Text(
-                                          'Select categories',
-                                          style: TextStyle(
-                                            color: Colors.grey[400],
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        value: selectedCategory.isEmpty ? null : selectedCategory,
-                                        onChanged: (String? newValue) {
-                                          setState(() {
-                                            selectedCategory = newValue!;
-                                          });
-                                        },
-                                        items: <String>['Food', 'Drink', 'Dessert']
-                                            .map<DropdownMenuItem<String>>((String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value.toLowerCase(),
-                                            child: Text(value),
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 16),
-
-                              // Menu price
-                              _buildFormField('Menu price', priceController, 'Enter a price', isNumber: true),
-                              const SizedBox(height: 16),
-
-                              // Menu description
-                              _buildFormField('Menu description', descriptionController, 'Write description'),
-
-                              // Divider
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                child: Divider(
-                                  color: Colors.white,
-                                  thickness: 1,
-                                  height: 1,
+                          // Form fields
+                          Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Menu name
+                                _buildFormField(
+                                  'Menu name',
+                                  nameController,
+                                  'Enter menu name',
                                 ),
-                              ),
+                                const SizedBox(height: 16),
 
-                              // Action buttons - Keeping the original 3 buttons
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 16.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                // Menu category (dropdown)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // Delete button
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        onPressed: isDeleting || isSubmitting ? null : () {
-                                          _showDeleteConfirmation(context);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFFE15B5B),
-                                          foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(30),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 16,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          isDeleting ? 'Deleting...' : 'Delete Menu',
-                                          style: const TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
+                                    Text(
+                                      'Menu category',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          bottom: BorderSide(
+                                            color: Colors.grey[300]!,
+                                            width: 1,
                                           ),
                                         ),
                                       ),
-                                    ),
-
-                                    const SizedBox(width: 8),
-
-                                    // Discard button
-                                    Expanded(
-                                      child: OutlinedButton(
-                                        onPressed: isSubmitting || isDeleting ? null : () {
-                                          Navigator.pop(context);
-                                        },
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor: Colors.black,
-                                          backgroundColor: Colors.white,
-                                          side: BorderSide(color: Colors.grey[300]!),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(30),
+                                      child: DropdownButtonHideUnderline(
+                                        child: DropdownButton<String>(
+                                          isExpanded: true,
+                                          hint: Text(
+                                            'Select categories',
+                                            style: TextStyle(
+                                              color: Colors.grey[400],
+                                              fontSize: 16,
+                                            ),
                                           ),
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 16,
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          'Discard Change',
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-                                    const SizedBox(width: 8),
-
-                                    // Save button
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        onPressed: isSubmitting || isProcessingImage || isDeleting ? null : () {
-                                          _saveChanges(context);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.black,
-                                          foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(30),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 16,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          isSubmitting ? 'Submitting...' : 'Save Change',
-                                          style: const TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                          value:
+                                              selectedCategory.isEmpty
+                                                  ? null
+                                                  : selectedCategory,
+                                          onChanged: (String? newValue) {
+                                            setState(() {
+                                              selectedCategory = newValue!;
+                                            });
+                                          },
+                                          items:
+                                              <String>[
+                                                'Food',
+                                                'Drink',
+                                                'Dessert',
+                                              ].map<DropdownMenuItem<String>>((
+                                                String value,
+                                              ) {
+                                                return DropdownMenuItem<String>(
+                                                  value: value.toLowerCase(),
+                                                  child: Text(value),
+                                                );
+                                              }).toList(),
                                         ),
                                       ),
                                     ),
                                   ],
                                 ),
-                              ),
-                            ],
+
+                                const SizedBox(height: 16),
+
+                                // Menu price
+                                _buildFormField(
+                                  'Menu price',
+                                  priceController,
+                                  'Enter a price',
+                                  isNumber: true,
+                                ),
+                                const SizedBox(height: 16),
+
+                                // Menu description
+                                _buildFormField(
+                                  'Menu description',
+                                  descriptionController,
+                                  'Write description',
+                                ),
+
+                                // Divider
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 10),
+                                  child: Divider(
+                                    color: Colors.white,
+                                    thickness: 1,
+                                    height: 1,
+                                  ),
+                                ),
+
+                                // Action buttons - Keeping the original 3 buttons
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 16.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      // Delete button
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          onPressed:
+                                              isDeleting || isSubmitting
+                                                  ? null
+                                                  : () {
+                                                    _showDeleteConfirmation(
+                                                      context,
+                                                    );
+                                                  },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: const Color(
+                                              0xFFE15B5B,
+                                            ),
+                                            foregroundColor: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 16,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            isDeleting
+                                                ? 'Deleting...'
+                                                : 'Delete Menu',
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+
+                                      const SizedBox(width: 8),
+
+                                      // Discard button
+                                      Expanded(
+                                        child: OutlinedButton(
+                                          onPressed:
+                                              isSubmitting || isDeleting
+                                                  ? null
+                                                  : () {
+                                                    Navigator.pop(context);
+                                                  },
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: Colors.black,
+                                            backgroundColor: Colors.white,
+                                            side: BorderSide(
+                                              color: Colors.grey[300]!,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 16,
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            'Discard Change',
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+
+                                      const SizedBox(width: 8),
+
+                                      // Save button
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          onPressed:
+                                              isSubmitting ||
+                                                      isProcessingImage ||
+                                                      isDeleting
+                                                  ? null
+                                                  : () {
+                                                    _saveChanges(context);
+                                                  },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.black,
+                                            foregroundColor: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 16,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            isSubmitting
+                                                ? 'Submitting...'
+                                                : 'Save Change',
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
     );
   }
 
-  Widget _buildFormField(String label, TextEditingController controller, String hintText, {bool isNumber = false, bool readOnly = false}) {
+  Widget _buildFormField(
+    String label,
+    TextEditingController controller,
+    String hintText, {
+    bool isNumber = false,
+    bool readOnly = false,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
         const SizedBox(height: 4),
         Container(
           decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(
-                color: Colors.grey[300]!,
-                width: 1,
-              ),
+              bottom: BorderSide(color: Colors.grey[300]!, width: 1),
             ),
           ),
           child: Row(
@@ -730,20 +810,16 @@ class _EditMenuPageState extends State<EditMenuPage> {
               Expanded(
                 child: TextField(
                   controller: controller,
-                  keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+                  keyboardType:
+                      isNumber ? TextInputType.number : TextInputType.text,
                   readOnly: readOnly,
                   decoration: InputDecoration(
                     hintText: hintText,
-                    hintStyle: TextStyle(
-                      color: Colors.grey[400],
-                      fontSize: 16,
-                    ),
+                    hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(vertical: 8),
                   ),
-                  style: const TextStyle(
-                    fontSize: 16,
-                  ),
+                  style: const TextStyle(fontSize: 16),
                 ),
               ),
               GestureDetector(
@@ -776,25 +852,31 @@ class _EditMenuPageState extends State<EditMenuPage> {
   void _showDeleteConfirmation(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Menu'),
-        content: const Text('Are you sure you want to delete this menu item?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Close dialog
-            },
-            child: const Text('Cancel'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Delete Menu'),
+            content: const Text(
+              'Are you sure you want to delete this menu item?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close dialog
+                },
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close dialog
+                  _deleteMenu(); // Call the delete function
+                },
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(color: Color(0xFFE15B5B)),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Close dialog
-              _deleteMenu(); // Call the delete function
-            },
-            child: const Text('Delete', style: TextStyle(color: Color(0xFFE15B5B))),
-          ),
-        ],
-      ),
     );
   }
 }

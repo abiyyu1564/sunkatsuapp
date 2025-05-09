@@ -70,7 +70,7 @@ class _MenuPageState extends State<MenuPage> {
       isRefreshing = true; // Show refresh indicator
     });
 
-    const String apiUrl = 'http://localhost:8080/api/menus';
+    const String apiUrl = 'http://10.0.2.2:8080/api/menus';
     final token = await JwtUtils.getToken();
 
     if (token == null) {
@@ -149,7 +149,7 @@ class _MenuPageState extends State<MenuPage> {
   // Helper method to fetch a single image
   Future<void> _fetchSingleImage(String imageUrl, String token) async {
     try {
-      final url = 'http://localhost:8080${imageUrl}';
+      final url = 'http://10.0.2.2:8080${imageUrl}';
       final imageResponse = await http.get(
         Uri.parse(url),
         headers: {'Authorization': 'Bearer $token'},
@@ -185,13 +185,13 @@ class _MenuPageState extends State<MenuPage> {
           color: isSelected ? const Color(0xFFE15B5B) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? const Color(0xFFE15B5B) : Colors.grey[300]!,
+            color: isSelected ? const Color(0xFFE15B5B) : AppColors.grey,
           ),
         ),
         child: Text(
           category,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.grey[800],
+            color: isSelected ? Colors.white : AppColors.black,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -292,29 +292,29 @@ class _MenuPageState extends State<MenuPage> {
     const routeName = '/menu';
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppColors.whiteBG,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.whiteBG,
         elevation: 0,
         title: Row(
           children: [
-            Icon(Icons.location_on, size: 20, color: Colors.grey[700]),
+            Icon(Icons.location_on, size: 20, color: AppColors.black),
             const SizedBox(width: 8),
-            Text('TULT, Telkom University', style: TextStyle(color: Colors.grey[800], fontSize: 16)),
+            Text('TULT, Telkom University', style: TextStyle(color: AppColors.black, fontSize: 16)),
           ],
         ),
         actions: [
           // Add refresh button
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => fetchMenuItems(forceReloadImages: true),
-            color: Colors.grey[800],
-          ),
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
-            color: Colors.grey[800],
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.refresh),
+          //   onPressed: () => fetchMenuItems(forceReloadImages: true),
+          //   color: AppColors.black,
+          // ),
+          // IconButton(
+          //   icon: const Icon(Icons.notifications_outlined),
+          //   onPressed: () {},
+          //   color: AppColors.black,
+          // ),
         ],
       ),
       floatingActionButton: userRole == 'OWNER'
@@ -333,8 +333,12 @@ class _MenuPageState extends State<MenuPage> {
             await fetchMenuItems(forceReloadImages: true);
           }
         },
-        backgroundColor: const Color(0xFFE15B5B),
-        child: const Icon(Icons.add),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+          side: BorderSide(color: AppColors.white),
+        ),
+        backgroundColor: AppColors.white,
+        child: const Icon(Icons.add, color: AppColors.red),
       )
           : null,
       body: Stack(
@@ -343,7 +347,6 @@ class _MenuPageState extends State<MenuPage> {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                color: Colors.white,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -377,7 +380,7 @@ class _MenuPageState extends State<MenuPage> {
           // Overlay loading indicator during refresh
           if (isRefreshing)
             Container(
-              color: Colors.black.withOpacity(0.1),
+              color: AppColors.black.withAlpha(60),
               child: const Center(
                 child: Card(
                   elevation: 4,

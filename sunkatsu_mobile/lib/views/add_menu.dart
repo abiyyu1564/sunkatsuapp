@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sunkatsu_mobile/utils/constants.dart';
 import 'package:sunkatsu_mobile/utils/jwt_utils.dart';
 import 'package:http_parser/http_parser.dart'; //
 import 'package:mime/mime.dart'; //
@@ -170,7 +171,7 @@ class _AddMenuPageState extends State<AddMenuPage> {
       // Create multipart request
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://localhost:8080/api/menus'),
+        Uri.parse('http://10.0.2.2:8080/api/menus'),
       );
 
       // Add headers
@@ -259,7 +260,7 @@ class _AddMenuPageState extends State<AddMenuPage> {
           // Red background for top section
           Container(
             height: MediaQuery.of(context).size.height * 0.4,
-            color: const Color(0xFFE15B5B),
+            color: AppColors.red,
           ),
 
           // White curved container
@@ -268,7 +269,7 @@ class _AddMenuPageState extends State<AddMenuPage> {
             child: Container(
               height: MediaQuery.of(context).size.height * 0.7,
               decoration: const BoxDecoration(
-                color: Colors.white,
+                color: AppColors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
@@ -292,7 +293,7 @@ class _AddMenuPageState extends State<AddMenuPage> {
                       },
                       child: const Icon(
                         Icons.arrow_back,
-                        color: Colors.white,
+                        color: AppColors.black,
                       ),
                     ),
                   ),
@@ -313,11 +314,11 @@ class _AddMenuPageState extends State<AddMenuPage> {
                               width: 200,
                               height: 200,
                               decoration: BoxDecoration(
-                                color: Colors.grey[200],
+                                color: AppColors.white,
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
+                                    color: AppColors.black.withAlpha(128),
                                     spreadRadius: 2,
                                     blurRadius: 10,
                                     offset: const Offset(0, 5),
@@ -327,7 +328,7 @@ class _AddMenuPageState extends State<AddMenuPage> {
                               child: isProcessingImage
                                   ? const Center(
                                 child: CircularProgressIndicator(
-                                  color: Color(0xFFE15B5B),
+                                  color: AppColors.red,
                                 ),
                               )
                                   : selectedImage != null
@@ -343,7 +344,7 @@ class _AddMenuPageState extends State<AddMenuPage> {
                                 child: Icon(
                                   Icons.add_photo_alternate_outlined,
                                   size: 80,
-                                  color: Colors.grey[600],
+                                  color: AppColors.black,
                                 ),
                               ),
                             ),
@@ -359,7 +360,6 @@ class _AddMenuPageState extends State<AddMenuPage> {
                               // Menu name
                               _buildFormField('Menu name', nameController, 'Enter menu name'),
                               const SizedBox(height: 16),
-
                               // Menu category (dropdown)
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,7 +368,7 @@ class _AddMenuPageState extends State<AddMenuPage> {
                                     'Menu category',
                                     style: TextStyle(
                                       fontSize: 14,
-                                      color: Colors.grey[600],
+                                      color: AppColors.black,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
@@ -387,7 +387,7 @@ class _AddMenuPageState extends State<AddMenuPage> {
                                         hint: Text(
                                           'Select categories',
                                           style: TextStyle(
-                                            color: Colors.grey[400],
+                                            color: AppColors.black.withAlpha(80),
                                             fontSize: 16,
                                           ),
                                         ),
@@ -425,7 +425,7 @@ class _AddMenuPageState extends State<AddMenuPage> {
                               const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 10),
                                 child: Divider(
-                                  color: Colors.white,
+                                  color: AppColors.white,
                                   thickness: 1,
                                   height: 1,
 
@@ -447,7 +447,7 @@ class _AddMenuPageState extends State<AddMenuPage> {
                                         style: OutlinedButton.styleFrom(
                                           foregroundColor: Colors.black,
                                           backgroundColor: Colors.white,
-                                          side: BorderSide(color: Colors.grey[300]!),
+                                          side: BorderSide(color: AppColors.grey),
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(30),
                                           ),
@@ -519,7 +519,7 @@ class _AddMenuPageState extends State<AddMenuPage> {
           label,
           style: TextStyle(
             fontSize: 14,
-            color: Colors.grey[600],
+            color: AppColors.black,
           ),
         ),
         const SizedBox(height: 4),
@@ -527,7 +527,7 @@ class _AddMenuPageState extends State<AddMenuPage> {
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: Colors.grey[300]!,
+                color: AppColors.grey,
                 width: 1,
               ),
             ),
@@ -542,7 +542,7 @@ class _AddMenuPageState extends State<AddMenuPage> {
                   decoration: InputDecoration(
                     hintText: hintText,
                     hintStyle: TextStyle(
-                      color: Colors.grey[400],
+                      color: AppColors.black.withAlpha(80),
                       fontSize: 16,
                     ),
                     border: InputBorder.none,

@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import '../models/cart.dart';
 import '../utils/jwt_utils.dart';
 import '../views/menu_page.dart';
+import 'package:sunkatsu_mobile/utils/constants.dart';
+
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -17,7 +19,7 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   ShoppingCart? cart;
   bool isLoading = true;
-  final String baseUrl = "http://localhost:8080";
+  final String baseUrl = "http://10.0.2.2:8080";
 
   // Store fetched image bytes here
   Map<String, Uint8List> imageBytesMap = {};
@@ -130,7 +132,7 @@ class _CartPageState extends State<CartPage> {
                 Navigator.of(context).pop();
                 deleteItem(itemId);
               },
-              child: const Text('Remove', style: TextStyle(color: Colors.red)),
+              child: const Text('Remove', style: TextStyle(color: AppColors.red)),
             ),
           ],
         );
@@ -150,7 +152,7 @@ class _CartPageState extends State<CartPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Order placed successfully!"),
-          backgroundColor: Color(0xFFE05151),
+          backgroundColor: AppColors.green,
           duration: Duration(seconds: 2),
         ),
       );
@@ -160,7 +162,7 @@ class _CartPageState extends State<CartPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Failed to place order. Please try again."),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.red,
         ),
       );
     }
@@ -169,24 +171,25 @@ class _CartPageState extends State<CartPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.whiteBG,
       appBar: AppBar(
         title: const Text(
           'Your Cart',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color(0xFFE05151),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.red,
+        foregroundColor: AppColors.white,
         centerTitle: true,
         elevation: 2,
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFFE05151)))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.red))
           : cart == null || cart!.cartItems.isEmpty
           ? Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey),
+            const Icon(Icons.shopping_cart_outlined, size: 80, color: AppColors.grey),
             const SizedBox(height: 16),
             const Text(
               "Your cart is empty",
@@ -195,7 +198,7 @@ class _CartPageState extends State<CartPage> {
             const SizedBox(height: 8),
             const Text(
               "Add some delicious items to your cart",
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(color: AppColors.grey),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
@@ -204,7 +207,7 @@ class _CartPageState extends State<CartPage> {
                     MaterialPageRoute(builder: (_) => const MenuPage())); // Go back to menu
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE05151),
+                backgroundColor: AppColors.red,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -225,7 +228,7 @@ class _CartPageState extends State<CartPage> {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                color: Colors.grey,
+                color: AppColors.grey,
               ),
             ),
           ),
@@ -244,6 +247,7 @@ class _CartPageState extends State<CartPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
+                  color: AppColors.white,
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: Row(
@@ -262,8 +266,8 @@ class _CartPageState extends State<CartPage> {
                               : Container(
                             width: 80,
                             height: 80,
-                            color: Colors.grey.shade200,
-                            child: const Icon(Icons.fastfood, size: 40, color: Colors.grey),
+                            color: AppColors.grey,
+                            child: const Icon(Icons.fastfood, size: 40, color: AppColors.grey),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -283,7 +287,7 @@ class _CartPageState extends State<CartPage> {
                               Text(
                                 "Rp ${NumberFormat("#,###", "id_ID").format(item.menu.price)}",
                                 style: TextStyle(
-                                  color: Colors.grey.shade700,
+                                  color: AppColors.grey,
                                   fontSize: 14,
                                 ),
                               ),
@@ -294,7 +298,7 @@ class _CartPageState extends State<CartPage> {
                                   // Quantity controls
                                   Container(
                                     decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey.shade300),
+                                      border: Border.all(color: AppColors.grey),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Row(
@@ -334,7 +338,7 @@ class _CartPageState extends State<CartPage> {
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
-                                      color: Color(0xFFE05151),
+                                      color: AppColors.red,
                                     ),
                                   ),
                                 ],
@@ -344,7 +348,7 @@ class _CartPageState extends State<CartPage> {
                         ),
                         // Delete button
                         IconButton(
-                          icon: const Icon(Icons.delete_outline, color: Colors.red),
+                          icon: const Icon(Icons.delete_outline, color: AppColors.red),
                           onPressed: () => showDeleteConfirmation(item.id, item.menu.name),
                         ),
                       ],
@@ -357,10 +361,10 @@ class _CartPageState extends State<CartPage> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
+                  color: AppColors.grey.withAlpha(32),
                   spreadRadius: 1,
                   blurRadius: 5,
                   offset: const Offset(0, -3),
@@ -369,25 +373,25 @@ class _CartPageState extends State<CartPage> {
             ),
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Subtotal',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    Text(
-                      'Rp ${NumberFormat("#,###", "id_ID").format(cart!.total)}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                const Divider(),
-                const SizedBox(height: 8),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     const Text(
+                //       'Subtotal',
+                //       style: TextStyle(fontSize: 16),
+                //     ),
+                //     Text(
+                //       'Rp ${NumberFormat("#,###", "id_ID").format(cart!.total)}',
+                //       style: const TextStyle(
+                //         fontSize: 16,
+                //         fontWeight: FontWeight.bold,
+                //       ),
+                //     ),
+                //   ],
+                // ),
+                // const SizedBox(height: 8),
+                // const Divider(),
+                // const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -404,7 +408,7 @@ class _CartPageState extends State<CartPage> {
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Montserrat',
                         fontSize: 24,
-                        color: Color(0xFFE05151),
+                        color: AppColors.red,
                       ),
                     ),
                   ],
@@ -416,8 +420,8 @@ class _CartPageState extends State<CartPage> {
                   child: ElevatedButton(
                     onPressed: finishCart,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE05151),
-                      foregroundColor: Colors.white,
+                      backgroundColor: AppColors.red,
+                      foregroundColor: AppColors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

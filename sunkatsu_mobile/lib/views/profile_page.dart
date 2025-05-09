@@ -76,10 +76,9 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.whiteBG,
       appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: AppColors.red,
-        foregroundColor: AppColors.white,
+        backgroundColor: AppColors.whiteBG,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -110,9 +109,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ),
             ),
+            const SizedBox(height: 32),
 
-            // const SizedBox(height: 32),
-            //
             // // Profile options
             // const Text(
             //   'Account Settings',
@@ -183,7 +181,7 @@ class _ProfilePageState extends State<ProfilePage> {
             //   },
             // ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 450),
 
             // Logout button
             SizedBox(
