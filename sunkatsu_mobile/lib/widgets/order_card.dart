@@ -86,16 +86,16 @@ class OrderCard extends StatelessWidget {
                       ),
                     ),
                 if (orderedItem.status == 'Not Paid')
-                    Text(
-                      '${orderedItem.paymentDeadline != null ? DateFormat(
-                          'd MMM yyyy HH.mm').format(
-                          orderedItem.paymentDeadline!) : 'No date available'}',
-                      style: const TextStyle(
-                        color: AppColors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                  Text(
+                    orderedItem.paymentDeadline != null
+                        ? DateFormat('d MMM yyyy, h:mm:ss a').format(orderedItem.paymentDeadline!)
+                        : 'No date available',
+                    style: const TextStyle(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
+                  ),
                 const SizedBox(height: 10),
                 Text(
                   'Rp ${orderedItem.total}',

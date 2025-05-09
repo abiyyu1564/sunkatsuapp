@@ -42,7 +42,7 @@ class OrderItem {
           .toList() ??
           [],
       paymentDeadline: json['paymentDeadline'] != null
-          ? DateTime.parse(json['paymentDeadline'])
+          ? DateTime.parse(json['paymentDeadline']).toLocal()
           : null,
     );
   }
