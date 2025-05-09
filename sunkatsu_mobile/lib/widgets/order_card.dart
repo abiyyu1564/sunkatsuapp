@@ -88,7 +88,7 @@ class OrderCard extends StatelessWidget {
                 if (orderedItem.status == 'Not Paid')
                   Text(
                     orderedItem.paymentDeadline != null
-                        ? DateFormat('d MMM yyyy, h:mm:ss a').format(orderedItem.paymentDeadline!)
+                        ? DateFormat('d MMM yyyy, h:mm a').format(orderedItem.paymentDeadline!)
                         : 'No date available',
                     style: const TextStyle(
                       color: AppColors.white,
