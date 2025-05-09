@@ -75,23 +75,27 @@ class OrderCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                  Text(
-                    role == 'STAFF' || role == "OWNER"
-                    ? 'Customer must pay before'
-                    : 'Pay at cashier before',
-                    style: const TextStyle(
-                      color: AppColors.white,
-                      fontSize: 16,
+                  if (orderedItem.status == 'Not Paid')
+                    Text(
+                      role == 'STAFF' || role == "OWNER"
+                          ? 'Customer must pay before'
+                          : 'Pay at cashier before',
+                      style: const TextStyle(
+                        color: AppColors.white,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                Text(
-                  '${orderedItem.paymentDeadline != null ? DateFormat('d MMM yyyy HH.mm').format(orderedItem.paymentDeadline!) : 'No date available'}',
-                  style: const TextStyle(
-                    color: AppColors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
+                if (orderedItem.status == 'Not Paid')
+                    Text(
+                      '${orderedItem.paymentDeadline != null ? DateFormat(
+                          'd MMM yyyy HH.mm').format(
+                          orderedItem.paymentDeadline!) : 'No date available'}',
+                      style: const TextStyle(
+                        color: AppColors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                 const SizedBox(height: 10),
                 Text(
                   'Rp ${orderedItem.total}',
