@@ -14,30 +14,63 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _rePasswordController = TextEditingController();
   final _usernameController = TextEditingController();
   bool _obscurePassword = true;
+  String? _passwordError;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _rePasswordController.addListener(() {
+      final password = _passwordController.text.trim();
+      final rePassword = _rePasswordController.text.trim();
+
+      setState(() {
+        if (rePassword.isEmpty) {
+          _passwordError = null;
+        } else if (password != rePassword) {
+          _passwordError = 'Passwords do not match';
+        } else {
+          _passwordError = null;
+        }
+      });
+    });
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _rePasswordController.dispose();
     _usernameController.dispose();
     super.dispose();
   }
 
   void _handleSignUp() async {
-    final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     final username = _usernameController.text.trim();
+    final rePassword = _rePasswordController.text.trim();
 
-    if (email.isEmpty || password.isEmpty || username.isEmpty) {
+    if (password.isEmpty || username.isEmpty || rePassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all fields')),
       );
       return;
     }
 
-    final url = Uri.parse('http://10.0.2.2:8080/api/auth/register');
+    if (password != rePassword) {
+      setState(() {
+        _passwordError = 'Password does not match' ;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password does not match')),
+      );
+      return;
+    }
+
+    final url = Uri.parse('http://localhost:8080/api/auth/register');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -64,7 +97,6 @@ class _SignUpPageState extends State<SignUpPage> {
       );
     }
   }
-
 
   void _navigateToLogin() {
     Navigator.of(context).pushReplacement(
@@ -109,27 +141,10 @@ class _SignUpPageState extends State<SignUpPage> {
                   color: AppColors.red,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               TextField(
                 controller: _usernameController,
                 decoration: _inputDecoration('Enter your username'),
-              ),
-              const SizedBox(height: 16),
-
-              // Email
-              const Text(
-                'Email',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: _inputDecoration('Enter your email'),
               ),
               const SizedBox(height: 16),
 
@@ -162,7 +177,54 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+
+              // Confirm Password
+              const Text(
+                'Confirm Password',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _rePasswordController,
+                obscureText: _obscurePassword,
+                decoration: _inputDecoration('Re-enter your password').copyWith(
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: AppColors.black,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 12),
+
+              if (_passwordError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    _passwordError!,
+                    style: TextStyle(
+                      color: AppColors.red,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+
+              const SizedBox(height: 16),
 
               // Sign Up Button
               SizedBox(
@@ -171,41 +233,36 @@ class _SignUpPageState extends State<SignUpPage> {
                   onPressed: _handleSignUp,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.red,
-                    foregroundColor: AppColors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   child: const Text(
                     'Sign Up',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.white,
+                    ),
                   ),
                 ),
               ),
 
               const SizedBox(height: 16),
 
-              // Redirect to Login
+              // Already have an account
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    "Already have an account? ",
-                    style: TextStyle(color: AppColors.black, fontSize: 14),
-                  ),
+                  const Text("Already have an account? "),
                   GestureDetector(
                     onTap: _navigateToLogin,
                     child: const Text(
                       'Login',
                       style: TextStyle(
                         color: AppColors.red,
-                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
+                  )
                 ],
               ),
             ],
@@ -225,7 +282,7 @@ class _SignUpPageState extends State<SignUpPage> {
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide(
-          color: AppColors.black.withAlpha(64),
+          color: AppColors.black.withAlpha(128),
           width: 2.0,
         ),
       ),

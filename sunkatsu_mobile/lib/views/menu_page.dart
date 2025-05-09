@@ -6,35 +6,9 @@ import 'food_detail_page.dart';
 import 'package:sunkatsu_mobile/utils/constants.dart';
 import 'package:sunkatsu_mobile/widgets/nav_bar.dart';
 import 'package:sunkatsu_mobile/utils/jwt_utils.dart';
-
-class MenuItem {
-  final int? id;
-  final String name;
-  final String imageUrl;
-  final int price;
-  final String desc;
-  final String category;
-
-  MenuItem({
-    required this.id,
-    required this.name,
-    required this.imageUrl,
-    required this.price,
-    required this.desc,
-    required this.category,
-  });
-
-  factory MenuItem.fromJson(Map<String, dynamic> json) {
-    return MenuItem(
-      id: (json['id'] ?? 0) as int,
-      name: json['name'] ?? '',
-      imageUrl: json['image'] ?? '', // Pastikan hanya nama file
-      price: json['price'] ?? 0,
-      desc: json['desc'] ?? '',
-      category: json['category'] ?? '',
-    );
-  }
-}
+import 'package:sunkatsu_mobile/views/food_edit.dart';
+import 'package:sunkatsu_mobile/models/menu.dart';
+import 'package:sunkatsu_mobile/views/add_menu.dart';
 
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key});
@@ -44,29 +18,73 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> {
-  int _currentIndex = 0;
   String selectedCategory = 'All';
-  int selectedNavIndex = 1;
-
-  List<MenuItem> foodItems = [];
-  Map<String, Uint8List> imageBytesMap = {}; // Tambahkan ini
+  String? userRole;
+  bool isLoading = true;
+  bool isRefreshing = false; // New flag for refresh state
+  List<Menu> foodItems = [];
+  Map<String, Uint8List> imageBytesMap = {};
 
   @override
   void initState() {
     super.initState();
-    fetchMenuItems();
+    decodeAndSetUserRole();
+    fetchMenuItems(forceReloadImages: true);
+
+    // Add a focus listener to refresh when page gets focus again
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final focusNode = FocusNode();
+      FocusScope.of(context).requestFocus(focusNode);
+      focusNode.addListener(() {
+        if (focusNode.hasFocus) {
+          fetchMenuItems(forceReloadImages: true);
+        }
+      });
+    });
   }
 
-  Future<void> fetchMenuItems() async {
-    const String apiUrl = 'http://192.168.0.114:8080/api/menus';
+  Future<void> _refreshAfterPop() async {
+    await Future.delayed(const Duration(milliseconds: 100)); // Reduced delay
+    await fetchMenuItems(forceReloadImages: true);
+  }
+
+  Future<void> decodeAndSetUserRole() async {
+    final token = await JwtUtils.getToken();
+    if (token != null) {
+      final payload = await JwtUtils.parseJwtPayload();
+      setState(() {
+        userRole = payload?['role'];
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> fetchMenuItems({bool forceReloadImages = false}) async {
+    if (!mounted) return;
+
+    setState(() {
+      isRefreshing = true; // Show refresh indicator
+    });
+
+    const String apiUrl = 'http://localhost:8080/api/menus';
     final token = await JwtUtils.getToken();
 
     if (token == null) {
-      print('No token found. User might not be logged in.');
+      if (mounted) {
+        setState(() {
+          isRefreshing = false;
+          isLoading = false;
+        });
+      }
       return;
     }
 
     try {
+      // Fetch menu items
       final response = await http.get(
         Uri.parse(apiUrl),
         headers: {
@@ -77,133 +95,79 @@ class _MenuPageState extends State<MenuPage> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        final List<MenuItem> fetchedItems =
-        data.map((item) => MenuItem.fromJson(item)).toList();
+        final List<Menu> fetchedItems = data.map((item) => Menu.fromJson(item)).toList();
 
-        // Fetch image blobs
-        for (final item in fetchedItems) {
-          try {
-            final imageResponse = await http.get(
-              Uri.parse(
-                  'http://192.168.0.114:8080/api/menus/images/${item.imageUrl}'),
-              headers: {
-                'Authorization': 'Bearer $token',
-              },
-            );
-            if (imageResponse.statusCode == 200) {
-              imageBytesMap[item.imageUrl] = imageResponse.bodyBytes;
-            } else {
-              print('Failed to load image for ${item.name}');
-            }
-          } catch (e) {
-            print('Error fetching image for ${item.name}: $e');
-          }
+        // Update state with new menu items immediately
+        if (mounted) {
+          setState(() {
+            foodItems = fetchedItems;
+            isLoading = false;
+          });
         }
 
-        setState(() {
-          foodItems = fetchedItems;
-        });
+        // Fetch images in parallel instead of sequentially
+        final List<Future<void>> imageFutures = [];
+
+        for (final item in fetchedItems) {
+          // Skip already loaded images unless forced reload
+          if (!forceReloadImages && imageBytesMap.containsKey(item.imageUrl)) {
+            continue;
+          }
+
+          imageFutures.add(_fetchSingleImage(item.imageUrl, token));
+        }
+
+        // Wait for all image fetches to complete
+        await Future.wait(imageFutures);
+
+        // Update UI after all images are loaded
+        if (mounted) {
+          setState(() {
+            isRefreshing = false;
+          });
+        }
       } else {
-        print('Failed to fetch data: ${response.statusCode}');
-        print('Body: ${response.body}');
+        debugPrint('Failed to fetch data: ${response.statusCode}');
+        if (mounted) {
+          setState(() {
+            isRefreshing = false;
+            isLoading = false;
+          });
+        }
       }
     } catch (e) {
-      print('Error fetching menu: $e');
+      debugPrint('Error fetching menu: $e');
+      if (mounted) {
+        setState(() {
+          isRefreshing = false;
+          isLoading = false;
+        });
+      }
     }
   }
 
-  void _onNavbarTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
+  // Helper method to fetch a single image
+  Future<void> _fetchSingleImage(String imageUrl, String token) async {
+    try {
+      final url = 'http://localhost:8080${imageUrl}';
+      final imageResponse = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $token'},
+      );
 
-  List<MenuItem> get filteredItems {
-    if (selectedCategory == 'Food') {
-      selectedCategory = 'food';
-    }else if (selectedCategory == 'Drink') {
-      selectedCategory = 'drink';
-    }else if (selectedCategory == 'Dessert') {
-      selectedCategory = 'dessert';
-    }
-
-    if (selectedCategory == 'All') {
-      return foodItems;
-    } else {
-      return foodItems
-          .where((item) => item.category == selectedCategory)
-          .toList();
+      if (imageResponse.statusCode == 200 && mounted) {
+        setState(() {
+          imageBytesMap[imageUrl] = imageResponse.bodyBytes;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching image for $imageUrl: $e');
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Row(
-          children: [
-            Icon(Icons.location_on, size: 20, color: Colors.grey[700]),
-            const SizedBox(width: 8),
-            Text(
-              'TULT, Telkom University',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[800],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
-            color: Colors.grey[800],
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: Colors.white,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _buildCategoryButton('All'),
-                  const SizedBox(width: 8),
-                  _buildCategoryButton('Food'),
-                  const SizedBox(width: 8),
-                  _buildCategoryButton('Drink'),
-                  const SizedBox(width: 8),
-                  _buildCategoryButton('Dessert'),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: foodItems.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: filteredItems.length,
-              itemBuilder: (context, index) {
-                final item = filteredItems[index];
-                return _buildFoodItemCard(item, context);
-              },
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: MyNavBar(
-        currentIndex: _currentIndex,
-        onTap: _onNavbarTapped,
-      ),
-    );
+  List<Menu> get filteredItems {
+    if (selectedCategory == 'All') return foodItems;
+    return foodItems.where((item) => item.category == selectedCategory.toLowerCase()).toList();
   }
 
   Widget _buildCategoryButton(String category) {
@@ -221,13 +185,13 @@ class _MenuPageState extends State<MenuPage> {
           color: isSelected ? const Color(0xFFE15B5B) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? const Color(0xFFE15B5B) : Colors.grey[300]!,
+            color: isSelected ? const Color(0xFFE15B5B) : AppColors.grey,
           ),
         ),
         child: Text(
           category,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.grey[800],
+            color: isSelected ? Colors.white : AppColors.black,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -235,24 +199,29 @@ class _MenuPageState extends State<MenuPage> {
     );
   }
 
-  Widget _buildFoodItemCard(MenuItem item, BuildContext context) {
+  Widget _buildFoodItemCard(Menu item) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => FoodDetailPage(
-            foodData: {
-            'id': item.id,
-            'name': item.name,
-            'category': item.category,
-            'price': item.price,
-            'image': item.imageUrl,
-            'description': item.desc,
-            },
-            ),
+            builder: (context) => FoodDetailPage(foodData: {
+              'id': item.id,
+              'name': item.name,
+              'category': item.category,
+              'price': item.price,
+              'image': item.imageUrl,
+              'description': item.desc,
+            }),
+            settings: const RouteSettings(name: '/food-detail'),
           ),
-        );
+        ).then((result) {
+          // Check if we need to refresh based on the returned result
+          if (result == true) {
+            debugPrint("Refreshing menu after returning from detail page");
+            fetchMenuItems(forceReloadImages: true);
+          }
+        });
       },
       child: SizedBox(
         height: 180,
@@ -260,17 +229,14 @@ class _MenuPageState extends State<MenuPage> {
           color: AppColors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
-            side: BorderSide(
-              color: AppColors.black.withAlpha(50),
-              width: 0.65,
-            ),
+            side: BorderSide(color: AppColors.black.withAlpha(50), width: 0.65),
           ),
           elevation: 0,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                // Image with loading indicator
                 ClipOval(
                   child: imageBytesMap.containsKey(item.imageUrl)
                       ? Image.memory(
@@ -279,65 +245,30 @@ class _MenuPageState extends State<MenuPage> {
                     height: 150,
                     fit: BoxFit.cover,
                   )
-                      : const Icon(Icons.broken_image, size: 80),
+                      : Container(
+                    width: 150,
+                    height: 150,
+                    color: Colors.grey[200],
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.red,
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 35),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        item.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: AppColors.black,
-                        ),
-                      ),
+                      Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       const SizedBox(height: 6),
-                      Text(
-                        item.desc,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Colors.black87,
-                          height: 1.4,
-                        ),
-                      ),
+                      Text(item.desc, maxLines: 3, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11)),
                       const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Rp ${item.price.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              color: AppColors.red,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              // Tambah ke keranjang
-                            },
-                            child: Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.add,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
+                      Text('Rp ${item.price.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.red)),
                     ],
                   ),
                 ),
@@ -345,6 +276,129 @@ class _MenuPageState extends State<MenuPage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // Use a static route name for navigation purposes
+    const routeName = '/menu';
+
+    return Scaffold(
+      backgroundColor: AppColors.whiteBG,
+      appBar: AppBar(
+        backgroundColor: AppColors.whiteBG,
+        elevation: 0,
+        title: Row(
+          children: [
+            Icon(Icons.location_on, size: 20, color: AppColors.black),
+            const SizedBox(width: 8),
+            Text('TULT, Telkom University', style: TextStyle(color: AppColors.black, fontSize: 16)),
+          ],
+        ),
+        actions: [
+          // Add refresh button
+          // IconButton(
+          //   icon: const Icon(Icons.refresh),
+          //   onPressed: () => fetchMenuItems(forceReloadImages: true),
+          //   color: AppColors.black,
+          // ),
+          // IconButton(
+          //   icon: const Icon(Icons.notifications_outlined),
+          //   onPressed: () {},
+          //   color: AppColors.black,
+          // ),
+        ],
+      ),
+      floatingActionButton: userRole == 'OWNER'
+          ? FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AddMenuPage(),
+              settings: const RouteSettings(name: '/add-menu'),
+            ),
+          );
+
+          if (result == true) {
+            debugPrint("Refreshing menu after adding new item");
+            await fetchMenuItems(forceReloadImages: true);
+          }
+        },
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+          side: BorderSide(color: AppColors.white),
+        ),
+        backgroundColor: AppColors.white,
+        child: const Icon(Icons.add, color: AppColors.red),
+      )
+          : null,
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildCategoryButton('All'),
+                      const SizedBox(width: 8),
+                      _buildCategoryButton('Food'),
+                      const SizedBox(width: 8),
+                      _buildCategoryButton('Drink'),
+                      const SizedBox(width: 8),
+                      _buildCategoryButton('Dessert'),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () => fetchMenuItems(forceReloadImages: true),
+                  child: foodItems.isEmpty
+                      ? const Center(child: Text("No menu items available"))
+                      : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: filteredItems.length,
+                    itemBuilder: (context, index) => _buildFoodItemCard(filteredItems[index]),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // Overlay loading indicator during refresh
+          if (isRefreshing)
+            Container(
+              color: AppColors.black.withAlpha(60),
+              child: const Center(
+                child: Card(
+                  elevation: 4,
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(color: AppColors.red),
+                        SizedBox(height: 16),
+                        Text("Loading menu...", style: TextStyle(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

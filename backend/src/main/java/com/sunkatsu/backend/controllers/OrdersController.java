@@ -49,15 +49,15 @@ public class OrdersController {
     public ResponseEntity<Object> getOrderByStatus(@PathVariable String status) {
         try {
             status = URLDecoder.decode(status, StandardCharsets.UTF_8.toString());
-        } catch(Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(new Message("Error : Input tidak valid"));
         }
-        if (status != "Not Paid" || status != "Accepted" || status != "Finished" || status != "Canceled") {
+        if (!status.equals("Not Paid") && !status.equals("Accepted") && !status.equals("Finished") && !status.equals("Canceled")) {
             return ResponseEntity.badRequest().body(new Message("Error : Invalid status!"));
         }
         orderService.checkOrderToCancel();
         return ResponseEntity.ok().body(orderService.getOrderByStatus(status));
-    } 
+    }
 
     @Operation(
         summary="Delete an order by id",

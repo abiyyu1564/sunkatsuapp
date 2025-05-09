@@ -17,21 +17,17 @@ dependencies:
   image_picker: ^1.1.2
   flutter_local_notifications: ^19.1.0
 
-  mime: ^1.0.4
-  http_parser: ^4.0.2
-
   cupertino_icons: ^1.0.8
   stomp_dart_client: ^2.0.0
   shared_preferences: ^2.5.2
   flutter_secure_storage: ^9.2.4
   dart_jsonwebtoken: ^2.0.1
   flutter_svg: ^2.0.7
-  intl: ^0.20.2
+  intl: ^0.17.0
 
   google_sign_in: ^6.1.6
   firebase_auth: ^4.17.3
   firebase_core: ^2.25.4
-  awesome_notifications: ^0.10.1
 
 dev_dependencies:
   flutter_test:

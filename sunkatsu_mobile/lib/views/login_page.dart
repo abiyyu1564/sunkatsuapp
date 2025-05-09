@@ -12,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-
+import 'package:flutter/services.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -33,6 +33,7 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     _loadRememberedUsername();
   }
+
   void _loadRememberedUsername() async {
     final prefs = await SharedPreferences.getInstance();
     final rememberedUsername = prefs.getString('remembered_username');
@@ -43,18 +44,21 @@ class _LoginPageState extends State<LoginPage> {
       });
     }
   }
+
   void _handleLogin() async {
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
 
     if (username.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter both username and password')),
+        const SnackBar(
+          content: Text('Please enter both username and password'),
+        ),
       );
       return;
     }
 
-    final url = Uri.parse('http://10.0.2.2:8080/api/auth/login');
+    final url = Uri.parse('http://localhost:8080/api/auth/login');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -63,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
         "username": username,
         "password": password,
         "role": "CUSTOMER",
-        "status": "ONLINE"
+        "status": "ONLINE",
       }),
     );
 
@@ -77,30 +81,31 @@ class _LoginPageState extends State<LoginPage> {
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body);
       final token = responseBody['token'];
+      // print("token: $token");
       await _storage.write(key: 'token', value: token);
 
       final jwt = JWT.decode(token);
       final userId = jwt.payload['id'];
 
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Signed in successfully')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Signed in successfully')));
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => MainNavigation()),
-          (route) => false,
+        (route) => false,
       );
     } else {
       final responseBody = jsonDecode(response.body);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(responseBody['message'])),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(responseBody['message'])));
     }
   }
 
   void _navigateToSignUp() {
-    Navigator.of(context).push(
+    Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (_) => const SignUpPage()),
     );
   }
@@ -118,12 +123,16 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
                   const SizedBox(height: 16),
+
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
                     icon: const Icon(Icons.arrow_back),
                   ),
+
                   const SizedBox(height: 16),
+
                   const Center(
                     child: Text(
                       'Login',
@@ -134,25 +143,31 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 32),
+
+                  // Username
                   const Text(
                     'Username',
                     style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        color: AppColors.red),
+                      color: AppColors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                   ),
+
                   const SizedBox(height: 4),
+
                   TextField(
                     controller: _usernameController,
                     decoration: InputDecoration(
-                      hintText: 'Username or Email',
+                      hintText: 'Enter your username',
                       filled: true,
                       fillColor: AppColors.white,
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
-                          color: AppColors.black.withAlpha(64),
+                          color: AppColors.black.withAlpha(128),
                           width: 2.0,
                         ),
                       ),
@@ -165,12 +180,21 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 16),
+
+                  // Password
                   const Text(
                     'Password',
-                    style: TextStyle(color: AppColors.red, fontSize: 14),
+                    style: TextStyle(
+                      color: AppColors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                   ),
-                  const SizedBox(height: 4),
+
+                  const SizedBox(height: 8),
+
                   TextField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
@@ -181,7 +205,7 @@ class _LoginPageState extends State<LoginPage> {
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
-                          color: AppColors.black.withAlpha(64),
+                          color: AppColors.black.withAlpha(128),
                           width: 2.0,
                         ),
                       ),
@@ -194,7 +218,9 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                          _obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
                         ),
                         onPressed: () {
                           setState(() {
@@ -204,7 +230,9 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 8),
+
                   Row(
                     children: [
                       Checkbox(
@@ -214,22 +242,18 @@ class _LoginPageState extends State<LoginPage> {
                             _rememberMe = value!;
                           });
                         },
+                        activeColor: AppColors.red,
+                        checkColor: AppColors.white,
                       ),
                       const Text(
                         'Remember Me?',
                         style: TextStyle(color: AppColors.black),
                       ),
-                      const Spacer(),
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          'Forgot Password',
-                          style: TextStyle(color: AppColors.black),
-                        ),
-                      ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 8),
+
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -241,17 +265,19 @@ class _LoginPageState extends State<LoginPage> {
                       child: const Text(
                         'Login',
                         style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.white),
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.white,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
+
             Positioned(
-              bottom: MediaQuery.of(context).padding.bottom+16,
+              bottom: MediaQuery.of(context).padding.bottom + 30,
               left: 0,
               right: 0,
               child: Center(
@@ -263,13 +289,13 @@ class _LoginPageState extends State<LoginPage> {
                       onTap: _navigateToSignUp,
                       child: const Text(
                         'Signup',
-                        style: TextStyle(color: AppColors.red),
+                        style: TextStyle(color: AppColors.red, fontWeight: FontWeight.bold),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

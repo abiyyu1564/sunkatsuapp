@@ -33,34 +33,46 @@ class _ChatbotPageState extends State<ChatbotPage> {
     StringBuffer buffer = StringBuffer();
     streamedResponse.stream
         .transform(utf8.decoder)
-        .listen((chunk) {
-      buffer.write(chunk);
-      setState(() {
-        if (_messages.isNotEmpty && _messages.last.sender == MessageSender.bot) {
-          _messages[_messages.length - 1] =
-              ChatMessage(text: buffer.toString(), sender: MessageSender.bot);
-        } else {
-          _messages.add(ChatMessage(text: chunk, sender: MessageSender.bot));
-        }
-      });
-    }, onDone: () {
-      setState(() {
-        _isLoading = false;
-      });
-    }, onError: (_) {
-      setState(() {
-        _messages.add(ChatMessage(
-            text: "Maaf, terjadi kesalahan saat menghubungi server.",
-            sender: MessageSender.bot));
-        _isLoading = false;
-      });
-    });
+        .listen(
+          (chunk) {
+            buffer.write(chunk);
+            setState(() {
+              if (_messages.isNotEmpty &&
+                  _messages.last.sender == MessageSender.bot) {
+                _messages[_messages.length - 1] = ChatMessage(
+                  text: buffer.toString(),
+                  sender: MessageSender.bot,
+                );
+              } else {
+                _messages.add(
+                  ChatMessage(text: chunk, sender: MessageSender.bot),
+                );
+              }
+            });
+          },
+          onDone: () {
+            setState(() {
+              _isLoading = false;
+            });
+          },
+          onError: (_) {
+            setState(() {
+              _messages.add(
+                ChatMessage(
+                  text: "Maaf, terjadi kesalahan saat menghubungi server.",
+                  sender: MessageSender.bot,
+                ),
+              );
+              _isLoading = false;
+            });
+          },
+        );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: AppColors.whiteBG,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: AppColors.red,
@@ -70,22 +82,25 @@ class _ChatbotPageState extends State<ChatbotPage> {
         ),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              reverse: true,
-              padding: const EdgeInsets.only(bottom: 12, top: 8),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final reversedIndex = _messages.length - 1 - index;
-                return ChatBubble(message: _messages[reversedIndex]);
-              },
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                reverse: true,
+                padding: const EdgeInsets.only(bottom: 12, top: 8),
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  final reversedIndex = _messages.length - 1 - index;
+                  return ChatBubble(message: _messages[reversedIndex]);
+                },
+              ),
             ),
-          ),
-          const Divider(height: 1),
-          _buildInputArea(),
-        ],
+            Divider(height: 1, color: AppColors.grey),
+            SizedBox(height: 6),
+            _buildInputArea(),
+          ],
+        ),
       ),
     );
   }
@@ -93,7 +108,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
   Widget _buildInputArea() {
     return SafeArea(
       child: Container(
-        color: AppColors.white,
+        color: AppColors.whiteBG,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
@@ -101,10 +116,15 @@ class _ChatbotPageState extends State<ChatbotPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 decoration: BoxDecoration(
-                  color: AppColors.grey,
+                  color: AppColors.white,
                   borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: AppColors.grey,
+                    width: 1,
+                  )
                 ),
-                child: Center( // ⬅️ Tambahkan ini
+                child: Center(
+                  // ⬅️ Tambahkan ini
                   child: TextField(
                     controller: _controller,
                     onSubmitted: _sendMessage,
