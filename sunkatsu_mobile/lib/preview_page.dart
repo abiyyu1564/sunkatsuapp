@@ -38,7 +38,7 @@ class _PreviewPageState extends State<PreviewPage> {
       isLoading = true;
     });
 
-    const String apiUrl = 'http://10.0.2.2:8080/api/menus';
+    const String apiUrl = 'http://localhost:8080/api/menus';
     final token = await JwtUtils.getToken();
 
     if (token == null) {
@@ -67,7 +67,7 @@ class _PreviewPageState extends State<PreviewPage> {
         // Fetch images for each menu item
         for (final item in fetchedItems) {
           try {
-            final imageUrl = 'http://10.0.2.2:8080${item.imageUrl}';
+            final imageUrl = 'http://localhost:8080${item.imageUrl}';
             final imageResponse = await http.get(
               Uri.parse(imageUrl),
               headers: {'Authorization': 'Bearer $token'},

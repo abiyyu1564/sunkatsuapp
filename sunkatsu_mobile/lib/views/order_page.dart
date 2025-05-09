@@ -80,8 +80,8 @@ class _OrderPageState extends State<OrderPage> {
     final token = await JwtUtils.getToken();
     final userId = await JwtUtils.getUserId();
     final url = userRole == "CUSTOMER"
-        ? Uri.parse('http://10.0.2.2:8080/api/customers/$userId/orders')
-        : Uri.parse('http://10.0.2.2:8080/api/orders');
+        ? Uri.parse('http://localhost:8080/api/customers/$userId/orders')
+        : Uri.parse('http://localhost:8080/api/orders');
 
     if (token == null || userId == null) {
       print("Token or userId is null");
@@ -99,23 +99,17 @@ class _OrderPageState extends State<OrderPage> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        final List<OrderItem> fetchedItems = [];
+        final List<OrderItem> fetchedItems = data.map((item) => OrderItem.fromJSON(item)).toList();
 
-        for (var item in data) {
-          final order = OrderItem.fromJSON(item);
-          print("Processing order with userID: ${order.userID}");
-
+        // Fetch customer data secara paralel pake async
+        final customerRequests = fetchedItems.map((order) async {
           if (order.userID != null) {
-            print("Fetching customer data for userID: ${order.userID}");
             final customerData = await getCustomerById(order.userID!);
-            print("Customer data: $customerData");
             order.username = customerData?['username'];
-          } else {
-            print("userID is null for order: ${order.id}");
           }
+        });
 
-          fetchedItems.add(order);
-        }
+        await Future.wait(customerRequests);
 
         setState(() {
           orderedItems = fetchedItems;
@@ -137,16 +131,13 @@ class _OrderPageState extends State<OrderPage> {
       final token = await JwtUtils.getToken();
 
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8080/api/customers/${id.toString()}'),
+        Uri.parse('http://localhost:8080/api/customers/${id.toString()}'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
           'accept': 'application/hal+json',
         },
       );
-
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
         return json.decode(response.body);
@@ -170,7 +161,7 @@ class _OrderPageState extends State<OrderPage> {
 
   Future<void> acceptOrder(int orderId) async {
     final token = await JwtUtils.getToken();
-    final url = Uri.parse('http://10.0.2.2:8080/api/orders/$orderId/accept');
+    final url = Uri.parse('http://localhost:8080/api/orders/$orderId/accept');
     try {
       final response = await http.put(url, headers: {
         'Authorization': 'Bearer $token',
@@ -186,7 +177,7 @@ class _OrderPageState extends State<OrderPage> {
 
   Future<void> finishOrder(int orderId) async {
     final token = await JwtUtils.getToken();
-    final url = Uri.parse('http://10.0.2.2:8080/api/orders/$orderId/finish');
+    final url = Uri.parse('http://localhost:8080/api/orders/$orderId/finish');
     try {
       final response = await http.put(
         url,

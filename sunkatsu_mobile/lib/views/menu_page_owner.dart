@@ -58,7 +58,7 @@ class _MenuPageOwnerState extends State<MenuPageOwner> {
   }
 
   Future<void> fetchMenuItems() async {
-    const String apiUrl = 'http://10.0.2.2:8080/api/menus';
+    const String apiUrl = 'http://localhost:8080/api/menus';
     final token = await JwtUtils.getToken();
 
     if (token == null) {
@@ -85,7 +85,7 @@ class _MenuPageOwnerState extends State<MenuPageOwner> {
           try {
             final imageResponse = await http.get(
               Uri.parse(
-                  'http://10.0.2.2:8080/api/menus/images/${item.imageUrl}'),
+                  'http://localhost:8080/api/menus/images/${item.imageUrl}'),
               headers: {
                 'Authorization': 'Bearer $token',
               },
