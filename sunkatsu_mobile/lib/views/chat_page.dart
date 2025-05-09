@@ -47,7 +47,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _deleteMessage(ChatMessage message) async {
-    // Show confirmation dialog
+    // Liatin confirmation dialog
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
