@@ -29,7 +29,7 @@ git clone https://github.com/abiyyu1564/sunkatsuapp.git
 - [M Fathurahman Aldesrand (Mobile, Backend)](https://github.com/ftr867)
 
 ## Testers
-- [M. Daffa Raygama (PM, Backend, Mobile, Test Manager)](https://github.com/Raygama)
+- [M. Daffa Raygama (Test Manager)](https://github.com/Raygama)
 - [Fausta Akbar(Tester)]()
 - [Zaidaan Afif Randih(Tester)]()
 - [Raisa Aliya (Technical Writer)]()
