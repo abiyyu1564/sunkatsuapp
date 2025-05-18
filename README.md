@@ -43,7 +43,7 @@ How to run backend locally:
 2. run `mvn spring-boot:run` in the `backend` folder.
 3. Go to [localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html) to view the APIs.
 
-How to run front end: 
+How to run web front end: 
 1. Go to the `sunkatsu_fe` directory and run this in the terminal: `npm run start`
 
 How to run the mobile app:
