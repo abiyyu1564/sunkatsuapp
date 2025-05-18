@@ -31,7 +31,7 @@ git clone https://github.com/abiyyu1564/sunkatsuapp.git
 ## Testers
 - [M. Daffa Raygama (Test Manager)](https://github.com/Raygama)
 - [Fausta Akbar(Tester)]()
-- [Zaidaan Afif Randih(Tester)]()
+- [Zaidaan Afif Randih(Tester)](https://github.com/ZaidaanRandih)
 - [Raisa Aliya (Technical Writer)]()
 - [Rifqy Khuzaini (Tester)](https://github.com/zexrun)
 
