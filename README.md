@@ -16,8 +16,8 @@ Sunkatsu App is an app dedicated to a tenant in one of the Cafetaria in Telkom U
 git clone https://github.com/abiyyu1564/sunkatsuapp.git
 ```
 ## Requirements & Documents
-- [SRS]([https://docs.google.com/presentation/d/1F563L1lHWbnb9vfQJ2FBydqPKaZaT7fC-R8yRsQXodg/edit?usp=sharing](https://drive.google.com/drive/folders/1tv5O4oXvUdE8DsZNaVZCExapDN4Xfgfr))
-- [SDD]([https://whimsical.com/brief-NpQ4WY6xheAyiM5JRszL8e](https://drive.google.com/drive/folders/1tv5O4oXvUdE8DsZNaVZCExapDN4Xfgfr))
+- [SRS](https://drive.google.com/drive/folders/1tv5O4oXvUdE8DsZNaVZCExapDN4Xfgfr)
+- [SDD](https://drive.google.com/drive/folders/1tv5O4oXvUdE8DsZNaVZCExapDN4Xfgfr)
 - [Test Plan](https://drive.google.com/drive/folders/1tv5O4oXvUdE8DsZNaVZCExapDN4Xfgfr)
 
 ## Developers
