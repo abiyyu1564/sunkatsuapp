@@ -9,6 +9,7 @@ import { FaQuestionCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom"; // Import useNavigate untuk routing
 import Cookies from "js-cookie";
 import { GlobalContext } from "../../context/GlobalContext";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -83,13 +84,10 @@ const Navbar = () => {
               />
             </form>
           </div>
-          <a
-            href="http://localhost:8080/chat.html"
-            className="flex items-center"
-          >
+          <Link to="/chat_page" className="flex items-center">
             <ChatIcon className="w-6 h-6" />
-          </a>
-          <a href="http://localhost:8080/stream.html">
+          </Link>
+          <a href="/chatbot_page">
             <FaQuestionCircle className="w-6 h-6" />
           </a>
           <a href="/cart" className="flex items-center">
@@ -161,10 +159,14 @@ const Navbar = () => {
             My Order
           </a>
 
-          <a href="/chat" className="flex items-center">
+          <Link to="/chat" className="flex items-center">
+            <ChatIcon className="w-6 h-6" />
+          </Link>
+
+          <a href="/chatbot" className="flex items-center">
             <div className="flex flex-row justify-center items-center gap-1">
-              <ChatIcon className="w-4 h-4" />
-              <p>Chat</p>
+              <FaQuestionCircle className="w-4 h-4" />
+              <p>Assistant</p>
             </div>
           </a>
 
