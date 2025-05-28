@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -26,11 +26,8 @@ const Login = () => {
   const buttonRefs = useRef([]);
   const signItems = ["Login", "Register"];
 
-  useEffect(() => {
-    updateIndicator();
-  }, [activeIndex]);
-
-  const updateIndicator = () => {
+  // Move updateIndicator above useEffect and wrap with useCallback
+  const updateIndicator = useCallback(() => {
     if (buttonRefs.current[activeIndex]) {
       const button = buttonRefs.current[activeIndex];
       setIndicatorPosition({
@@ -38,7 +35,11 @@ const Login = () => {
         width: button.offsetWidth,
       });
     }
-  };
+  }, [activeIndex]);
+
+  useEffect(() => {
+    updateIndicator();
+  }, [activeIndex, updateIndicator]);
 
   const handleButtonClick = (index) => {
     setActiveIndex(index);
@@ -91,9 +92,19 @@ const Login = () => {
         status,
       })
       .then((res) => {
-        Cookies.set("token", res.data.token, { expires: 1 });
-        loginPopup();
-        navigate("/menu");
+        const token = res.data.token;
+        // Validate token: must be a string and have two periods (JWT format)
+        if (typeof token === 'string' && token.split('.').length === 3) {
+          Cookies.set("token", token, { expires: 1 });
+          loginPopup();
+          navigate("/menu");
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Login Failed",
+            text: "Invalid token received from server.",
+          });
+        }
       })
       .catch(() => {
         Swal.fire({
