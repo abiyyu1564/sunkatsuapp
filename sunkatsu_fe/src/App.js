@@ -37,8 +37,18 @@ function App() {
               }
             />
 
-            <Route path="/chat_page" element={<ChatPage />} />
-            <Route path="/chatbot_page" element={<ChatbotPage />} />
+            <Route path="/chat_page" element={
+              <ProtectedRoute requiresAuth={true}>
+                  <ChatPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/chatbot_page" element={
+              <ProtectedRoute requiresAuth={true}>
+                  <ChatbotPage />
+                </ProtectedRoute>
+              } 
+            />
             <Route
               path="/login"
               element={
