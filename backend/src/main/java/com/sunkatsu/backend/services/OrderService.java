@@ -3,6 +3,8 @@ package com.sunkatsu.backend.services;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -125,27 +127,30 @@ public class OrderService {
             Customer customer = customerService.getCustomerById(String.valueOf(order.getUserID()));
 
             for (CartItem c : order.getCartItems()) {
-                Optional<Menu> menuOpt = menuRepository.findById(c.getMenu().getId());
-                if (menuOpt.isPresent()) {
-                    Menu menu = menuOpt.get();
-                    menu.setNumsBought(menu.getNumsBought()+ c.getQuantity());
-                    menuRepository.save(menu);
-                } else {
-                    return null;
-                }
-
-                Optional<Favorite> favOpt = favoriteRepository.findByUserIDAndMenu(Integer.parseInt(customer.getId()), c.getMenu());
-                if (favOpt.isPresent()) {
-                    var fav = favOpt.get();
+                List<Favorite> favs = favoriteRepository.findAllByUserIDAndMenu(Integer.parseInt(customer.getId()), c.getMenu());
+                if (!favs.isEmpty()) {
+                    // Update the first, delete the rest
+                    Favorite fav = favs.get(0);
                     fav.setTimesBought(fav.getTimesBought() + c.getQuantity());
                     favoriteRepository.save(fav);
+                    // Remove duplicates
+                    for (int i = 1; i < favs.size(); i++) {
+                        favoriteRepository.delete(favs.get(i));
+                    }
                 } else {
-                    Favorite favBaru = new Favorite(sequenceGeneratorService.generateSequence(Favorite.SEQUENCE_NAME), c.getQuantity(), c.getMenu(), Integer.parseInt(customer.getId()));
+                    Favorite favBaru = new Favorite(
+                        sequenceGeneratorService.generateSequence(Favorite.SEQUENCE_NAME),
+                        c.getQuantity(),
+                        c.getMenu(),
+                        Integer.parseInt(customer.getId())
+                    );
                     favoriteRepository.save(favBaru);
                 }
             }
+            ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Jakarta"));
             order.setStatus("Finished");
             order.setPaymentDeadline(null); // Disable TTL
+            order.setFinishedAt(Date.from(zonedDateTime.toInstant())); // Set finished time
             return orderRepository.save(order);
         }
         return null;

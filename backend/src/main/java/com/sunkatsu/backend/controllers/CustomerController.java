@@ -10,7 +10,9 @@
     import org.springframework.messaging.handler.annotation.MessageMapping;
     import org.springframework.messaging.handler.annotation.Payload;
     import org.springframework.messaging.handler.annotation.SendTo;
-    import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CrossOrigin;
     import org.springframework.web.bind.annotation.GetMapping;
     import org.springframework.web.bind.annotation.PathVariable;
     import org.springframework.web.bind.annotation.PostMapping;
@@ -48,6 +50,8 @@
         )
         @GetMapping
         public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            System.out.println("Authorities: " + auth.getAuthorities());
             List<Customer> listCustomer = customerService.findAllCustomers();
             List<CustomerDTO> listCustomerDTO = new ArrayList<>();
             for (Customer customer : listCustomer) {
