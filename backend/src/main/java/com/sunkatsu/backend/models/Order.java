@@ -18,6 +18,8 @@ public class Order extends ShoppingCart {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "Asia/Jakarta")
     private Date paymentDeadline;
     private String status;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "Asia/Jakarta")
+    private Date finishedAt;
 
     @Transient
     public static final String SEQUENCE_NAME = "order_sequence";
@@ -67,5 +69,13 @@ public class Order extends ShoppingCart {
     public void setStatus(String status) {
         this.status = status;
         updatePaymentDeadline();
+    }
+
+    public Date getFinishedAt() {
+        return finishedAt;
+    }
+
+    public void setFinishedAt(Date finishedAt) {
+        this.finishedAt = finishedAt;
     }
 }
