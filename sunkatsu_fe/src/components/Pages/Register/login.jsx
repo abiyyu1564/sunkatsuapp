@@ -115,11 +115,35 @@ const Login = () => {
       });
   };
 
+  
   const handleRegister = (event) => {
     event.preventDefault();
-    // Implement registration logic here
-    console.log("Registering user:", input);
+    const { username, password, role, status } = input;
+
+    axios
+      .post("http://localhost:8080/api/auth/register", {
+        username,
+        password,
+        role,
+        status,
+      })
+      .then((res) => {
+        Swal.fire({
+          icon: "success",
+          title: "Registration Successful",
+          text: res.data,
+        });
+        setActiveIndex(0); // Switch to login tab after successful registration
+      })
+      .catch((err) => {
+        Swal.fire({
+          icon: "error",
+          title: "Registration Failed",
+          text: err.response?.data || "Registration error",
+        });
+      });
   };
+
 
   // Handle Toggle Password Visibility
   const handleTogglePassword = () => {
