@@ -1,6 +1,7 @@
 package com.sunkatsu.backend.controllers;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -87,7 +88,7 @@ public class ChatbotController {
                 .content();
     }
 
-    @GetMapping("/stream")
+    @GetMapping(value = "/stream", produces = MediaType.TEXT_PLAIN_VALUE)
     public Flux<String> chatWithStream(@RequestParam String message) {
         return chatClient.prompt()
                 .system("""

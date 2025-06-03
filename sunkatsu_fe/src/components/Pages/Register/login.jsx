@@ -1,10 +1,12 @@
-import React, { useState } from "react";
-import Logo from "../../../assets/Logo_Sunkatsu.png";
-import NewLandingFooter from "../../Fragment/newFooter";
+"use client";
+
+import { useState, useRef, useEffect, useCallback } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { FaUser, FaKey } from "react-icons/fa";
+import Gambar_Login from "../../../assets/gambar_login.png";
 
 const Login = () => {
   const [input, setInput] = useState({
@@ -16,6 +18,40 @@ const Login = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [indicatorPosition, setIndicatorPosition] = useState({
+    left: 0,
+    width: 0,
+  });
+  const buttonRefs = useRef([]);
+  const signItems = ["Login", "Register"];
+
+  // Move updateIndicator above useEffect and wrap with useCallback
+  const updateIndicator = useCallback(() => {
+    if (buttonRefs.current[activeIndex]) {
+      const button = buttonRefs.current[activeIndex];
+      setIndicatorPosition({
+        left: button.offsetLeft,
+        width: button.offsetWidth,
+      });
+    }
+  }, [activeIndex]);
+
+  useEffect(() => {
+    updateIndicator();
+  }, [activeIndex, updateIndicator]);
+
+  const handleButtonClick = (index) => {
+    setActiveIndex(index);
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      const nextIndex = (activeIndex + 1) % signItems.length;
+      setActiveIndex(nextIndex);
+    }
+  };
 
   // Handle Input Change
   const handleInput = (event) => {
@@ -56,9 +92,19 @@ const Login = () => {
         status,
       })
       .then((res) => {
-        Cookies.set("token", res.data.token, { expires: 1 });
-        loginPopup();
-        navigate("/menu");
+        const token = res.data.token;
+        // Validate token: must be a string and have two periods (JWT format)
+        if (typeof token === 'string' && token.split('.').length === 3) {
+          Cookies.set("token", token, { expires: 1 });
+          loginPopup();
+          navigate("/menu");
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Login Failed",
+            text: "Invalid token received from server.",
+          });
+        }
       })
       .catch(() => {
         Swal.fire({
@@ -69,93 +115,189 @@ const Login = () => {
       });
   };
 
+  
+  const handleRegister = (event) => {
+    event.preventDefault();
+    const { username, password, role, status } = input;
+
+    axios
+      .post("http://localhost:8080/api/auth/register", {
+        username,
+        password,
+        role,
+        status,
+      })
+      .then((res) => {
+        Swal.fire({
+          icon: "success",
+          title: "Registration Successful",
+          text: res.data,
+        });
+        setActiveIndex(0); // Switch to login tab after successful registration
+      })
+      .catch((err) => {
+        Swal.fire({
+          icon: "error",
+          title: "Registration Failed",
+          text: err.response?.data || "Registration error",
+        });
+      });
+  };
+
+
   // Handle Toggle Password Visibility
   const handleTogglePassword = () => {
     setShowPassword(!showPassword);
   };
 
   return (
-    <div className="flex flex-col bg-primary min-h-screen">
-      {/* Navbar */}
-      <nav className="fixed flex flex-col sm:flex-row top-0 w-full shadow-lg justify-between bg-white px-4 py-2">
-        <div className="flex justify-start items-center px-4 sm:px-10 w-full sm:w-auto">
-          <a href="/login">
-            <img src={Logo} className="h-12 sm:h-16 w-auto" alt="Logo" />
-          </a>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen flex flex-col lg:flex-row">
+        {/* Left Side - Form */}
+        <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 lg:py-0">
+          <div className="max-w-md w-full space-y-6 sm:space-y-8">
+            {/* Logo and Title - Responsive sizing */}
+            <div className="text-center">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+                SUNKATSU
+              </h1>
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                Selamat Datang
+              </h2>
+              <p className="text-gray-600 text-xs sm:text-sm">
+                {activeIndex === 0
+                  ? "Silahkan masukkan identitas anda"
+                  : "Lengkapi form berikut untuk mendaftar"}
+              </p>
+            </div>
 
-      {/* Content Section */}
-      <div className="flex flex-col md:flex-row min-h-screen items-center justify-center md:justify-between md:px-16">
-        {/* Left Side Text */}
-        <div className="hidden sm:flex ml-0 sm:ml-16 text-center sm:text-left">
-          <h1 className="text-3xl sm:text-4xl font-bold text-black leading-snug">
-            THE DELIGHTNESS <br />
-            OF ORIENTAL KATSU.
-          </h1>
-        </div>
+            {/* Tab Switcher - Responsive */}
+            <div
+              className="flex w-full items-center justify-center h-16 sm:h-20 lg:h-24"
+              onKeyDown={handleKeyDown}
+              tabIndex={0}
+            >
+              <div className="relative flex w-full max-w-sm sm:max-w-md justify-around items-center h-8 sm:h-10 py-1 mx-4 sm:mx-10 gap-1 sm:gap-2 rounded-xl shadow-2xl overflow-hidden bg-white">
+                <div
+                  className="absolute bg-tertiary rounded-xl h-8 sm:h-10 transition-all duration-300 ease-in-out"
+                  style={{
+                    left: `${indicatorPosition.left}px`,
+                    width: `${indicatorPosition.width}px`,
+                  }}
+                ></div>
 
-        {/* Login Form */}
-        <div className="rounded-lg shadow-lg w-full sm:w-[550px] p-6 sm:p-10 mb-8 sm:mb-0 bg-white bg-opacity-50">
-          <h1 className="text-2xl sm:text-3xl font-bold text-black mb-6">
-            Welcome.
-          </h1>
-          <form onSubmit={handleLogin} className="flex flex-col gap-4">
-            {/* Username */}
-            <input
-              type="text"
-              name="username"
-              value={input.username}
-              onChange={handleInput}
-              placeholder="Enter your username"
-              className="w-full px-4 py-2 border border-black rounded focus:outline-none text-sm sm:text-base"
-            />
-
-            {/* Password */}
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={input.password}
-                onChange={handleInput}
-                placeholder="Enter your password"
-                className="w-full px-4 py-2 border border-black rounded focus:outline-none text-sm sm:text-base"
-              />
-              {/* Checkbox untuk toggle */}
-              <div className="flex items-center mt-2">
-                <input
-                  id="checkbox"
-                  type="checkbox"
-                  checked={showPassword}
-                  onChange={handleTogglePassword}
-                  className="w-4 h-4 border-black rounded"
-                />
-                <label htmlFor="checkbox" className="ml-2 text-sm text-black">
-                  Show Password
-                </label>
+                {signItems.map((item, index) => (
+                  <button
+                    key={index}
+                    ref={(el) => (buttonRefs.current[index] = el)}
+                    className={`relative z-0 flex items-center justify-center font-sans w-32 sm:w-48 md:w-56 lg:w-96 text-sm sm:text-md lg:text-xl font-semibold rounded-xl transition-all duration-300 ${
+                      activeIndex === index ? "text-white" : "text-[#8E0808]"
+                    }`}
+                    onClick={() => handleButtonClick(index)}
+                  >
+                    {item}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Login Button */}
-            <button
-              type="submit"
-              className="w-full sm:w-auto px-6 py-2 bg-secondary text-white rounded shadow hover:shadow-lg transition-shadow text-sm sm:text-base"
+            {/* Form Section - Responsive spacing */}
+            <form
+              onSubmit={activeIndex === 0 ? handleLogin : handleRegister}
+              className="space-y-3 sm:space-y-4"
             >
-              Login
-            </button>
-          </form>
+              {/* Username - Responsive input */}
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 flex items-center pointer-events-none">
+                  <FaUser className="text-gray-500 text-sm sm:text-base" />
+                  <div className="border-r mx-1 sm:mx-2 h-4 sm:h-5 border-gray-300 mr-2 sm:mr-3" />
+                </div>
+                <input
+                  type="text"
+                  name="username"
+                  value={input.username}
+                  onChange={handleInput}
+                  placeholder="Username"
+                  className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+                  required
+                />
+              </div>
 
-          {/* Register Link */}
-          <div className="flex flex-row justify-start gap-3 mt-4">
-            <p className="text-black">Don't have an account?</p>
-            <button className="hover:text-tertiary">
-              <a href="/signup">Sign Up</a>
-            </button>
+              {/* Password - Responsive input */}
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 flex items-center pointer-events-none">
+                  <FaKey className="text-gray-500 text-sm sm:text-base" />
+                  <div className="border-r mx-1 sm:mx-2 h-4 sm:h-5 border-gray-300 mr-2 sm:mr-3" />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={input.password}
+                  onChange={handleInput}
+                  placeholder="Password"
+                  className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+                  required
+                />
+              </div>
+
+              {/* Confirm Password for Register - Responsive */}
+              {activeIndex === 1 && (
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 flex items-center pointer-events-none">
+                    <FaKey className="text-gray-500 text-sm sm:text-base" />
+                    <div className="border-r mx-1 sm:mx-2 h-4 sm:h-5 border-gray-300 mr-2 sm:mr-3" />
+                  </div>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    placeholder="Confirm Password"
+                    className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
+                    required
+                  />
+                </div>
+              )}
+
+              {/* Show Password - Responsive checkbox */}
+              <div className="flex items-center mt-2">
+                <input
+                  id="show-password"
+                  type="checkbox"
+                  checked={showPassword}
+                  onChange={handleTogglePassword}
+                  className="w-3 h-3 sm:w-4 sm:h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
+                />
+                <label
+                  htmlFor="show-password"
+                  className="ml-2 text-xs sm:text-sm text-gray-600"
+                >
+                  Show Password
+                </label>
+              </div>
+
+              {/* Submit Button - Responsive */}
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="group relative w-full flex justify-center py-2 sm:py-3 px-3 sm:px-4 border border-transparent text-sm sm:text-base font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors"
+                >
+                  {activeIndex === 0 ? "Login →" : "Register →"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        {/* Right Side Illustration - Responsive visibility and sizing */}
+        <div className="hidden md:flex flex-1 bg-white items-center justify-center p-6 lg:p-12">
+          <div className="max-w-sm md:max-w-md lg:max-w-lg">
+            <img
+              src={Gambar_Login || "/placeholder.svg"}
+              alt="Cute food characters"
+              className="w-full h-auto"
+            />
           </div>
         </div>
       </div>
-
-      <NewLandingFooter />
     </div>
   );
 };

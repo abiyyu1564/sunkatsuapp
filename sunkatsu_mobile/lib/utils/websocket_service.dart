@@ -21,7 +21,7 @@ class WebSocketService {
 
   void _onConnect(StompFrame frame) {
     stompClient.subscribe(
-      destination: '/user/$userId/queue/messages',
+      destination: '/user/queue/messages',
       callback: (frame) {
         if (frame.body != null) {
           onMessageReceived(Map<String, dynamic>.from(jsonDecode(frame.body!)));

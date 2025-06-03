@@ -5,13 +5,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:sunkatsu_mobile/navigation/main_navigation.dart';
 import 'package:sunkatsu_mobile/utils/constants.dart';
-import 'package:sunkatsu_mobile/views/home_page.dart';
 import '../views/sign_up_page.dart';
-import '../views/chat_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 
 class LoginPage extends StatefulWidget {

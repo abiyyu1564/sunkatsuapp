@@ -79,7 +79,7 @@ class _MessageBubbleState extends State<MessageBubble> {
           Flexible(
             child: GestureDetector(
               onLongPress: () {
-                // Only show options if the user is the sender
+                // Edit or delete message jika mesg sendiri
                 if (widget.isSender) {
                   _showOptionsBottomSheet(context);
                 }

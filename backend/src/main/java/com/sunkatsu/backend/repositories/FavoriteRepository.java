@@ -13,4 +13,5 @@ import com.sunkatsu.backend.models.Menu;
 public interface FavoriteRepository extends MongoRepository<Favorite, Integer> {
     List<Favorite> findAllByUserID(int userID);
     Optional<Favorite> findByUserIDAndMenu(int userID, Menu menu);
+    List<Favorite> findAllByUserIDAndMenu(int userID, Menu menu);
 }

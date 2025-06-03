@@ -47,7 +47,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _deleteMessage(ChatMessage message) async {
-    // Show confirmation dialog
+    // Liatin confirmation dialog
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -329,7 +329,6 @@ class _ChatPageState extends State<ChatPage> {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        print("Data: $data");
         final List<ChatMessage> loadedMessages =
         data.map((json) {
           return ChatMessage(
@@ -509,7 +508,6 @@ class _ChatPageState extends State<ChatPage> {
                           Navigator.pop(context);
                         },
                       ),
-                      // Keep your MENU (sidebar) button untouched
                       const SizedBox(width: 8),
                       if (selectedUsername != null)
                         CircleAvatar(
@@ -549,12 +547,6 @@ class _ChatPageState extends State<ChatPage> {
                                   fontSize: 12,
                                 ),
                               ),
-                            /* Unused Icon Button
-                            IconButton(
-                              icon: const Icon(Icons.menu),
-                              onPressed: _toggleSidebar,
-                            ),
-                             */
                           ],
                         ),
                       ),

@@ -124,7 +124,6 @@ class _ChatbotPageState extends State<ChatbotPage> {
                   )
                 ),
                 child: Center(
-                  // ⬅️ Tambahkan ini
                   child: TextField(
                     controller: _controller,
                     onSubmitted: _sendMessage,
