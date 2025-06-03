@@ -7,6 +7,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import Swal from "sweetalert2";
+import Mines from "../../assets/menu_minus.png";
+import Plus from "../../assets/menu_plus.png";
 
 const DetailMenu = ({ show, onClose, menuId }) => {
   const { getUser } = useContext(GlobalContext);
@@ -255,73 +257,151 @@ const DetailMenu = ({ show, onClose, menuId }) => {
 
   if (!show) return null;
   return (
-    <div className="flex justify-center items-center h-screen fixed inset-0 bg-gray-800 bg-opacity-50 z-50">
-      <div className="relative flex border-secondary border-8 gap-5 w-7/12 rounded-2xl p-6 bg-white shadow-md">
-        {/* Tombol Close di Pojok Kanan Atas */}
-        <button
-          className="absolute top-2 right-2 text-black rounded-full w-8 h-8 flex justify-center items-center"
-          onClick={onClose}
-        >
-          &times;
-        </button>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full overflow-hidden">
+        <div className="relative">
+          {/* Close button */}
+          <button className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 z-10" onClick={onClose}>
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
 
-        {/* Left Section */}
-        <div className="w-1/2 flex flex-col items-center">
-          <h1 className="font-bold text-2xl mb-6 text-black">{menuId.name}</h1>
-          {menuImageURL && (
-            <img
-              src={menuImageURL}
-              alt={menuId.name}
-              className="w-48 h-48 rounded-full"
-            />
-          )}
-        </div>
+          <div className="p-6">
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Left side - Image and title */}
+              <div className="md:w-1/2">
+                <div className="flex flex-col items-center">
+                  {menuImageURL && (
+                    <img
+                      src={menuImageURL || "/placeholder.svg"}
+                      alt={menuId.name}
+                      className="w-64 h-64 rounded-full object-cover"
+                    />
+                  )}
+                  <h2 className="text-2xl font-bold mt-4 text-center">{menuId.name}</h2>
+                  <p className="text-gray-600 mt-2 text-center">
+                    {menuId.desc || "Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
+                  </p>
+                  <p className="text-xl font-bold text-gray-800 mt-2">
+                    Rp {menuId.price?.toLocaleString("id-ID") || "0"}
+                  </p>
+                </div>
+              </div>
 
-        <div className="w-1/2 flex flex-col justify-evenly">
-          <p className="text-sm text-gray-700 leading-relaxed">{menuId.desc}</p>
-          <div>
-            <h2 className="text-secondary mb-6 font-bold text-2xl">
-              {menuId.price}
-            </h2>
+              {/* Right side - Customize order */}
+              <div className="md:w-1/2">
+                <h3 className="text-xl font-semibold mb-4">Customize your order</h3>
+
+                {/* Notes */}
+                <div className="mb-6">
+                  <label className="block text-gray-700 font-medium mb-2">Notes</label>
+                  <input
+                    type="text"
+                    name="note"
+                    value={input.note}
+                    onChange={handleInput}
+                    placeholder="Ex. Half portion rice"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  />
+                </div>
+
+                {/* Price and quantity */}
+                <div className="flex items-center justify-between mb-6">
+                  <p className="text-xl font-bold">Rp {menuId.price?.toLocaleString("id-ID") || "0"}</p>
+
+                  <div className="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1">
+                    <button
+                      onClick={decrementQuantity}
+                      className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-800"
+                    >
+                      <img src={Mines} alt="Minus" className="w-5 h-5" />
+                    </button>
+                    <span className="w-8 text-center font-medium">{input.quantity}</span>
+                    <button
+                      onClick={incrementQuantity}
+                      className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-800"
+                    >
+                      <img src={Plus} alt="Plus" className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Action buttons */}
+                {buttonChange()}
+              </div>
+            </div>
           </div>
-
-          {/* Quantity Selector */}
-          <div className="flex items-center gap-4">
-            <button
-              onClick={decrementQuantity}
-              className="bg-gray-300 px-4 py-2 rounded-md font-bold"
-            >
-              -
-            </button>
-            <input
-              type="number"
-              name="quantity"
-              value={input.quantity}
-              onChange={handleInput}
-              className="w-16 text-center border-2 border-gray-300 rounded-md"
-              min="1"
-            />
-            <button
-              onClick={incrementQuantity}
-              className="bg-gray-300 px-4 py-2 rounded-md font-bold"
-            >
-              +
-            </button>
-          </div>
-
-          <input
-            type="text"
-            placeholder="Note..."
-            name="note"
-            value={input.note}
-            onChange={handleInput}
-            className="border-2 border-gray-300 rounded-md p-2 mt-4"
-          />
-
-          <div>{buttonChange()}</div>
         </div>
       </div>
     </div>
+    // <div className="flex justify-center items-center h-screen fixed inset-0 bg-gray-800 bg-opacity-50 z-50">
+    //   <div className="relative flex border-secondary border-8 gap-5 w-7/12 rounded-2xl p-6 bg-white shadow-md">
+    //     {/* Tombol Close di Pojok Kanan Atas */}
+    //     <button
+    //       className="absolute top-2 right-2 text-black rounded-full w-8 h-8 flex justify-center items-center"
+    //       onClick={onClose}
+    //     >
+    //       &times;
+    //     </button>
+
+    //     {/* Left Section */}
+    //     <div className="w-1/2 flex flex-col items-center">
+    //       <h1 className="font-bold text-2xl mb-6 text-black">{menuId.name}</h1>
+    //       {menuImageURL && (
+    //         <img
+    //           src={menuImageURL}
+    //           alt={menuId.name}
+    //           className="w-48 h-48 rounded-full"
+    //         />
+    //       )}
+    //     </div>
+
+    //     <div className="w-1/2 flex flex-col justify-evenly">
+    //       <p className="text-sm text-gray-700 leading-relaxed">{menuId.desc}</p>
+    //       <div>
+    //         <h2 className="text-secondary mb-6 font-bold text-2xl">
+    //           {menuId.price}
+    //         </h2>
+    //       </div>
+
+    //       {/* Quantity Selector */}
+    //       <div className="flex items-center gap-4">
+    //         <button
+    //           onClick={decrementQuantity}
+    //           className="bg-gray-300 px-4 py-2 rounded-md font-bold"
+    //         >
+    //           -
+    //         </button>
+    //         <input
+    //           type="number"
+    //           name="quantity"
+    //           value={input.quantity}
+    //           onChange={handleInput}
+    //           className="w-16 text-center border-2 border-gray-300 rounded-md"
+    //           min="1"
+    //         />
+    //         <button
+    //           onClick={incrementQuantity}
+    //           className="bg-gray-300 px-4 py-2 rounded-md font-bold"
+    //         >
+    //           +
+    //         </button>
+    //       </div>
+
+    //       <input
+    //         type="text"
+    //         placeholder="Note..."
+    //         name="note"
+    //         value={input.note}
+    //         onChange={handleInput}
+    //         className="border-2 border-gray-300 rounded-md p-2 mt-4"
+    //       />
+
+    //       <div>{buttonChange()}</div>
+    //     </div>
+    //   </div>
+    // </div>
   );
 };
 
