@@ -84,7 +84,7 @@ const Login = () => {
     const { id, username, password, role, status } = input;
 
     axios
-      .post("http://localhost:8080/api/auth/login", {
+      .post("http://100.90.89.75:8080/api/auth/login", {
         id,
         username,
         password,
@@ -121,7 +121,7 @@ const Login = () => {
     const { username, password, role, status } = input;
 
     axios
-      .post("http://localhost:8080/api/auth/register", {
+      .post("http://100.90.89.75:8080/api/auth/register", {
         username,
         password,
         role,
