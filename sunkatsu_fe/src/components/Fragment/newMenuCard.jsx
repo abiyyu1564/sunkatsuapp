@@ -6,6 +6,8 @@ import AddMenu from "./popupAddMenu"
 import DetailMenu from "./detailMenu"
 import axios from "axios"
 import Cookies from "js-cookie"
+import Plus from "../../assets/menu_plus.png";
+
 
 const NewMenuCard = ({ selectedCategory }) => {
   const { menu, getUser, search } = useContext(GlobalContext)
@@ -142,11 +144,13 @@ const NewMenuCard = ({ selectedCategory }) => {
             </div>
           ) : (
             <button
-              className="w-full bg-red-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-red-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-800 transition-colors flex items-center justify-center gap-2"
               onClick={() => handlePopup("showDetail", menuItem)}
             >
               Add to cart
-              <span className="text-lg">+</span>
+              <span className="text-lg"> 
+                <img src={Plus} alt="+" className="w-5 h-5" />
+              </span>
             </button>
           )}
         </div>

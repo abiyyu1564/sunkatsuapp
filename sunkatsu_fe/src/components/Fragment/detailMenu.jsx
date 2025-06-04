@@ -234,7 +234,7 @@ const DetailMenu = ({ show, onClose, menuId }) => {
     } else if (user.role === "CUSTOMER") {
       return (
         <button
-          className="w-full bg-red-500 text-white py-3 px-6 rounded-lg font-medium hover:bg-red-600 transition-colors flex items-center justify-center gap-2 mt-4"
+          className="w-full bg-red-500 text-white py-3 px-6 rounded-lg font-medium hover:bg-red-800 transition-colors flex items-center justify-center gap-2 mt-4"
           onClick={addMenuToCart}
         >
           Add to cart
@@ -312,14 +312,14 @@ const DetailMenu = ({ show, onClose, menuId }) => {
                   <div className="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1">
                     <button
                       onClick={decrementQuantity}
-                      className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
+                      className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-800"
                     >
                       <img src={Mines} alt="Minus" className="w-5 h-5" />
                     </button>
                     <span className="w-8 text-center font-medium">{input.quantity}</span>
                     <button
                       onClick={incrementQuantity}
-                      className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
+                      className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-800"
                     >
                       <img src={Plus} alt="Plus" className="w-5 h-5" />
                     </button>
