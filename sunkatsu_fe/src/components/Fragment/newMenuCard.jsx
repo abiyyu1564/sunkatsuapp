@@ -123,7 +123,7 @@ const NewMenuCard = ({ selectedCategory }) => {
         <div className="flex-1">
           <h3 className="text-xl font-semibold text-gray-800 mb-2">{menuItem.name}</h3>
           <p className="text-lg font-medium text-gray-700 mb-2">Rp. {menuItem.price.toLocaleString("id-ID")}</p>
-          <p className="text-gray-600 text-sm mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+          <p className="text-gray-600 text-sm mb-4">{menuItem.description}</p>
 
           {/* Conditional rendering of button or quantity controls */}
           {cartItems[menuItem.id] ? (
