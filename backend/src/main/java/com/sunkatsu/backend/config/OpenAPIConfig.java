@@ -15,25 +15,25 @@ import io.swagger.v3.oas.annotations.servers.Server;
                 contact = @Contact(
                         name = "Sunkatsu",
                         email = "contact@sunkatsu.com",
-                        url = "https://sunkatsu.com/foods"
+                        url = "https://raygama-be.tail03dd78.ts.net/"
                 ),
                 description = "OpenApi documentation for Sunkatsu",
                 title = "OpenApi specification - Sunkatsu",
                 version = "1.0",
                 license = @License(
                         name = "Licence name",
-                        url = "https://some-url.com"
+                        url = "https://raygama-be.tail03dd78.ts.net/"
                 ),
                 termsOfService = "Terms of service"
         ),
         servers = {
                 @Server(
                         description = "Local ENV",
-                        url = "http://localhost:8080"
+                        url = "https://raygama-be.tail03dd78.ts.net/"
                 ),
                 @Server(
                         description = "PROD ENV",
-                        url = "https://sunkatsu.com/foods"
+                        url = "https://raygama-be.tail03dd78.ts.net/"
                 )
         },
         security = {
