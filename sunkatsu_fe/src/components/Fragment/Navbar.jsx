@@ -52,7 +52,7 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 w-full h-16 z-[99] bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-5 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-full mx-5 px- sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div href="/" className="flex-shrink-0 ">
@@ -63,25 +63,25 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-12">
             <div className="flex space-x-12 items-center">
               <a
-                className="text-gray-700 hover:text-gray-900 font-bold text-sm uppercase tracking-wide transition-colors"
+                className="text-gray-700 hover:text-gray-900 font-bold text-lg uppercase tracking-wide transition-colors"
                 href="/"
               >
                 HOME
               </a>
               <a
-                className="text-gray-700 hover:text-gray-900 font-bold text-sm uppercase tracking-wide transition-colors"
+                className="text-gray-700 hover:text-gray-900 font-bold text-lg uppercase tracking-wide transition-colors"
                 href="/menu"
               >
                 MENU
               </a>
               <a
-                className="text-gray-700 hover:text-gray-900 font-bold text-sm uppercase tracking-wide transition-colors"
+                className="text-gray-700 hover:text-gray-900 font-bold text-lg uppercase tracking-wide transition-colors"
                 href="/cart"
               >
                 CART
               </a>
               <a
-                className="text-gray-700 hover:text-gray-900 font-bold text-sm uppercase tracking-wide transition-colors"
+                className="text-gray-700 hover:text-gray-900 font-bold text-lg uppercase tracking-wide transition-colors"
                 href="/order"
               >
                 ORDER
@@ -90,7 +90,7 @@ const Navbar = () => {
           </div>
 
           {/* Navbar Icons (Desktop) */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-evenly space-x-4">
             <div className="flex items-center">
               <form onSubmit={handleSearch}>
                 <div className="relative">
@@ -98,18 +98,18 @@ const Navbar = () => {
                     onChange={handleInput}
                     value={input.search}
                     name="search"
-                    className="w-48 h-9 pl-3 pr-10 border border-gray-300 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-transparent"
+                    className="w-48 h-9 pl-3 pr-10 border border-gray-300 rounded-lg bg-gray-50 text-base focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-transparent"
                     placeholder="Search..."
                   />
-                  <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
+                  <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8 text-gray-500" />
                 </div>
               </form>
             </div>
             <Link to="/chat_page" className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-              <ChatIcon className="w-7 h-7 text-gray-700" />
+              <ChatIcon className="w-8 h-8 text-black" />
             </Link>
             <a href="/chatbot_page" className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-              <FaQuestionCircle className="w-5 h-5 text-gray-700" />
+              <FaQuestionCircle className="w-8 h-8 text-black" />
             </a>
             {/* <a href="/cart" className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
               <CartIcon className="w-5 h-5 text-gray-700" />
@@ -118,7 +118,7 @@ const Navbar = () => {
             {/* Profile Icon with Dropdown */}
             <div className="relative">
               <button onClick={toggleProfileDropdown} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <ProfileIcon className="w-7 h-7 text-gray-700" />
+                <ProfileIcon className="w-8 h-8 text-gray-700" />
               </button>
               {isProfileDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg border border-gray-200 py-1">
@@ -201,7 +201,7 @@ const Navbar = () => {
               </a> */}
 
               <a href="/profile" className="flex flex-col items-center space-y-1">
-                <ProfileIcon className="w-7 h-7 text-gray-700" />
+                <ProfileIcon className="w-8 h-8 text-gray-700" />
                 <span className="text-xs text-gray-600">Profile</span>
               </a>
             </div>
