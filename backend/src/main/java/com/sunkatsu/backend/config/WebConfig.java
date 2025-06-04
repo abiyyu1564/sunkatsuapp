@@ -13,7 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Semua endpoint termasuk /ws/**
-                .allowedOrigins("http://localhost:3000", "https://sister14-sunkatsu.azuremicroservices.io") // Batasi hanya ke frontend
+                .allowedOrigins("http://100.109.214.88:3000", "https://sister14-sunkatsu.azuremicroservices.io") // Batasi hanya ke frontend
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Tambahkan OPTIONS untuk preflight
                 .allowedHeaders("*") // Izinkan semua header
                 .allowCredentials(true); // Izinkan cookies/credentials jika diperlukan
