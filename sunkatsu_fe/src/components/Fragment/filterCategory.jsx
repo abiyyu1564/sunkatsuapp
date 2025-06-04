@@ -37,7 +37,7 @@ const FilterCategory = ({ menuItems, onFilterChange }) => {
 
   return (
     <div className="flex items-center justify-center py-6">
-      <div className="flex gap-4">
+      <div className="flex gap-8">
         {menuItems.map((item, index) => (
           <button
             key={index}

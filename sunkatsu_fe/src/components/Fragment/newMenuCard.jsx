@@ -110,33 +110,32 @@ const NewMenuCard = ({ selectedCategory }) => {
   const renderMenuCard = (menuItem) => (
     <div
       key={menuItem.id}
-      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+      className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 hover:shadow-md transition-shadow"
     >
-      <div className="flex gap-4">
-        <div className="w-32 h-32 rounded-full overflow-hidden flex-shrink-0">
+      <div className="flex gap-6">
+        <div className="w-40 h-40 rounded-full overflow-hidden flex-shrink-0">
           <img
-            src={imageURLs[menuItem.image] || "/placeholder.svg?height=128&width=128"}
+            src={imageURLs[menuItem.image] || "/placeholder.svg?height=160&width=160"}
             alt={menuItem.name}
             className="w-full h-full object-cover"
           />
         </div>
         <div className="flex-1">
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">{menuItem.name}</h3>
-          <p className="text-lg font-medium text-gray-700 mb-2">Rp. {menuItem.price.toLocaleString("id-ID")}</p>
-          <p className="text-gray-600 text-sm mb-4">{menuItem.description}</p>
+          <h3 className="text-2xl font-semibold text-gray-800 mb-3">{menuItem.name}</h3>
+          <p className="text-xl font-medium text-gray-700 mb-3">Rp. {menuItem.price.toLocaleString("id-ID")}</p>
+          <p className="text-gray-600 text-sm mb-6">{menuItem.desc}</p>
 
-          {/* Conditional rendering of button or quantity controls */}
           {cartItems[menuItem.id] ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <button
-                className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
+                className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-800 text-lg"
                 onClick={() => handleQuantityChange(menuItem.id, -1)}
               >
                 -
               </button>
-              <span className="text-lg font-medium">{cartItems[menuItem.id]}</span>
+              <span className="text-xl font-medium">{cartItems[menuItem.id]}</span>
               <button
-                className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
+                className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-800 text-lg"
                 onClick={() => handleQuantityChange(menuItem.id, 1)}
               >
                 +
@@ -144,13 +143,11 @@ const NewMenuCard = ({ selectedCategory }) => {
             </div>
           ) : (
             <button
-              className="w-full bg-red-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-800 transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-red-500 text-white py-1 px-8 rounded-lg font-medium hover:bg-red-800 transition-colors flex items-center justify-center gap-2 text-s-lg"
               onClick={() => handlePopup("showDetail", menuItem)}
             >
               Add to cart
-              <span className="text-lg"> 
-                <img src={Plus} alt="+" className="w-5 h-5" />
-              </span>
+              <img src={Plus} alt="+" className="w-5 h-5" />
             </button>
           )}
         </div>
@@ -164,19 +161,19 @@ const NewMenuCard = ({ selectedCategory }) => {
         {/* Food Section */}
         <div id="food" className="mb-12 scroll-mt-20">
           <h2 className="text-3xl font-bold text-gray-800 mb-6">Food</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{foodItems.map(renderMenuCard)}</div>
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-6">{foodItems.map(renderMenuCard)}</div>
         </div>
 
         {/* Drink Section */}
         <div id="drink" className="mb-12 scroll-mt-20">
           <h2 className="text-3xl font-bold text-gray-800 mb-6">Drink</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{drinkItems.map(renderMenuCard)}</div>
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-6">{drinkItems.map(renderMenuCard)}</div>
         </div>
 
         {/* Dessert Section */}
         <div id="dessert" className="mb-12 scroll-mt-20">
           <h2 className="text-3xl font-bold text-gray-800 mb-6">Dessert</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{dessertItems.map(renderMenuCard)}</div>
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-6">{dessertItems.map(renderMenuCard)}</div>
         </div>
       </div>
 

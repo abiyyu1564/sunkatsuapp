@@ -309,7 +309,7 @@ const DetailMenu = ({ show, onClose, menuId }) => {
                 <div className="flex items-center justify-between mb-6">
                   <p className="text-xl font-bold">Rp {menuId.price?.toLocaleString("id-ID") || "0"}</p>
 
-                  <div className="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1">
+                  <div className="flex items-center gap-2 bg-white-100 rounded-full px-2 py-1 shadow-md">
                     <button
                       onClick={decrementQuantity}
                       className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-800"
