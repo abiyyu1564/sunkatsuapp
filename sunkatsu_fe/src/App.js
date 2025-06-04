@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { GlobalProvider } from "./context/GlobalContext";
 import { ProtectedRoute } from "./components/Utils/protectedRoute";
 
-
 import Login from "./components/Pages/Register/login";
 
 import Home from "./components/Pages/Home/home";
@@ -37,17 +36,21 @@ function App() {
               }
             />
 
-            <Route path="/chat_page" element={
-              <ProtectedRoute requiresAuth={true}>
+            <Route
+              path="/chat_page"
+              element={
+                <ProtectedRoute requiresAuth={true}>
                   <ChatPage />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route path="/chatbot_page" element={
-              <ProtectedRoute requiresAuth={true}>
+            <Route
+              path="/chatbot_page"
+              element={
+                <ProtectedRoute requiresAuth={true}>
                   <ChatbotPage />
                 </ProtectedRoute>
-              } 
+              }
             />
             <Route
               path="/login"
@@ -61,7 +64,14 @@ function App() {
             <Route path="/menuCustomer" element={<MenuCustomer />} />
             <Route path="/menuStaff" element={<MenuStaff />} />
             <Route path="/menuOwner" element={<MenuOwner />} />
-            <Route path="/cart" element={<Cart />} />
+            <Route
+              path="/cart"
+              element={
+                <ProtectedRoute requiresAuth={true}>
+                  <Cart />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/menu"
               element={
