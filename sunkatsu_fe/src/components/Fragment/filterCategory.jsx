@@ -36,27 +36,15 @@ const FilterCategory = ({ menuItems, onFilterChange }) => {
   };
 
   return (
-    <div
-      className="flex w-[1280px] items-center justify-center h-24"
-      onKeyDown={handleKeyDown}
-      tabIndex={0} // Make the container focusable for keyboard navigation
-    >
-      <div className="relative flex w-fit justify-around items-center h-10 py-1 mx-10 gap-2 rounded-xl shadow-2xl overflow-hidden bg-white">
-        {/* Moving Background Indicator */}
-        <div
-          className="absolute bg-tertiary rounded-xl h-10 transition-all duration-300 ease-in-out"
-          style={{
-            left: `${indicatorPosition.left}px`,
-            width: `${indicatorPosition.width}px`,
-          }}
-        ></div>
-
+    <div className="flex items-center justify-center py-6">
+      <div className="flex gap-4">
         {menuItems.map((item, index) => (
           <button
             key={index}
-            ref={(el) => (buttonRefs.current[index] = el)}
-            className={`relative z-0 flex items-center justify-center font-sans w-56 sm:w-96 text-md sm:text-xl font-semibold rounded-xl transition-all duration-300 ${
-              activeIndex === index ? "text-white" : "text-[#8E0808]"
+            className={`px-9 py-1 rounded-lg border-2 transition-all duration-200 font-medium text-base min-w-[200px] ${
+              activeIndex === index
+                ? "border-red-700 text-gray-500 bg-white hover:bg-red-800 hover:text-white"
+                : "border-red-700 text-gray-500 bg-white hover:bg-red-800 hover:text-white"
             }`}
             onClick={() => handleButtonClick(index)}
           >
@@ -65,6 +53,35 @@ const FilterCategory = ({ menuItems, onFilterChange }) => {
         ))}
       </div>
     </div>
+    // <div
+    //   className="flex w-[1280px] items-center justify-center h-24"
+    //   onKeyDown={handleKeyDown}
+    //   tabIndex={0} // Make the container focusable for keyboard navigation
+    // >
+    //   <div className="relative flex w-fit justify-around items-center h-10 py-1 mx-10 gap-2 rounded-xl shadow-2xl overflow-hidden bg-white">
+    //     {/* Moving Background Indicator */}
+    //     <div
+    //       className="absolute bg-tertiary rounded-xl h-10 transition-all duration-300 ease-in-out"
+    //       style={{
+    //         left: `${indicatorPosition.left}px`,
+    //         width: `${indicatorPosition.width}px`,
+    //       }}
+    //     ></div>
+
+    //     {menuItems.map((item, index) => (
+    //       <button
+    //         key={index}
+    //         ref={(el) => (buttonRefs.current[index] = el)}
+    //         className={`relative z-0 flex items-center justify-center font-sans w-56 sm:w-96 text-md sm:text-xl font-semibold rounded-xl transition-all duration-300 ${
+    //           activeIndex === index ? "text-white" : "text-[#8E0808]"
+    //         }`}
+    //         onClick={() => handleButtonClick(index)}
+    //       >
+    //         {item}
+    //       </button>
+    //     ))}
+    //   </div>
+    // </div>
   );
 };
 
