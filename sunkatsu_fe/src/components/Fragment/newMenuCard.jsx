@@ -160,19 +160,19 @@ const NewMenuCard = ({ selectedCategory }) => {
       <div className="px-4 py-6 max-w-6xl mx-auto w-full">
         {/* Food Section */}
         <div id="food" className="mb-12 scroll-mt-20">
-          <h2 className="text-3xl font-bold text-gray-800 mb-6">Food</h2>
+          <h2 className="text-4xl font-bold text-gray-800 mb-6">Food</h2>
           <div className="grid grid-cols-2 md:grid-cols-2 gap-6">{foodItems.map(renderMenuCard)}</div>
         </div>
 
         {/* Drink Section */}
         <div id="drink" className="mb-12 scroll-mt-20">
-          <h2 className="text-3xl font-bold text-gray-800 mb-6">Drink</h2>
+          <h2 className="text-4xl font-bold text-gray-800 mb-6">Drink</h2>
           <div className="grid grid-cols-2 md:grid-cols-2 gap-6">{drinkItems.map(renderMenuCard)}</div>
         </div>
 
         {/* Dessert Section */}
         <div id="dessert" className="mb-12 scroll-mt-20">
-          <h2 className="text-3xl font-bold text-gray-800 mb-6">Dessert</h2>
+          <h2 className="text-4xl font-bold text-gray-800 mb-6">Dessert</h2>
           <div className="grid grid-cols-2 md:grid-cols-2 gap-6">{dessertItems.map(renderMenuCard)}</div>
         </div>
       </div>
