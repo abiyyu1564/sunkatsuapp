@@ -10,6 +10,7 @@ const Profile = () => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
+  const [customerNames, setCustomerNames] = useState({})
 
   useEffect(() => {
     try {
@@ -115,15 +116,12 @@ const Profile = () => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-gray-800">{user.id || "N/A"}</div>
-                <div className="text-sm text-gray-600">User ID</div>
-              </div>
-              <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">●</div>
-                <div className="text-sm text-gray-600">Status</div>
-              </div>
+            <div className="flex gap-4 mb-6">
+              {user.role !== 'CUSTOMER' && (
+                  <div className="w-full text-center p-3 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-gray-800">{user.id || "N/A"}</div>
+                  <div className="text-sm text-gray-600">User ID</div>
+                  </div>)}
             </div>
 
             {/* Actions */}

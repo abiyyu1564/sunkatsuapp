@@ -5,6 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import Swal from "sweetalert2";
 
 import Navbar from "../../Fragment/Navbar";
+import NewFooter from "../../Fragment/newFooter";
 
 const Order = () => {
   const [orders, setOrders] = useState([])
@@ -118,7 +119,6 @@ const Order = () => {
         .catch((error) => {
           console.error("Error fetching image:", error);
         });
-
     return "default_image_url_here"; // URL default gambar jika gagal fetch
   };
 
@@ -450,6 +450,7 @@ const Order = () => {
               </div>
           )}
           </div>
+          <NewFooter/>
         </div>
     )
 }

@@ -4,12 +4,12 @@ import { useState, useEffect, useContext } from "react"
 import axios from "axios"
 import Cookies from "js-cookie"
 import Swal from "sweetalert2"
-import {GlobalContext} from "../../../context/GlobalContext";
+import { GlobalContext } from "../../../context/GlobalContext"
 
-import Navbar from "../../Fragment/Navbar";
+import Navbar from "../../Fragment/Navbar"
 
-const OwnerDashboard = () => {
-    const { menu, getUser, search } = useContext(GlobalContext)
+const OwnerDashboard = (menuId) => {
+    const { menu, getUser, search, setFetchStatus, fetchStatus } = useContext(GlobalContext)
     const [allMenu, setAllMenu] = useState([])
     const [loading, setLoading] = useState(true)
     const [showModal, setShowModal] = useState(false)
@@ -25,7 +25,7 @@ const OwnerDashboard = () => {
         category: "",
         image: null,
     })
-    const [imagePreview, setImagePreview] = useState("")
+    const [selectedImage, setSelectedImage] = useState(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const categories = ["All", "food", "drink", "dessert"]
@@ -82,7 +82,7 @@ const OwnerDashboard = () => {
                 responseType: "blob",
             })
             const imageURL = URL.createObjectURL(response.data)
-            setImagePreview(imageURL)
+            setSelectedImage(imageURL)
         } catch (error) {
             console.error("Error fetching image preview:", error)
         }
@@ -125,7 +125,7 @@ const OwnerDashboard = () => {
                     },
                 })
                 Swal.fire("Deleted!", "Menu has been deleted.", "success")
-                window.location.reload()
+                setFetchStatus(!fetchStatus)
             } catch (error) {
                 console.error("Error deleting menu:", error)
                 Swal.fire("Error", "Failed to delete menu", "error")
@@ -142,7 +142,7 @@ const OwnerDashboard = () => {
             category: "",
             image: null,
         })
-        setImagePreview("")
+        setSelectedImage(null)
         setShowModal(true)
     }
 
@@ -156,7 +156,7 @@ const OwnerDashboard = () => {
             category: "",
             image: null,
         })
-        setImagePreview("")
+        setSelectedImage(null)
     }
 
     const handleFormChange = (e) => {
@@ -170,6 +170,8 @@ const OwnerDashboard = () => {
     const handleImageChange = (e) => {
         const file = e.target.files[0]
         if (file) {
+            const imageUrl = URL.createObjectURL(file)
+            setSelectedImage(imageUrl)
             setFormData((prev) => ({
                 ...prev,
                 image: file,
@@ -177,46 +179,86 @@ const OwnerDashboard = () => {
         }
     }
 
+    // PERBAIKAN UTAMA: Menggunakan pola yang sama dengan EditMenu.jsx yang berhasil
     const handleSubmit = async (e) => {
         e.preventDefault()
         setIsSubmitting(true)
 
+        const { image, name, desc, price, category } = formData
+
+        // Validasi input
+        if (!name || !desc || !price || !category) {
+            Swal.fire("Error", "Please fill in all fields.", "error")
+            setIsSubmitting(false)
+            return
+        }
+
+        if (!editingMenu && !image) {
+            Swal.fire("Error", "Please select an image for new menu.", "error")
+            setIsSubmitting(false)
+            return
+        }
+
         try {
-            const formDataToSend = new FormData()
-            formDataToSend.append("name", formData.name)
-            formDataToSend.append("price", formData.price)
-            formDataToSend.append("desc", formData.desc)
-            formDataToSend.append("category", formData.category)
-
-            if (formData.image) {
-                formDataToSend.append("image", formData.image)
-            }
-
             if (editingMenu) {
-                // Update existing menu
+                // Update existing menu - menggunakan pola yang sama dengan EditMenu.jsx
+                const formDataToSend = new FormData()
+
+                // Jika ada gambar baru, tambahkan ke FormData
+                if (image) {
+                    formDataToSend.append("file", image)
+                }
+
+                // Kirim request update dengan struktur yang sama seperti EditMenu.jsx
                 await axios.put(`${baseURL}/api/menus/${editingMenu.id}`, formDataToSend, {
                     headers: {
                         Authorization: `Bearer ${Cookies.get("token")}`,
                         "Content-Type": "multipart/form-data",
                     },
+                    params: {
+                        name,
+                        price: Number.parseInt(price), // Pastikan price adalah number
+                        desc,
+                        category,
+                        nums_bought: editingMenu.numsBought || 0, // Tambahkan nums_bought seperti di EditMenu.jsx
+                    },
                 })
+
                 Swal.fire("Success", "Menu updated successfully", "success")
             } else {
                 // Create new menu
+                const formDataToSend = new FormData()
+                formDataToSend.append("file", image)
+
                 await axios.post(`${baseURL}/api/menus`, formDataToSend, {
                     headers: {
                         Authorization: `Bearer ${Cookies.get("token")}`,
                         "Content-Type": "multipart/form-data",
+                    },
+                    params: {
+                        name,
+                        desc,
+                        price: Number.parseInt(price),
+                        category,
+                        nums_bought: 0,
                     },
                 })
                 Swal.fire("Success", "Menu created successfully", "success")
             }
 
             closeModal()
-            window.location.reload()
+            setFetchStatus(!fetchStatus)
         } catch (error) {
-            console.error("Error saving menu:", error)
-            Swal.fire("Error", "Failed to save menu", "error")
+            console.error("Error saving menu:", error.response?.data || error.message)
+
+            // Log detail error untuk debugging
+            if (error.response) {
+                console.error("Response status:", error.response.status)
+                console.error("Response data:", error.response.data)
+                console.error("Request config:", error.config)
+            }
+
+            Swal.fire("Error", `Failed to save menu: ${error.response?.data?.message || error.message}`, "error")
         } finally {
             setIsSubmitting(false)
         }
@@ -224,191 +266,6 @@ const OwnerDashboard = () => {
 
     const formatPrice = (price) => {
         return `Rp. ${price.toLocaleString("id-ID")}`
-    }
-
-    // Menu Card Component
-    const MenuCard = ({ menuItem }) => (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 hover:shadow-md transition-shadow">
-            <div className="flex gap-6">
-                {/* Menu Image */}
-                <div className="w-40 h-40 rounded-full overflow-hidden flex-shrink-0">
-                    <img
-                        src={imageURLs[menuItem.image] || "/placeholder.svg?height=160&width=160"}
-                        alt={menuItem.name}
-                        className="w-full h-full object-cover"
-                    />
-                </div>
-
-                {/* Menu Content */}
-                <div className="flex-1">
-                    <h3 className="text-2xl font-semibold text-gray-800 mb-3">{menuItem.name}</h3>
-                    <p className="text-xl font-medium text-gray-700 mb-3">{formatPrice(menuItem.price)}</p>
-                    <p className="text-gray-600 text-sm mb-6">{menuItem.desc}</p>
-
-                    {/* Category Badge */}
-                    <div className="mb-4">
-            <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">
-              {menuItem.category.charAt(0).toUpperCase() + menuItem.category.slice(1)}
-            </span>
-                    </div>
-
-                    {/* Admin Actions */}
-                    <div className="flex gap-3">
-                        <button
-                            onClick={() => handleEdit(menuItem)}
-                            className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                />
-                            </svg>
-                            Edit
-                        </button>
-                        <button
-                            onClick={() => handleDelete(menuItem.id)}
-                            className="flex-1 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1H8a1 1 0 00-1 1v3M4 7h16"
-                                />
-                            </svg>
-                            Delete
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
-
-    // Menu Form Modal Component
-    const MenuFormModal = () => {
-        if (!showModal) return null
-
-        return (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-                    <div className="p-6">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-xl font-bold text-gray-900">{editingMenu ? "Edit Menu" : "Add New Menu"}</h2>
-                            <button onClick={closeModal} className="text-gray-400 hover:text-gray-600">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            {/* Image Preview */}
-                            {imagePreview && (
-                                <div className="mb-4 flex justify-center">
-                                    <div className="w-32 h-32 rounded-full overflow-hidden">
-                                        <img
-                                            src={imagePreview || "/placeholder.svg"}
-                                            alt="Preview"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Menu Name</label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    required
-                                    value={formData.name}
-                                    onChange={handleFormChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                                    placeholder="Enter menu name"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
-                                <input
-                                    type="number"
-                                    name="price"
-                                    required
-                                    value={formData.price}
-                                    onChange={handleFormChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                                    placeholder="Enter price"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                                <select
-                                    name="category"
-                                    required
-                                    value={formData.category}
-                                    onChange={handleFormChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                                >
-                                    <option value="">Select category</option>
-                                    {categories.slice(1).map((category) => (
-                                        <option key={category} value={category}>
-                                            {category.charAt(0).toUpperCase() + category.slice(1)}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                <textarea
-                                    name="desc"
-                                    required
-                                    value={formData.desc}
-                                    onChange={handleFormChange}
-                                    rows={3}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                                    placeholder="Enter menu description"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Image</label>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                                />
-                                {!editingMenu && <p className="text-sm text-gray-500 mt-1">Image is required for new menu</p>}
-                            </div>
-
-                            <div className="flex gap-3 pt-4">
-                                <button
-                                    type="button"
-                                    onClick={closeModal}
-                                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                                    disabled={isSubmitting}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                                    disabled={isSubmitting}
-                                >
-                                    {isSubmitting ? "Saving..." : editingMenu ? "Update" : "Create"}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        )
     }
 
     if (user.role !== "OWNER") {
@@ -424,7 +281,7 @@ const OwnerDashboard = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <Navbar/>
+            <Navbar />
             {/* Header */}
             <div className="bg-white mt-16 shadow-sm border-b">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -601,7 +458,14 @@ const OwnerDashboard = () => {
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {allMenu.map((menuItem) => (
-                                    <MenuCard key={menuItem.id} menuItem={menuItem} />
+                                    <MenuCard
+                                        key={menuItem.id}
+                                        menuItem={menuItem}
+                                        imageURLs={imageURLs}
+                                        formatPrice={formatPrice}
+                                        handleEdit={handleEdit}
+                                        handleDelete={handleDelete}
+                                    />
                                 ))}
                             </div>
                         )}
@@ -610,7 +474,222 @@ const OwnerDashboard = () => {
             </div>
 
             {/* Menu Form Modal */}
-            <MenuFormModal />
+            <MenuFormModal
+                showModal={showModal}
+                editingMenu={editingMenu}
+                formData={formData}
+                selectedImage={selectedImage}
+                categories={categories}
+                isSubmitting={isSubmitting}
+                closeModal={closeModal}
+                handleSubmit={handleSubmit}
+                handleFormChange={handleFormChange}
+                handleImageChange={handleImageChange}
+            />
+        </div>
+    )
+}
+
+// Menu Card Component
+const MenuCard = ({ menuItem, imageURLs, formatPrice, handleEdit, handleDelete }) => (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 hover:shadow-md transition-shadow">
+        <div className="flex gap-6">
+            {/* Menu Image */}
+            <div className="w-40 h-40 rounded-full overflow-hidden flex-shrink-0">
+                <img
+                    src={imageURLs[menuItem.image] || "/placeholder.svg?height=160&width=160"}
+                    alt={menuItem.name}
+                    className="w-full h-full object-cover"
+                />
+            </div>
+
+            {/* Menu Content */}
+            <div className="flex-1">
+                <h3 className="text-2xl font-semibold text-gray-800 mb-3">{menuItem.name}</h3>
+                <p className="text-xl font-medium text-gray-700 mb-3">{formatPrice(menuItem.price)}</p>
+                <p className="text-gray-600 text-sm mb-6">{menuItem.desc}</p>
+
+                {/* Category Badge */}
+                <div className="mb-4">
+          <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">
+            {menuItem.category.charAt(0).toUpperCase() + menuItem.category.slice(1)}
+          </span>
+                </div>
+
+                {/* Admin Actions */}
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => handleEdit(menuItem)}
+                        className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            />
+                        </svg>
+                        Edit
+                    </button>
+                    <button
+                        onClick={() => handleDelete(menuItem.id)}
+                        className="flex-1 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1H8a1 1 0 00-1 1v3M4 7h16"
+                            />
+                        </svg>
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+)
+
+// Menu Form Modal Component
+const MenuFormModal = ({
+                           showModal,
+                           editingMenu,
+                           formData,
+                           selectedImage,
+                           categories,
+                           isSubmitting,
+                           closeModal,
+                           handleSubmit,
+                           handleFormChange,
+                           handleImageChange,
+                       }) => {
+    if (!showModal) return null
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="p-6">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-2xl font-bold text-gray-900">{editingMenu ? "Edit Menu" : "Add New Menu"}</h2>
+                        <button onClick={closeModal} className="text-gray-400 hover:text-gray-600">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="flex gap-8">
+                        {/* Left Section - Image Upload */}
+                        <div className="w-1/2 flex flex-col justify-center items-center">
+                            {selectedImage ? (
+                                <div className="flex flex-col items-center">
+                                    <img
+                                        src={selectedImage || "/placeholder.svg"}
+                                        alt="Selected"
+                                        className="w-48 h-48 object-cover rounded-md mb-4"
+                                    />
+                                    <label htmlFor="imageInput" className="text-red-500 font-bold cursor-pointer hover:underline">
+                                        Change Image
+                                    </label>
+                                </div>
+                            ) : (
+                                <label
+                                    htmlFor="imageInput"
+                                    className="w-full h-64 flex flex-col justify-center items-center cursor-pointer border-2 border-dashed border-gray-300 rounded-lg hover:border-red-500 transition-colors"
+                                >
+                                    <svg className="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    <p className="text-gray-600 font-medium text-lg">Add Menu Picture</p>
+                                </label>
+                            )}
+                            <input id="imageInput" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                        </div>
+
+                        {/* Right Section - Form Fields */}
+                        <div className="w-1/2 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Menu Name</label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    required
+                                    value={formData.name}
+                                    onChange={handleFormChange}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                    placeholder="Insert Menu Name"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                                <input
+                                    type="number"
+                                    name="price"
+                                    required
+                                    value={formData.price}
+                                    onChange={handleFormChange}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                    placeholder="Insert Menu Price"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                <select
+                                    name="category"
+                                    required
+                                    value={formData.category}
+                                    onChange={handleFormChange}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                >
+                                    <option value="">Select Category</option>
+                                    {categories.slice(1).map((category) => (
+                                        <option key={category} value={category}>
+                                            {category.charAt(0).toUpperCase() + category.slice(1)}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea
+                                    name="desc"
+                                    required
+                                    value={formData.desc}
+                                    onChange={handleFormChange}
+                                    rows={4}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                    placeholder="Insert Menu Description"
+                                />
+                            </div>
+
+                            {!editingMenu && <p className="text-sm text-gray-500">Image is required for new menu</p>}
+
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={closeModal}
+                                    className="flex-1 px-4 py-2 bg-black text-white rounded-lg hover:opacity-90 transition-opacity"
+                                    disabled={isSubmitting}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? "Processing..." : "Submit"}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     )
 }

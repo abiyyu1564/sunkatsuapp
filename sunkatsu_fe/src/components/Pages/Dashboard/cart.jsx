@@ -274,10 +274,10 @@ const Cart = () => {
   );
 
   return (
-    <div className=" bg-gray-50">
+    <div className="flex flex-col gap- bg-primary">
       <Navbar />
       {/* Header */}
-      <div className="bg-white shadow-sm border-b pt-20">
+      <div className="flex bg-primary shadow-sm border-b pt-20">
         <div className="max-w-4xl mx-16 px-1 py-4">
           <div className="flex items-center gap-3">
             <button
@@ -362,7 +362,7 @@ const Cart = () => {
           </div>
         </div>
       </div>
-      <section className="bg-white rounded-lg p-6 mx-auto px-1 py-4 max-w-6xl w-full">
+      <section className="flex flex-col bg-primary rounded-lg p-6 mx-auto px-1 py-4 min-h-72 max-w-6xl w-full">
         <h2 className="font-bold text-2xl mb-4  pb-2">Order Summary</h2>
 
         {cartItems.length === 0 && (
@@ -432,7 +432,7 @@ const Cart = () => {
         ))}
       </section>
 
-      <div className="overflow-x-auto max-w-6xl mx-auto w-full scrollbar-hide">
+      <div className="grid grid-flow-row overflow-x-auto max-w-6xl mx-auto w-full scrollbar-hide p-6">
         <div className="flex flex-nowrap gap-4 px-4">
           {menu.slice(0, 6).map((menuItem) => (
             <div className="flex-shrink-0 border border-gray-300 rounded-lg">

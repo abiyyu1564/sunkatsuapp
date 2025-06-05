@@ -185,20 +185,6 @@ const NewMenuCard = ({ selectedCategory }) => {
           onAddToCart={handleAddToCart}
         />
       )}
-
-      {user.role === "OWNER" ? (
-        <div className="fixed bottom-10 right-10">
-          <button
-            className="bg-tertiary hover:bg-red-600 text-white font-bold py-2 px-4 rounded-2xl"
-            onClick={() => handlePopup("showAdd")}
-          >
-            Tambah data Menu
-          </button>
-          {popupState.showAdd && <AddMenu show={popupState.showAdd} onClose={() => handlePopup("showAdd")} />}
-        </div>
-      ) : (
-        <span></span>
-      )}
     </div>
   )
 }
