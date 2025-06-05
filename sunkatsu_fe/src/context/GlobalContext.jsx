@@ -20,9 +20,18 @@ export const GlobalProvider = ({ children }) => {
   });
 
   const getUser = () => {
-    const decode = jwtDecode(Cookies.get("token"));
+    const token = Cookies.get("token");
 
-    return decode;
+    if (!token || typeof token !== "string") {
+      return null;
+    }
+
+    try {
+      return jwtDecode(token);
+    } catch (err) {
+      console.warn("Invalid token:", err);
+      return null;
+    }
   };
 
   useEffect(() => {
