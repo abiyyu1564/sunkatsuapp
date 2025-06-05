@@ -21,6 +21,8 @@ import Signup from "./components/Pages/Register/signup";
 import ChatPage from "./components/Pages/Chat/ChatPage";
 import ChatbotPage from "./components/Pages/Chatbot/ChatbotPage";
 
+import OwnerDashboard from "./components/Pages/Dashboard/ownerDashboard";
+
 function App() {
   return (
     <>
@@ -64,6 +66,7 @@ function App() {
             <Route path="/menuCustomer" element={<MenuCustomer />} />
             <Route path="/menuStaff" element={<MenuStaff />} />
             <Route path="/menuOwner" element={<MenuOwner />} />
+            <Route path="/dashboard" element={<OwnerDashboard />} />
             <Route
               path="/cart"
               element={

@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom" // Import useNavigate untuk routi
 import Cookies from "js-cookie"
 import { GlobalContext } from "../../context/GlobalContext"
 import { Link } from "react-router-dom"
+import {jwtDecode} from "jwt-decode";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -16,6 +17,8 @@ const Navbar = () => {
   const navigate = useNavigate() // Hook untuk navigasi ke halaman lain
   const [input, setInput] = useState({ search: "" })
 
+
+  const user = jwtDecode(Cookies.get("token"));
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
   }
@@ -128,6 +131,13 @@ const Navbar = () => {
                   >
                     Profile
                   </a>
+                  {user.role === 'OWNER' && (<a
+                      href="/dashboard"
+                      className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    Dashboard
+                  </a>
+                  )}
                   <button
                     onClick={handleLogout}
                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors"
