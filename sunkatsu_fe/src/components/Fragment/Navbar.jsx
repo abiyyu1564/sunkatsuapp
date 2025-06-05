@@ -1,57 +1,55 @@
-import { useState, useContext } from "react"
-import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai"
-import { ReactComponent as ChatIcon } from "../Icon/chat1.svg"
-import { ReactComponent as ProfileIcon } from "../Icon/profile1.svg"
-import { ReactComponent as SearchIcon } from "../Icon/search1.svg"
-import { FaQuestionCircle } from "react-icons/fa"
-import { useNavigate } from "react-router-dom" // Import useNavigate untuk routing
-import Cookies from "js-cookie"
-import { GlobalContext } from "../../context/GlobalContext"
-import { Link } from "react-router-dom"
-import {jwtDecode} from "jwt-decode";
+import { useState, useContext } from "react";
+import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
+import { ReactComponent as ChatIcon } from "../Icon/chat1.svg";
+import { ReactComponent as ProfileIcon } from "../Icon/profile1.svg";
+import { ReactComponent as SearchIcon } from "../Icon/search1.svg";
+import { FaQuestionCircle } from "react-icons/fa";
+import { useNavigate } from "react-router-dom"; // Import useNavigate untuk routing
+import Cookies from "js-cookie";
+import { GlobalContext } from "../../context/GlobalContext";
+import { Link } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
-  const { search, setSearch } = useContext(GlobalContext)
-  const navigate = useNavigate() // Hook untuk navigasi ke halaman lain
-  const [input, setInput] = useState({ search: "" })
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const { search, setSearch, user } = useContext(GlobalContext);
+  const navigate = useNavigate(); // Hook untuk navigasi ke halaman lain
+  const [input, setInput] = useState({ search: "" });
 
-
-  const user = jwtDecode(Cookies.get("token"));
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen)
-  }
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   const toggleProfileDropdown = () => {
-    setIsProfileDropdownOpen(!isProfileDropdownOpen)
-  }
+    setIsProfileDropdownOpen(!isProfileDropdownOpen);
+  };
 
   // Fungsi untuk handle logout
   const handleLogout = () => {
     // Menghapus token dari localStorage/sessionStorage
-    Cookies.remove("token") // Ganti dengan nama yang sesuai untuk token Anda
+    Cookies.remove("token"); // Ganti dengan nama yang sesuai untuk token Anda
 
     // Atau jika token disimpan di sessionStorage
     // sessionStorage.removeItem("authToken");
 
     // Setelah logout, arahkan ke halaman login
-    navigate("/login") // Ganti dengan route login yang sesuai
-  }
+    navigate("/login"); // Ganti dengan route login yang sesuai
+  };
 
   const handleSearch = (e) => {
-    e.preventDefault() // Mencegah reload halaman saat submit form
-    setSearch(input.search) // Set nilai pencarian ke context
-    navigate("/menu") // Redirect ke halaman menu
-  }
+    e.preventDefault(); // Mencegah reload halaman saat submit form
+    setSearch(input.search); // Set nilai pencarian ke context
+    navigate("/menu"); // Redirect ke halaman menu
+  };
 
   const handleInput = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setInput((prevState) => ({
       ...prevState,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   return (
     <nav className="fixed top-0 w-full h-16 z-[99] bg-white border-b border-gray-200">
@@ -59,7 +57,9 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div href="/" className="flex-shrink-0 ">
-            <div className="text-3xl font-bold text-gray-900 tracking-wide">SUNKATSU</div>
+            <div className="text-3xl font-bold text-gray-900 tracking-wide">
+              SUNKATSU
+            </div>
           </div>
 
           {/* Menu Items (Desktop) - Centered */}
@@ -108,10 +108,16 @@ const Navbar = () => {
                 </div>
               </form>
             </div>
-            <Link to="/chat_page" className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <Link
+              to="/chat_page"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
               <ChatIcon className="w-8 h-8 text-black" />
             </Link>
-            <a href="/chatbot_page" className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <a
+              href="/chatbot_page"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
               <FaQuestionCircle className="w-8 h-8 text-black" />
             </a>
             {/* <a href="/cart" className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
@@ -120,7 +126,10 @@ const Navbar = () => {
 
             {/* Profile Icon with Dropdown */}
             <div className="relative">
-              <button onClick={toggleProfileDropdown} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+              <button
+                onClick={toggleProfileDropdown}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
                 <ProfileIcon className="w-8 h-8 text-gray-700" />
               </button>
               {isProfileDropdownOpen && (
@@ -131,12 +140,13 @@ const Navbar = () => {
                   >
                     Profile
                   </a>
-                  {user.role === 'OWNER' && (<a
+                  {user.role === "OWNER" && (
+                    <a
                       href="/dashboard"
                       className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                  >
-                    Dashboard
-                  </a>
+                    >
+                      Dashboard
+                    </a>
                   )}
                   <button
                     onClick={handleLogout}
@@ -151,12 +161,19 @@ const Navbar = () => {
 
           {/* Hamburger Button (Mobile) */}
           <div className="flex flex-row gap-4 md:hidden">
-            <SearchIcon className="w-6 h-6 text-gray-700" onClick={toggleMenu} />
+            <SearchIcon
+              className="w-6 h-6 text-gray-700"
+              onClick={toggleMenu}
+            />
             <button
               className="block md:hidden text-gray-700 p-1 hover:bg-gray-100 rounded-lg transition-colors"
               onClick={toggleMenu}
             >
-              {isMenuOpen ? <AiOutlineClose className="w-6 h-6" /> : <AiOutlineMenu className="w-6 h-6" />}
+              {isMenuOpen ? (
+                <AiOutlineClose className="w-6 h-6" />
+              ) : (
+                <AiOutlineMenu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
@@ -180,27 +197,45 @@ const Navbar = () => {
             </div>
 
             <div className="space-y-2">
-              <a className="block py-2 text-gray-700 font-medium uppercase tracking-wide" href="/">
+              <a
+                className="block py-2 text-gray-700 font-medium uppercase tracking-wide"
+                href="/"
+              >
                 HOME
               </a>
-              <a className="block py-2 text-gray-700 font-medium uppercase tracking-wide" href="/menu">
+              <a
+                className="block py-2 text-gray-700 font-medium uppercase tracking-wide"
+                href="/menu"
+              >
                 MENU
               </a>
-              <a className="block py-2 text-gray-700 font-medium uppercase tracking-wide" href="/cart">
+              <a
+                className="block py-2 text-gray-700 font-medium uppercase tracking-wide"
+                href="/cart"
+              >
                 CART
               </a>
-              <a className="block py-2 text-gray-700 font-medium uppercase tracking-wide" href="/order">
+              <a
+                className="block py-2 text-gray-700 font-medium uppercase tracking-wide"
+                href="/order"
+              >
                 ORDER
               </a>
             </div>
 
             <div className="flex items-center justify-around pt-4 border-t border-gray-200">
-              <Link to="/chat_page" className="flex flex-col items-center space-y-1">
+              <Link
+                to="/chat_page"
+                className="flex flex-col items-center space-y-1"
+              >
                 <ChatIcon className="w-7 h-7 text-gray-700" />
                 <span className="text-xs text-gray-600">Chat</span>
               </Link>
 
-              <a href="/chatbot_page" className="flex flex-col items-center space-y-1">
+              <a
+                href="/chatbot_page"
+                className="flex flex-col items-center space-y-1"
+              >
                 <FaQuestionCircle className="w-7 h-7 text-gray-700" />
                 <span className="text-xs text-gray-600">Assistant</span>
               </a>
@@ -210,7 +245,10 @@ const Navbar = () => {
                 <span className="text-xs text-gray-600">Cart</span>
               </a> */}
 
-              <a href="/profile" className="flex flex-col items-center space-y-1">
+              <a
+                href="/profile"
+                className="flex flex-col items-center space-y-1"
+              >
                 <ProfileIcon className="w-8 h-8 text-gray-700" />
                 <span className="text-xs text-gray-600">Profile</span>
               </a>
@@ -219,7 +257,7 @@ const Navbar = () => {
         </div>
       )}
     </nav>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
