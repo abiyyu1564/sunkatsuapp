@@ -72,7 +72,7 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
     try {
       // Coba ambil cart yang sudah ada
       final res = await http.get(
-        Uri.parse('http://localhost:8080/api/customers/$userId/cart'),
+        Uri.parse('http://10.0.2.2:8080/api/customers/$userId/cart'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -83,7 +83,7 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
       } else {
         // Kalau belum ada, buat cart kosong
         final emptyRes = await http.get(
-          Uri.parse('http://localhost:8080/api/carts/empty?UserId=$userId'),
+          Uri.parse('http://10.0.2.2:8080/api/carts/empty?UserId=$userId'),
           headers: {'Authorization': 'Bearer $token'},
         );
         if (emptyRes.statusCode == 200) {
@@ -137,7 +137,7 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
     final menuId = widget.foodData['id']; // Pastikan `id` tersedia
     debugPrint(widget.foodData['id'].toString());
 
-    final uri = Uri.parse('http://localhost:8080/api/carts/$cartId/add-menu')
+    final uri = Uri.parse('http://10.0.2.2:8080/api/carts/$cartId/add-menu')
         .replace(queryParameters: {
       'menuId': menuId.toString(),
       'quantity': quantity.toString(),
@@ -214,7 +214,7 @@ class _FoodDetailPageState extends State<FoodDetailPage> {
           : '/api/menus/images/$imageName';
 
       final response = await http.get(
-        Uri.parse('http://localhost:8080$path'),
+        Uri.parse('http://10.0.2.2:8080$path'),
         headers: {
           'Authorization': 'Bearer $token',
         },

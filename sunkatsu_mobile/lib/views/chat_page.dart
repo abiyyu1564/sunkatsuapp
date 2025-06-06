@@ -72,7 +72,7 @@ class _ChatPageState extends State<ChatPage> {
       // Get the JWT token
       final token = await JwtUtils.getToken();
 
-      final url = Uri.parse('http://localhost:8080/messages/${message.id}');
+      final url = Uri.parse('http://10.0.2.2:8080/messages/${message.id}');
       final response = await http.delete(
         url,
         headers: {
@@ -134,7 +134,7 @@ class _ChatPageState extends State<ChatPage> {
       // Get the JWT token
       final token = await JwtUtils.getToken();
 
-      final url = Uri.parse('http://localhost:8080/messages/${message.id}');
+      final url = Uri.parse('http://10.0.2.2:8080/messages/${message.id}');
       final response = await http.put(
         url,
         headers: {
@@ -177,7 +177,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _loadUserDetails() async {
-    final url = Uri.parse('http://localhost:8080/api/users/${widget.userId}');
+    final url = Uri.parse('http://10.0.2.2:8080/api/users/${widget.userId}');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -281,7 +281,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> _fetchOnlineUsers() async {
     final url = Uri.parse(
-      'http://localhost:8080/api/users/status/${widget.userId}',
+      'http://10.0.2.2:8080/api/users/status/${widget.userId}',
     );
     try {
       final response = await http.get(url);
@@ -323,7 +323,7 @@ class _ChatPageState extends State<ChatPage> {
     if (selectedUserId == null) return;
 
     final url = Uri.parse(
-      'http://localhost:8080/messages/${widget.userId}/$selectedUserId',
+      'http://10.0.2.2:8080/messages/${widget.userId}/$selectedUserId',
     );
     try {
       final response = await http.get(url);
@@ -428,7 +428,7 @@ class _ChatPageState extends State<ChatPage> {
     if (pickedFile == null) return;
 
     final token = await JwtUtils.getToken();
-    final uri = Uri.parse("http://localhost:8080/api/files/upload");
+    final uri = Uri.parse("http://10.0.2.2:8080/api/files/upload");
 
     final request =
     http.MultipartRequest("POST", uri)
@@ -453,7 +453,7 @@ class _ChatPageState extends State<ChatPage> {
       messages = [];
     });
 
-    final url = Uri.parse('http://localhost:8080/api/users/$userId');
+    final url = Uri.parse('http://10.0.2.2:8080/api/users/$userId');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {

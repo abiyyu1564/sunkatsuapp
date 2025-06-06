@@ -26,7 +26,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
     });
     _controller.clear();
 
-    final uri = Uri.parse('http://localhost:8080/stream?message=$message');
+    final uri = Uri.parse('http://10.0.2.2:8080/stream?message=$message');
     final request = http.Request('GET', uri);
     final streamedResponse = await request.send();
 

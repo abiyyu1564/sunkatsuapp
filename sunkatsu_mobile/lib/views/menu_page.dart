@@ -70,7 +70,7 @@ class _MenuPageState extends State<MenuPage> {
       isRefreshing = true; // Show refresh indicator
     });
 
-    const String apiUrl = 'http://localhost:8080/api/menus';
+    const String apiUrl = 'http://10.0.2.2:8080/api/menus';
     final token = await JwtUtils.getToken();
 
     if (token == null) {
@@ -149,7 +149,7 @@ class _MenuPageState extends State<MenuPage> {
   // Helper method to fetch a single image
   Future<void> _fetchSingleImage(String imageUrl, String token) async {
     try {
-      final url = 'http://localhost:8080${imageUrl}';
+      final url = 'http://10.0.2.2:8080${imageUrl}';
       final imageResponse = await http.get(
         Uri.parse(url),
         headers: {'Authorization': 'Bearer $token'},

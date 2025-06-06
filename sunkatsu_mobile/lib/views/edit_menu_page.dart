@@ -149,7 +149,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
 
       final id = widget.foodData['id'];
       final response = await http.delete(
-        Uri.parse('http://localhost:8080/api/menus/$id'),
+        Uri.parse('http://10.0.2.2:8080/api/menus/$id'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -253,7 +253,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
     final id = widget.foodData['id'];
 
     // Buat URI dengan query parameters
-    final uri = Uri.parse('http://localhost:8080/api/menus/$id').replace(
+    final uri = Uri.parse('http://10.0.2.2:8080/api/menus/$id').replace(
       queryParameters: {
         'name': nameController.text,
         'price': priceController.text,
@@ -377,7 +377,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
               : '/api/menus/images/$imageName';
 
       final response = await http.get(
-        Uri.parse('http://localhost:8080$path'),
+        Uri.parse('http://10.0.2.2:8080$path'),
         headers: {'Authorization': 'Bearer $token'},
       );
 

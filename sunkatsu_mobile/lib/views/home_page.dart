@@ -104,7 +104,7 @@ class _HomePageState extends State<HomePage> {
 
     if (token == null || userId == null) return;
 
-    final url = Uri.parse('http://localhost:8080/api/customers/$userId/favorites');
+    final url = Uri.parse('http://10.0.2.2:8080/api/customers/$userId/favorites');
 
     try {
       final response = await http.get(url, headers: {'Authorization': 'Bearer $token'});
@@ -139,7 +139,7 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/menus'),
+        Uri.parse('http://10.0.2.2:8080/api/menus'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -172,7 +172,7 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/menus/images/$imageName'),
+        Uri.parse('http://10.0.2.2:8080/api/menus/images/$imageName'),
         headers: {'Authorization': 'Bearer $token'},
       );
 

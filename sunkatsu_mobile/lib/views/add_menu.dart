@@ -171,7 +171,7 @@ class _AddMenuPageState extends State<AddMenuPage> {
       // Create multipart request
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://localhost:8080/api/menus'),
+        Uri.parse('http://10.0.2.2:8080/api/menus'),
       );
 
       // Add headers

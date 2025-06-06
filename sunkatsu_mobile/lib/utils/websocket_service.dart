@@ -11,7 +11,7 @@ class WebSocketService {
   void connect() {
     stompClient = StompClient(
       config: StompConfig.sockJS(
-        url: 'http://localhost:8080/ws',
+        url: 'http://10.0.2.2:8080/ws',
         onConnect: _onConnect,
         onWebSocketError: (dynamic error) => print('WebSocket Error: $error'),
       ),
