@@ -33,6 +33,16 @@ public class ChatController {
 
     @MessageMapping("/chat")
     public void processMessage(@Payload ChatMessage chatMessage) {
+        String content = chatMessage.getContent();
+        if (content != null && content.length() > 255) {
+            chatMessage.setContent(content.substring(0, 255));
+        }
+
+        String imageUrl = chatMessage.getImageUrl();
+        if (imageUrl != null && !imageUrl.matches(".*\\.(png|jpg|jpeg|gif|bmp|webp)$")) {
+            chatMessage.setImageUrl(null);
+        }
+
         ChatMessage savedMsg = chatMessageService.save(chatMessage);
 
         String previewText = savedMsg.getContent();
@@ -45,7 +55,6 @@ public class ChatController {
             savedMsg
         );
     }
-
 
     @Operation(
         summary = "Get all chat messages",

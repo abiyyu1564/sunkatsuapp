@@ -18,13 +18,23 @@ export default function Composer({ onSend }) {
         type="text"
         value={text}
         onChange={e => setText(e.target.value)}
+        maxLength={255}
         placeholder="Type…"
         className="flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-red-400"
       />
       <input
         type="file"
         accept="image/*"
-        onChange={e => setFile(e.target.files?.[0] || null)}
+        onChange={e => {
+          const file = e.target.files?.[0];
+          if (file && !file.type.startsWith("image/")) {
+            alert("Only image files are allowed!");
+            e.target.value = "";
+            setFile(null);
+            return;
+          }
+          setFile(file || null);
+        }}
         className="text-sm"
       />
       <button

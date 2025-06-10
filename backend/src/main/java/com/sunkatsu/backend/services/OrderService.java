@@ -150,7 +150,7 @@ public class OrderService {
             ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Jakarta"));
             order.setStatus("Finished");
             order.setPaymentDeadline(null); // Disable TTL
-            order.setFinishedAt(Date.from(zonedDateTime.toInstant())); // Set finished time
+            order.setFinishedAt(Date.from(zonedDateTime.toInstant()));
             return orderRepository.save(order);
         }
         return null;
