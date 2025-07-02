@@ -18,7 +18,7 @@ git clone https://github.com/abiyyu1564/sunkatsuapp.git
 ## Requirements & Documents
 - [SRS](https://drive.google.com/drive/folders/1tv5O4oXvUdE8DsZNaVZCExapDN4Xfgfr)
 - [SDD](https://drive.google.com/drive/folders/1tv5O4oXvUdE8DsZNaVZCExapDN4Xfgfr)
-- [Test Plan](https://drive.google.com/drive/folders/1tv5O4oXvUdE8DsZNaVZCExapDN4Xfgfr)
+- [Test Report and Other QA Documents](https://drive.google.com/drive/folders/14aXQQfxreq4X-M0Qq5zyV2W6cBolL9V3?usp=drive_link)
 
 ## Developers
 - [M. Daffa Raygama (PM, Backend, Mobile)](https://github.com/Raygama)
