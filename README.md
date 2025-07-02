@@ -1,6 +1,62 @@
-# SunkatsuApp
+<h1 align="center">🥢 SUNKATSUAPP</h1>
 
-Sunkatsu App is an app dedicated to a tenant in one of the Cafetaria in Telkom University. It features in-app chat, orders, and chatbot to help users with their experience. Technologies used are Spring-Boot, ReactJS, Tailwind, and Flutter for the mobile app.
+<p align="center"><em>Transforming dining with seamless, intelligent experiences</em></p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/last%20commit-today-brightgreen?style=flat-square" />
+  <img src="https://img.shields.io/badge/dart-36.7%25-blue?style=flat-square" />
+  <img src="https://img.shields.io/badge/languages-11-blue?style=flat-square" />
+</p>
+
+<hr/>
+
+<h3 align="center">🛠️ Built with the tools and technologies:</h3>
+
+
+
+### <p align="center">General & Backend</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/-JSON-black?logo=json&style=flat-square" />
+  <img src="https://img.shields.io/badge/-JetBrains-black?logo=jetbrains&style=flat-square" />
+  <img src="https://img.shields.io/badge/-Markdown-black?logo=markdown&style=flat-square" />
+  <img src="https://img.shields.io/badge/-Spring-black?logo=spring&style=flat-square" />
+  <img src="https://img.shields.io/badge/-Gradle-02303A?logo=gradle&logoColor=white&style=flat-square" />
+  <img src="https://img.shields.io/badge/-npm-CB3837?logo=npm&style=flat-square" />
+  <img src="https://img.shields.io/badge/-Autoprefixer-E43E2B?logo=autoprefixer&style=flat-square" />
+  <img src="https://img.shields.io/badge/-PostCSS-DD3A0A?logo=postcss&style=flat-square" />
+  <img src="https://img.shields.io/badge/-JavaScript-F7DF1E?logo=javascript&logoColor=black&style=flat-square" />
+  <img src="https://img.shields.io/badge/-Org-77AA99?logo=org&style=flat-square" />
+</p>
+
+
+### <p align="center">Frontend & Mobile</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat-square" />
+  <img src="https://img.shields.io/badge/-Flutter-02569B?logo=flutter&style=flat-square" />
+  <img src="https://img.shields.io/badge/-Dart-0175C2?logo=dart&style=flat-square" />
+  <img src="https://img.shields.io/badge/-Swift-FA7343?logo=swift&style=flat-square" />
+  <img src="https://img.shields.io/badge/-Kotlin-7F52FF?logo=kotlin&style=flat-square" />
+  <img src="https://img.shields.io/badge/-Axios-5A29E4?logo=axios&style=flat-square" />
+</p>
+
+
+
+### <p align="center">DevOps & Infra</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/-Docker-2496ED?logo=docker&style=flat-square" />
+  <img src="https://img.shields.io/badge/-CMake-064F8C?logo=cmake&style=flat-square" />
+  <img src="https://img.shields.io/badge/-YAML-CF142B?logo=yaml&style=flat-square" />
+  <img src="https://img.shields.io/badge/-XML-0060AC?logo=xml&style=flat-square" />
+  <img src="https://img.shields.io/badge/-C++-00599C?logo=c%2B%2B&style=flat-square" />
+</p>
+
+---
+
+<p align="center"><em>SUNKATSUAPP is a modern dining app that integrates intelligent solutions across frontend, backend, and mobile platforms.</em></p>
+
 
 ## Key Features
 - Tracking, updating, and management of menus only for specified user role
