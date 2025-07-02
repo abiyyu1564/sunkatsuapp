@@ -1,4 +1,4 @@
-<h1 align="center">🥢 SUNKATSUAPP</h1>
+<h1 align="center">SUNKATSUAPP</h1>
 
 <p align="center"><em>Transforming dining with seamless, intelligent experiences</em></p>
 
