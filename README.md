@@ -3,9 +3,9 @@
 <p align="center"><em>Transforming dining with seamless, intelligent experiences</em></p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/last%20commit-today-brightgreen?style=flat-square" />
-  <img src="https://img.shields.io/badge/dart-36.7%25-blue?style=flat-square" />
-  <img src="https://img.shields.io/badge/languages-11-blue?style=flat-square" />
+  <img src="https://img.shields.io/badge/last%20commit-jul%202025-yellow?style=flat-square" />
+  <img src="https://img.shields.io/badge/dart-36.5%25-blue?style=flat-square" />
+  <img src="https://img.shields.io/badge/languages-7-blue?style=flat-square" />
 </p>
 
 <hr/>
